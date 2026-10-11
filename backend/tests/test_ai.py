@@ -25,7 +25,8 @@ NAME = {"en": "Shahpura lake ghat", "hi": "शाहपुरा झील घ�
 
 @pytest.fixture(autouse=True)
 def no_keys(monkeypatch):
-    for k in ("CEREBRAS_API_KEY", "ANTHROPIC_API_KEY", "GHATWATCH_AI", "CEREBRAS_MODEL", "GHATWATCH_CLAUDE_MODEL"):
+    for k in ("CEREBRAS_API_KEY", "ANTHROPIC_API_KEY", "GHATWATCH_AI", "CEREBRAS_MODEL", "GHATWATCH_CLAUDE_MODEL",
+              "GHATWATCH_CLAUDE_FAST_MODEL", "GHATWATCH_ANSWER_PROVIDERS"):
         monkeypatch.delenv(k, raising=False)
 
 
@@ -153,23 +154,87 @@ def test_mocked_health_claim_falls_back(monkeypatch):
     assert out["ai_written"] is False and "en:health_words" in out["guards_failed"]
 
 
-def test_cerebras_failure_falls_to_claude(monkeypatch):
-    monkeypatch.setenv("CEREBRAS_API_KEY", "test")
-    monkeypatch.setenv("ANTHROPIC_API_KEY", "test")
-    tmpl = AN.answer(_job(), use_ai=False)["text"]
-
-    def boom(*a, **k):
-        raise TimeoutError("slow")
-    monkeypatch.setattr(llm.httpx, "post", boom)
+def _mock_claude(monkeypatch, text=None, fail=False, seen=None):
     monkeypatch.setattr(llm, "claude_configured", lambda: True)
 
     class _Msgs:
         def create(self, **kw):
-            assert kw["model"] == "claude-opus-5-5"
-            return SimpleNamespace(stop_reason="end_turn", content=[SimpleNamespace(type="text", text=json.dumps(tmpl, ensure_ascii=False))])
-    monkeypatch.setattr(llm, "_claude_client", lambda timeout: SimpleNamespace(messages=_Msgs()))
+            if seen is not None:
+                seen.append(kw)
+            if fail:
+                raise TimeoutError("slow")
+            return SimpleNamespace(stop_reason="end_turn", content=[SimpleNamespace(type="text", text=text)])
+    monkeypatch.setattr(llm, "_claude_client", lambda timeout: (seen.append({"timeout": timeout}) if seen is not None
+                                                                else None) or SimpleNamespace(messages=_Msgs()))
+
+
+def test_answer_uses_fast_claude_first_grounded_on_extracted_rows(monkeypatch):
+    monkeypatch.setenv("CEREBRAS_API_KEY", "test")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test")
+    tmpl = AN.answer(_job(), use_ai=False)["text"]
+    good = {"en": tmpl["en"].replace("This report", "Your report"), "hi": tmpl["hi"]}
+
+    def no_cerebras(*a, **k):
+        raise AssertionError("Cerebras must not be called when Claude passes")
+    monkeypatch.setattr(llm.httpx, "post", no_cerebras)
+    seen = []
+    _mock_claude(monkeypatch, json.dumps(good, ensure_ascii=False), seen=seen)
     out = AN.answer(_job())
-    assert out["ai_written"] is True and out["provider"] == "claude"
+    assert out["ai_written"] is True and out["provider"] == "claude" and out["model"] == "claude-haiku-5-5"
+    assert out["extractor"] == "text" and out["numbers_checked"] is True and isinstance(out["latency_ms"], int)
+    assert out["text"]["en"].startswith("Your report")
+    timeout = next(x["timeout"] for x in seen if "timeout" in x)
+    kw = next(x for x in seen if "model" in x)
+    assert timeout <= 10 and kw["max_tokens"] <= 1500
+    assert kw["thinking"] == {"type": "disabled"} and kw["output_config"]["effort"] == "low"
+    prompt = kw["messages"][0]["content"]
+    assert "EXTRACTED" in prompt and "extracted_rows" in prompt and "value_as_printed" in prompt
+    assert "before_tier" in prompt and "breaches_vs_limits" in prompt and "20 Oct 2026" in prompt
+
+
+def test_claude_failure_falls_to_cerebras(monkeypatch):
+    monkeypatch.setenv("CEREBRAS_API_KEY", "test")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test")
+    tmpl = AN.answer(_job(), use_ai=False)["text"]
+    _mock_claude(monkeypatch, fail=True)
+    monkeypatch.setattr(llm.httpx, "post", lambda *a, **k: _Resp(json.dumps(tmpl, ensure_ascii=False)))
+    out = AN.answer(_job())
+    assert out["ai_written"] is True and out["provider"] == "cerebras"
+
+
+def test_claude_guard_failure_falls_to_cerebras_then_template(monkeypatch):
+    monkeypatch.setenv("CEREBRAS_API_KEY", "test")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test")
+    tmpl = AN.answer(_job(), use_ai=False)["text"]
+    bad = {"en": tmpl["en"] + " Send 12 aerators.", "hi": tmpl["hi"]}
+    _mock_claude(monkeypatch, json.dumps(bad, ensure_ascii=False))
+    monkeypatch.setattr(llm.httpx, "post", lambda *a, **k: _Resp(json.dumps(bad, ensure_ascii=False)))
+    out = AN.answer(_job())
+    assert out["ai_written"] is False and out["provider"] == "template" and out["text"] == tmpl
+    assert "en:numbers" in out["guards_failed"]
+
+
+def test_answer_provider_order_and_fast_model_env(monkeypatch):
+    monkeypatch.setenv("CEREBRAS_API_KEY", "test")
+    monkeypatch.setenv("ANTHROPIC_API_KEY", "test")
+    monkeypatch.setenv("GHATWATCH_ANSWER_PROVIDERS", "cerebras,claude")
+    monkeypatch.setenv("GHATWATCH_CLAUDE_FAST_MODEL", "claude-sonnet-5-5")
+    assert llm.answer_providers() == ["cerebras", "claude"] and llm.claude_fast_model() == "claude-sonnet-5-5"
+    tmpl = AN.answer(_job(), use_ai=False)["text"]
+    monkeypatch.setattr(llm.httpx, "post", lambda *a, **k: _Resp(json.dumps(tmpl, ensure_ascii=False)))
+    _mock_claude(monkeypatch, json.dumps(tmpl, ensure_ascii=False))
+    assert AN.answer(_job())["provider"] == "cerebras"
+
+    def boom(*a, **k):
+        raise TimeoutError("slow")
+    monkeypatch.setattr(llm.httpx, "post", boom)
+    seen = []
+    _mock_claude(monkeypatch, json.dumps(tmpl, ensure_ascii=False), seen=seen)
+    out = AN.answer(_job())
+    kw = next(x for x in seen if "model" in x)
+    assert out["provider"] == "claude" and out["model"] == "claude-sonnet-5-5" and "thinking" not in kw
+    monkeypatch.setenv("GHATWATCH_ANSWER_PROVIDERS", "bogus")
+    assert llm.answer_providers() == ["claude", "cerebras"]
 
 
 def test_mocked_claude_extraction_shape_and_cross_check(monkeypatch, tmp_path):

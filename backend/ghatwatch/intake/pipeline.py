@@ -209,26 +209,26 @@ def _apply_ocr_confidence(raw: list[dict], pages: list[dict]) -> None:
 
 # ---------------------------------------------------------------- upload job
 
-def _try_ai_extract(store: Store, job: dict, path: Path, mime: str) -> bool:
-    """Claude extractor first (ai.extract); True when it produced rows and the job was processed.
-    Falls back (False) to the PDF-text / OCR path when unavailable, failed or empty."""
+def _try_ai_extract(store: Store, job: dict, path: Path, mime: str, reason_en: str = "", reason_hi: str = "") -> bool:
+    """Claude document extractor (ai.extract) as the FALLBACK: called only when the PDF text layer + OCR gave no
+    rows, or OCR is needed (scan/photo) but not installed. True when it produced rows and the job was processed;
+    False when Claude is unavailable, failed or returned nothing (the caller then fails the stage)."""
     from ..ai import extract as AI
     rows = None
     try:
-        if AI.available():
-            rows = AI.extract_rows(path, mime, job["context"].get("year"), job["context"].get("festival"))
-            if not rows:
-                _log(store, job, "extract", "Claude extractor returned nothing; falling back to PDF text / OCR.",
-                     "Claude निष्कर्षक से कुछ नहीं मिला; PDF टेक्स्ट / OCR पर लौट रहे हैं।")
+        if not AI.available():
+            _log(store, job, "extract", "Claude extractor fallback not available (no ANTHROPIC_API_KEY).",
+                 "Claude निष्कर्षक विकल्प उपलब्ध नहीं (ANTHROPIC_API_KEY नहीं)।")
+            return False
+        _log(store, job, "extract", f"Falling back to the Claude extractor (ai.extract): {reason_en}".rstrip(": "),
+             f"Claude निष्कर्षक (ai.extract) पर लौट रहे हैं: {reason_hi}".rstrip(": "))
+        rows = AI.extract_rows(path, mime, job["context"].get("year"), job["context"].get("festival"))
+        if not rows:
+            _log(store, job, "extract", "Claude extractor returned nothing.", "Claude निष्कर्षक से कुछ नहीं मिला।")
     except Exception as e:  # never let the AI path break intake
         rows = None
-        _log(store, job, "extract", f"Claude extractor failed ({e!r}); falling back to PDF text / OCR.",
-             f"Claude निष्कर्षक विफल ({e!r}); PDF टेक्स्ट / OCR पर लौट रहे हैं।")
+        _log(store, job, "extract", f"Claude extractor failed ({e!r}).", f"Claude निष्कर्षक विफल ({e!r})।")
     if not rows:
-        with store.lock:
-            job["source"]["extractor"] = "text/ocr"
-        _log(store, job, "extract", "Extractor used: PDF text layer / OCR (built-in parser).",
-             "उपयोग किया गया निष्कर्षक: PDF टेक्स्ट परत / OCR (अंतर्निहित पार्सर)।")
         return False
     raw = [dict(r) for r in rows]
     for r in raw:
@@ -267,8 +267,6 @@ def run_upload(job_id: str, path: Path, pages_spec: str | None, force_ocr: bool)
             _fail(store, job, "extract", "Not a PDF, PNG or JPEG file; nothing could be read.",
                   "यह PDF, PNG या JPEG फ़ाइल नहीं है; कुछ भी पढ़ा नहीं जा सका।")
             return
-        if _try_ai_extract(store, job, path, mime):
-            return
         if mime == "application/pdf":
             try:
                 from .extract_text import page_count
@@ -301,6 +299,9 @@ def run_upload(job_id: str, path: Path, pages_spec: str | None, force_ocr: bool)
         if ocr_needed:
             st = OCR.status()
             if not st["available"]:
+                if _try_ai_extract(store, job, path, mime, "OCR is needed (scan/photo) but PaddleOCR is not installed.",
+                                   "OCR चाहिए (स्कैन/फ़ोटो) पर PaddleOCR इंस्टॉल नहीं है।"):
+                    return
                 _fail(store, job, "extract", "OCR is needed for this file but PaddleOCR is not installed. "
                       + OCR.HOW_TO_ENABLE["en"], "इस फ़ाइल के लिए OCR चाहिए पर PaddleOCR इंस्टॉल नहीं है। "
                       + OCR.HOW_TO_ENABLE["hi"])
@@ -358,11 +359,23 @@ def run_upload(job_id: str, path: Path, pages_spec: str | None, force_ocr: bool)
         for line in pinfo["log"][:20]:
             _log(store, job, "extract", f"Table {line}", f"तालिका {line}")
         if not raw:
+            if _try_ai_extract(store, job, path, mime, "the text layer / OCR found no MPPCB table rows.",
+                               "टेक्स्ट परत / OCR को MPPCB तालिका की कोई पंक्ति नहीं मिली।"):
+                return
             _fail(store, job, "extract", "No MPPCB water-quality table (Parameter / Pre / During / After) was found "
                   "on these pages.", "इन पृष्ठों पर MPPCB जल-गुणवत्ता तालिका (पैरामीटर / पूर्व / दौरान / बाद) नहीं मिली।")
             return
-        _end(store, job, "extract", "done", f"{tables} tables, {len(raw)} cells extracted.",
-             f"{tables} तालिकाएं, {len(raw)} कोष्ठ निकाले गए।")
+        ext = "ocr" if job["source"]["ocr_used"] else "text"
+        with store.lock:
+            job["source"]["extractor"] = ext
+        if ext == "ocr":
+            _log(store, job, "extract", "Extractor used: OCR (PaddleOCR) + built-in MPPCB table parser.",
+                 "उपयोग किया गया निष्कर्षक: OCR (PaddleOCR) + अंतर्निहित MPPCB तालिका पार्सर।")
+        else:
+            _log(store, job, "extract", "Extractor used: PDF text layer (pypdf) + built-in MPPCB table parser.",
+                 "उपयोग किया गया निष्कर्षक: PDF टेक्स्ट परत (pypdf) + अंतर्निहित MPPCB तालिका पार्सर।")
+        _end(store, job, "extract", "done", f"{tables} tables, {len(raw)} cells extracted ({ext}).",
+             f"{tables} तालिकाएं, {len(raw)} कोष्ठ निकाले गए ({ext})।")
         _process(store, job, raw, tables)
         if job["source"]["ocr_used"]:
             m = measure_against_pack(job["rows"])

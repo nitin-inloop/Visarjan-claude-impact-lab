@@ -1,8 +1,12 @@
 """Officer answer for one intake job, in English and Hindi (3-5 short sentences).
 
+Flow: the officer uploads a PDF -> the text layer / OCR pulls out the values (Claude reads the document only
+as a fallback) -> rules + ML analyse them -> Claude answers quickly, grounded on what was extracted.
+
 The template answer is built first, only from the job's analysis (scores, tiers and ranks come from
-ghatwatch.scoring; the forecast from the ML models). An LLM may then rewrite it in plainer words; the
-rewrite is kept only if it passes every guard in ai/guards.py, otherwise the template is shown.
+ghatwatch.scoring; the forecast from the ML models). An LLM (fast Claude first by default, then Cerebras;
+see llm.answer_text) then writes the answer from the extracted rows and the deterministic facts; it is
+kept only if it passes every guard in ai/guards.py, otherwise the template is shown.
 """
 from __future__ import annotations
 
@@ -153,27 +157,71 @@ def template_answer(f: dict) -> dict:
     return out
 
 
+MAX_PROMPT_ROWS = 120
+
+
+def extractor_of(job: dict) -> str:
+    """text | ocr | claude: which extractor produced the job's rows (manual for typed-in data)."""
+    src = job.get("source") or {}
+    e = src.get("extractor")
+    if e in ("text", "ocr", "claude"):
+        return e
+    if job.get("kind") == "manual":
+        return "manual"
+    return "ocr" if src.get("ocr_used") else "text"
+
+
+def grounding_for(job: dict, f: dict) -> dict:
+    """What the answer is grounded on: the extracted rows (as printed, with page and flags) plus the
+    deterministic analysis (before/after tier per ghat, breaches vs limits, forecast estimate, gaps)."""
+    an = job.get("analysis") or {}
+    rd = {r.get("row_id"): r for r in an.get("readings") or []}
+    names = {g.get("slug"): (g.get("name") or {}).get("en") for g in an.get("ghats") or []}
+    rows = []
+    for r in (job.get("rows") or [])[:MAX_PROMPT_ROWS]:
+        st = rd.get(r.get("row_id")) or {}
+        rows.append({"ghat": names.get(r.get("slug")) or r.get("site_as_printed"), "parameter": r.get("parameter"),
+                     "value_as_printed": r.get("value_as_printed"), "page": r.get("page"), "flag": r.get("flag"),
+                     "phase": r.get("phase"), "status": st.get("status"), "needs_review": bool(r.get("needs_review"))})
+    breaches = [{"ghat": x["ghat"], "parameter": x["parameter"], "value_as_printed": x["value_as_printed"],
+                 "page": x["page"], "limit": (rd.get(r.get("row_id")) or {}).get("limit_text")}
+                for x, r in zip(rows, job.get("rows") or []) if x["status"] == "breach"]
+    ghats = []
+    for g in an.get("ghats") or []:
+        fc = g.get("forecast") or {}
+        ghats.append({"ghat": (g.get("name") or {}).get("en"), "before_tier": (g.get("before") or {}).get("tier"),
+                      "after_tier": (g.get("after") or {}).get("tier"),
+                      "forecast_estimate": _pct(fc["p_breach"]) if fc.get("available") and fc.get("p_breach") is not None else None})
+    return {"extractor": extractor_of(job), "deadline": "visarjan 20 Oct 2026", "facts": f, "ghats": ghats,
+            "breaches_vs_limits": breaches, "extracted_rows": rows,
+            "extracted_rows_total": len(job.get("rows") or [])}
+
+
 SYSTEM = (
-    "You rewrite a short note for a municipal officer in Bhopal who plans Durga visarjan on 20 Oct 2026. "
-    "Readers may have low literacy: use short, plain sentences (3 to 5), no jargon. "
-    "Rules: use ONLY numbers that appear in FACTS or NOTE, and keep every number from NOTE. "
+    "You write a short answer for a municipal officer in Bhopal who plans Durga visarjan on 20 Oct 2026, "
+    "about a lab report they just uploaded. EXTRACTED holds the values read from the report by text/OCR "
+    "(as printed, with page and flags) and the rule-based analysis (tiers before/after, breaches vs limits, "
+    "a model forecast, gaps). Say: what the report shows, which ghat needs what action by when (before 20 Oct), "
+    "and what is missing. Readers may have low literacy: use short, plain sentences (3 to 6), no jargon. "
+    "Rules: use ONLY numbers that appear in EXTRACTED or NOTE, and keep every number from NOTE. "
     "Do not mention health, disease, safety for people, or any effect on the body. "
     "The forecast is a model estimate, never a measurement: say 'estimate' (Hindi: 'अनुमान'). "
-    "Do not change any priority level, rank or action. Missing data is missing, never clean. "
+    "Do not change any priority level, rank, action or deadline from NOTE. Missing data is missing, never clean. "
     'Reply with JSON only: {"en": "...", "hi": "..."} where hi is natural Hindi in Devanagari.'
 )
 
 
 def answer(job: dict, use_ai: bool = True) -> dict:
-    """{text{en,hi}, ai_written, provider, model, latency_ms, numbers_checked, guards_failed, facts}"""
+    """{text{en,hi}, ai_written, provider, model, latency_ms, numbers_checked, guards_failed, facts, extractor}"""
     f = facts_for(job)
     tmpl = template_answer(f)
     base = {"job_id": job.get("id"), "text": tmpl, "ai_written": False, "provider": "template", "model": None,
-            "latency_ms": 0, "numbers_checked": True, "guards_failed": [], "facts": f}
+            "latency_ms": 0, "numbers_checked": True, "guards_failed": [], "facts": f,
+            "extractor": extractor_of(job)}
     if not job.get("analysis") or not use_ai:
         return base
-    facts_text = json.dumps(f, ensure_ascii=False)
-    user = f"FACTS:\n{facts_text}\n\nNOTE (English):\n{tmpl['en']}\n\nNOTE (Hindi):\n{tmpl['hi']}"
+    facts_text = json.dumps(grounding_for(job, f), ensure_ascii=False)
+    user = f"EXTRACTED:\n{facts_text}\n\nNOTE (English):\n{tmpl['en']}\n\nNOTE (Hindi):\n{tmpl['hi']}"
     failed: list[str] = []
 
     def accept(text: str) -> bool:
@@ -187,7 +235,7 @@ def answer(job: dict, use_ai: bool = True) -> dict:
         failed.extend(bad)
         return not bad
 
-    res = llm.write_text(SYSTEM, user, accept)
+    res = llm.answer_text(SYSTEM, user, accept)
     if res is None:
         return base | {"guards_failed": failed}
     obj = guards.parse_json_object(res["text"])

@@ -1,11 +1,15 @@
 """Provider clients for the AI layer. No key -> no call; every call is timed and may fail to None.
 
-Text chain: Cerebras (fast, OpenAI-compatible) -> Claude -> caller's template.
-Documents: Claude only (PDF document block / image block).
+Officer answer for a job (answer_text): GHATWATCH_ANSWER_PROVIDERS order, default Claude (fast config:
+  claude-haiku-5-5, thinking off, effort low, short max_tokens, ~10 s timeout) -> Cerebras -> caller's template.
+Other text (alerts rephrase, brief polish; write_text): Cerebras (fast, OpenAI-compatible) -> Claude -> template.
+Documents: Claude only (PDF document block / image block), used as the extraction fallback.
 
 Env (all optional; nothing here is required for the app to work):
   CEREBRAS_API_KEY, CEREBRAS_MODEL (default gpt-oss-120b)
-  ANTHROPIC_API_KEY, GHATWATCH_CLAUDE_MODEL (default claude-opus-5-5)
+  ANTHROPIC_API_KEY, GHATWATCH_CLAUDE_MODEL (default claude-opus-5-5; documents + non-answer text)
+  GHATWATCH_CLAUDE_FAST_MODEL (default claude-haiku-5-5; the officer answer)
+  GHATWATCH_ANSWER_PROVIDERS (default "claude,cerebras"; order for the officer answer)
   GHATWATCH_AI=0 switches every AI call off (template text only).
 """
 from __future__ import annotations
@@ -17,7 +21,7 @@ from typing import Any, Callable
 import httpx
 
 _ENV_KEYS = ("CEREBRAS_API_KEY", "CEREBRAS_MODEL", "ANTHROPIC_API_KEY", "GHATWATCH_CLAUDE_MODEL", "GHATWATCH_AI",
-             "GHATWATCH_LLM_POLISH")
+             "GHATWATCH_LLM_POLISH", "GHATWATCH_CLAUDE_FAST_MODEL", "GHATWATCH_ANSWER_PROVIDERS")
 
 
 def _load_dotenv() -> None:
@@ -41,6 +45,10 @@ _load_dotenv()
 CEREBRAS_URL = "https://api.cerebras.ai/v1/chat/completions"
 CEREBRAS_DEFAULT_MODEL = "gpt-oss-120b"
 CLAUDE_DEFAULT_MODEL = "claude-opus-5-5"
+CLAUDE_FAST_DEFAULT_MODEL = "claude-haiku-5-5"
+FAST_TIMEOUT_S = 10.0
+FAST_MAX_TOKENS = 1200  # the answer is a short JSON {en, hi}; Hindi needs more tokens than English
+ANSWER_PROVIDERS_DEFAULT = ("claude", "cerebras")
 TEXT_TIMEOUT_S = 8.0
 DOC_TIMEOUT_S = 30.0
 
@@ -69,6 +77,21 @@ def cerebras_model() -> str:
 
 def claude_model() -> str:
     return os.environ.get("GHATWATCH_CLAUDE_MODEL") or CLAUDE_DEFAULT_MODEL
+
+
+def claude_fast_model() -> str:
+    return os.environ.get("GHATWATCH_CLAUDE_FAST_MODEL") or CLAUDE_FAST_DEFAULT_MODEL
+
+
+def answer_providers() -> list[str]:
+    """GHATWATCH_ANSWER_PROVIDERS, e.g. "claude,cerebras" (default) or "cerebras,claude". Unknown names dropped."""
+    raw = os.environ.get("GHATWATCH_ANSWER_PROVIDERS") or ",".join(ANSWER_PROVIDERS_DEFAULT)
+    out = []
+    for p in raw.split(","):
+        p = p.strip().lower()
+        if p in ("claude", "cerebras") and p not in out:
+            out.append(p)
+    return out or list(ANSWER_PROVIDERS_DEFAULT)
 
 
 def status() -> dict:
@@ -132,6 +155,31 @@ def claude_chat(system: str, user: str, max_tokens: int = 2000, timeout: float =
     return {"text": text, "provider": "claude", "model": claude_model(), "latency_ms": _ms(t0)}
 
 
+def claude_fast_chat(system: str, user: str, max_tokens: int = FAST_MAX_TOKENS,
+                     timeout: float = FAST_TIMEOUT_S) -> dict | None:
+    """Fast Claude call for the officer answer: small model, low effort, thinking off where the model allows it
+    (Haiku), short max_tokens, ~10 s timeout, one retry at most."""
+    if not claude_configured():
+        return None
+    model = claude_fast_model()
+    kw: dict = {"output_config": {"effort": "low"}}
+    if model.startswith("claude-haiku"):
+        kw["thinking"] = {"type": "disabled"}  # Haiku 5.5 accepts disabled at effort high or below
+    t0 = time.perf_counter()
+    try:
+        msg = _claude_client(timeout).messages.create(
+            model=model, max_tokens=max_tokens, system=system,
+            messages=[{"role": "user", "content": user}], **kw)
+        if getattr(msg, "stop_reason", None) in ("refusal", "max_tokens"):
+            return None
+        text = _claude_text(msg)
+    except Exception:
+        return None
+    if not text:
+        return None
+    return {"text": text, "provider": "claude", "model": model, "latency_ms": _ms(t0)}
+
+
 def claude_json(content: list[dict], schema: dict, system: str, max_tokens: int = 16000,
                 timeout: float = DOC_TIMEOUT_S) -> dict | None:
     """Document/image + instruction -> JSON matching `schema` (structured outputs). Returns
@@ -154,11 +202,12 @@ def claude_json(content: list[dict], schema: dict, system: str, max_tokens: int 
 
 
 # --------------------------------------------------------------------------- text chain
-def write_text(system: str, user: str, accept: Callable[[str], bool], max_tokens: int = 700) -> dict | None:
-    """Cerebras -> Claude. The first output that passes `accept` (the caller's guards) wins.
+def write_text(system: str, user: str, accept: Callable[[str], bool], max_tokens: int = 700,
+               chain: tuple | list | None = None) -> dict | None:
+    """Cerebras -> Claude (or `chain`). The first output that passes `accept` (the caller's guards) wins.
     Returns {text, provider, model, latency_ms, tried: [..]} or None (caller uses its template)."""
     tried = []
-    for fn in (cerebras_chat, claude_chat):
+    for fn in (chain or (cerebras_chat, claude_chat)):
         res = fn(system, user, max_tokens=max_tokens)
         if res is None:
             continue
@@ -171,3 +220,9 @@ def write_text(system: str, user: str, accept: Callable[[str], bool], max_tokens
         if ok:
             return res | {"tried": tried}
     return None
+
+
+def answer_text(system: str, user: str, accept: Callable[[str], bool]) -> dict | None:
+    """Officer answer: GHATWATCH_ANSWER_PROVIDERS order (default fast Claude -> Cerebras), each output guarded."""
+    fns = {"claude": claude_fast_chat, "cerebras": cerebras_chat}
+    return write_text(system, user, accept, max_tokens=FAST_MAX_TOKENS, chain=[fns[p] for p in answer_providers()])

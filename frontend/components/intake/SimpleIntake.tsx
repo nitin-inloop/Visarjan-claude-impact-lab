@@ -7,7 +7,7 @@
 import Link from "next/link";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { AiAnalysis } from "@/components/ai/AiAnalysis";
-import { StatusPill } from "@/components/home/GhatCard";
+import { Card, CardTitle, Pill, type PillTone } from "@/components/dash/ui";
 import { useLang } from "@/lib/lang";
 import { connectIntake, pollJob, type IntakeClient } from "@/lib/intakeApi";
 import type { Job, ManualReq, Row, Stage } from "@/lib/intakeTypes";
@@ -273,180 +273,299 @@ export function SimpleIntake() {
   const nCheck = flagged.length + unclearSites.length;
   const done = job && job.status !== "running";
 
+  const [drag, setDrag] = useState(false);
+  const hi = lang === "hi";
+  const dur = (s: Stage) => {
+    if (!s.started || !s.finished) return null;
+    const ms = new Date(s.finished).getTime() - new Date(s.started).getTime();
+    return Number.isFinite(ms) && ms >= 0 ? (ms < 1000 ? `${ms} ms` : `${(ms / 1000).toFixed(1)} s`) : null;
+  };
+  const DOT: Record<string, string> = {
+    done: "bg-[#111113] text-white",
+    running: "bg-white border-2 border-[#111113] animate-pulse",
+    failed: "bg-[#DC2626] text-white",
+    skipped: "bg-white border border-dashed border-[#A1A1AA]",
+    pending: "bg-white border border-[#C9C9CF]",
+  };
+  const STEP_NAMES = hi
+    ? ["टेक्स्ट/OCR निकालना", "सामान्य करना", "जांचना", "विश्लेषण", "रिपोर्ट"]
+    : ["Text/OCR extraction", "Normalise", "Validate", "Analyse", "Report"];
+
   return (
-    <div className="pt-6 space-y-6">
-      <header>
-        <h1 className="text-3xl font-extrabold leading-tight">{x.title}</h1>
-        <p className="mt-2 text-lg">{x.sub}</p>
+    <div className="mx-auto max-w-[1400px] space-y-6">
+      <header className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-[26px] font-bold tracking-tight text-[#111113]">{x.title}</h1>
+          <p className="mt-1 max-w-2xl text-[14px] text-[#6B6B75]">{x.sub}</p>
+        </div>
+        {jobId && (
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="rounded-xl border border-[#E6E6E9] bg-white px-3 py-2 text-[13px] text-[#3A3A40]">
+              {x.file}: <b className="text-[#111113]">{job?.source.file_name ?? "…"}</b>
+              {job?.source.ocr_used && <span className="ml-2 text-[#6B6B75]">· OCR {job.source.ocr_engine ?? ""}</span>}
+            </span>
+            <button type="button" onClick={reset} className="rounded-xl border border-[#E6E6E9] bg-white px-3 py-2 text-[13px] font-medium text-[#111113] hover:bg-[#F6F6F7]">
+              ⬆ {x.another}
+            </button>
+          </div>
+        )}
       </header>
 
-      {!jobId && (
-        <section className="space-y-3">
-          <button
-            type="button"
-            disabled={busy || !client}
-            onClick={() => fileRef.current?.click()}
-            className="w-full min-h-20 flex items-center justify-center gap-3 rounded-xl bg-accent px-5 py-5 text-2xl font-bold text-white shadow hover:opacity-90 disabled:opacity-60"
-          >
-            <span aria-hidden className="text-3xl">⬆</span>
-            {x.upload}
-          </button>
-          <button
-            type="button"
-            disabled={busy || !client}
-            onClick={() => camRef.current?.click()}
-            className="w-full min-h-14 flex items-center justify-center gap-3 rounded-xl border-2 border-accent bg-paper px-5 text-xl font-bold text-accent hover:bg-surface disabled:opacity-60"
-          >
-            <span aria-hidden>📷</span>
-            {x.camera}
-          </button>
-          <input ref={fileRef} type="file" accept="application/pdf,image/jpeg,image/png,.pdf,.jpg,.jpeg,.png" className="sr-only" tabIndex={-1} onChange={(e) => upload(e.target.files?.[0])} />
-          <input ref={camRef} type="file" accept="image/*" capture="environment" className="sr-only" tabIndex={-1} onChange={(e) => upload(e.target.files?.[0])} />
-          {progress !== null && (
-            <p className="text-xl font-semibold" role="status">
-              ⏳ {x.sending(progress)}
+      <div className="grid items-start gap-4 xl:grid-cols-[250px_minmax(0,1fr)_340px]">
+        {/* Left: upload + pipeline */}
+        <div className="space-y-4">
+          <Card>
+            <CardTitle>{hi ? "अपलोड" : "Upload"}</CardTitle>
+            {!jobId ? (
+              <div className="space-y-3">
+                <button
+                  type="button"
+                  disabled={busy || !client}
+                  onClick={() => fileRef.current?.click()}
+                  onDragOver={(e) => {
+                    e.preventDefault();
+                    setDrag(true);
+                  }}
+                  onDragLeave={() => setDrag(false)}
+                  onDrop={(e) => {
+                    e.preventDefault();
+                    setDrag(false);
+                    upload(e.dataTransfer.files?.[0]);
+                  }}
+                  className={`flex w-full flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed px-4 py-8 text-center disabled:opacity-60 ${drag ? "border-[#111113] bg-[#F1F1F3]" : "border-[#C9C9CF] bg-[#FAFAFB] hover:bg-[#F6F6F7]"}`}
+                >
+                  <svg viewBox="0 0 24 24" className="h-8 w-8 text-[#3A3A40]" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden>
+                    <path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4" />
+                  </svg>
+                  <span className="text-[14px] font-semibold text-[#111113]">{x.upload}</span>
+                  <span className="text-[12px] text-[#6B6B75]">{hi ? "यहां खींचकर छोड़ें · PDF, JPG, PNG" : "Drag and drop here · PDF, JPG, PNG"}</span>
+                </button>
+                <button
+                  type="button"
+                  disabled={busy || !client}
+                  onClick={() => camRef.current?.click()}
+                  className="w-full rounded-xl border border-[#E6E6E9] bg-white px-3 py-2 text-[13px] font-medium text-[#111113] hover:bg-[#F6F6F7] disabled:opacity-60"
+                >
+                  📷 {x.camera}
+                </button>
+                <input ref={fileRef} type="file" accept="application/pdf,image/jpeg,image/png,.pdf,.jpg,.jpeg,.png" className="sr-only" tabIndex={-1} onChange={(e) => upload(e.target.files?.[0])} />
+                <input ref={camRef} type="file" accept="image/*" capture="environment" className="sr-only" tabIndex={-1} onChange={(e) => upload(e.target.files?.[0])} />
+                {progress !== null && (
+                  <p className="text-[13px] font-semibold text-[#111113]" role="status">
+                    ⏳ {x.sending(progress)}
+                  </p>
+                )}
+                <details open={manual} onToggle={(e) => setManual((e.target as HTMLDetailsElement).open)} className="rounded-xl border border-[#E6E6E9] p-3">
+                  <summary className="cursor-pointer text-[13px] font-semibold text-[#111113]">✍ {x.manual}</summary>
+                  <div className="mt-3">
+                    <ManualForm onSubmit={onManual} busy={busy} />
+                  </div>
+                </details>
+              </div>
+            ) : (
+              <p className="text-[13px] text-[#3A3A40]">
+                {x.file}: <b>{job?.source.file_name ?? "…"}</b>
+              </p>
+            )}
+          </Card>
+
+          <Card>
+            <CardTitle>{hi ? "प्रक्रिया" : "Pipeline"}</CardTitle>
+            <ol className="relative space-y-4" aria-live="polite">
+              {(job?.stages.length ? job.stages : STEP_NAMES.map((n, i) => ({ key: String(i), title: { en: n, hi: n }, status: "pending", started: null, finished: null, summary: null }))).map((s, i, arr) => (
+                <li key={s.key} className="relative flex gap-3">
+                  {i < arr.length - 1 && <span aria-hidden className="absolute left-[11px] top-6 h-[calc(100%+4px)] w-px bg-[#E6E6E9]" />}
+                  <span className={`relative z-10 grid h-6 w-6 shrink-0 place-items-center rounded-full text-[11px] ${DOT[s.status] ?? DOT.pending}`}>
+                    {s.status === "done" ? "✓" : s.status === "failed" ? "✕" : ""}
+                  </span>
+                  <div className="min-w-0 flex-1">
+                    <div className="flex items-baseline justify-between gap-2">
+                      <p className="text-[13px] font-semibold text-[#111113]">{STEP_NAMES[i] ?? s.title[lang]}</p>
+                      <span className="text-[12px] tabular-nums text-[#6B6B75]">{dur(s as Stage) ?? ""}</span>
+                    </div>
+                    <p className="text-[12px] capitalize text-[#6B6B75]">{s.status}</p>
+                    {s.summary && <p className="mt-0.5 line-clamp-3 text-[12px] text-[#3A3A40]" title={s.summary[lang]}>{s.summary[lang]}</p>}
+                  </div>
+                </li>
+              ))}
+            </ol>
+            {job?.status === "failed" && <p className="mt-3 text-[13px] text-[#DC2626]">{x.failed}</p>}
+            {job && stepOf(job) < 4 && <p className="mt-3 text-[12px] text-[#6B6B75]">{x.steps[Math.min(stepOf(job), 3)]}</p>}
+          </Card>
+        </div>
+
+        {/* Centre: extracted table */}
+        <div className="min-w-0 space-y-4">
+          <Card className="overflow-hidden p-0">
+            <div className="px-5 pt-5">
+              <CardTitle right={rows.length > 0 ? <span className="text-[12px] text-[#6B6B75]">{x.found(rows.length, nCheck)}</span> : undefined}>
+                {hi ? "निकाली गई तालिका (OCR)" : "Extracted table (OCR)"}
+              </CardTitle>
+            </div>
+            {rows.length === 0 ? (
+              <p className="px-5 pb-8 pt-2 text-[13px] text-[#6B6B75]">
+                {job ? (hi ? "पढ़ रहे हैं…" : "Reading the report…") : hi ? "रिपोर्ट डालें, निकाली गई संख्याएं यहां दिखेंगी।" : "Upload a report; the extracted numbers appear here."}
+              </p>
+            ) : (
+              <div className="max-h-[520px] overflow-auto">
+                <table className="w-full min-w-[460px] text-left text-[13px]">
+                  <thead className="sticky top-0 bg-white">
+                    <tr className="border-y border-[#EFEFF1] text-[11px] uppercase tracking-wider text-[#8A8A93]">
+                      <th className="py-2 pl-5 pr-2 font-medium">{hi ? "घाट" : "Ghat"}</th>
+                      <th className="px-2 font-medium">{hi ? "मापदंड" : "Parameter"}</th>
+                      <th className="px-2 font-medium">{hi ? "छपा मान" : "Value as printed"}</th>
+                      <th className="px-2 font-medium">{hi ? "पृष्ठ" : "Page"}</th>
+                      <th className="px-2 pr-5 font-medium">{hi ? "फ़्लैग" : "Flag"}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {rows.map((r) => {
+                      const warn = r.needs_review || r.confidence < 0.8 || siteUnclear(r);
+                      return (
+                        <tr key={r.row_id} className={`border-b border-[#F3F3F5] ${warn ? "bg-[#FFFBEB]" : ""}`}>
+                          <td className="py-2 pl-5 pr-2 text-[#111113]">{ghatName(r.slug, lang) ?? r.site_as_printed}</td>
+                          <td className="px-2 text-[#3A3A40]">{r.parameter}</td>
+                          <td className="px-2 tabular-nums font-medium text-[#111113]">{r.value_as_printed || (hi ? "जांच नहीं हुई" : "Not tested")}</td>
+                          <td className="px-2 text-[#3A3A40]">
+                            {r.page !== null && client ? (
+                              <a href={client.pageUrl(job!.id, r.page)} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">
+                                p. {r.page} ↗
+                              </a>
+                            ) : (
+                              "—"
+                            )}
+                          </td>
+                          <td className="px-2 pr-5 text-[12px]">
+                            {r.needs_review ? (
+                              <span className="font-semibold text-[#B45309]">{hi ? "जांच ज़रूरी" : "needs review"}</span>
+                            ) : siteUnclear(r) ? (
+                              <span className="text-[#B45309]">{hi ? "घाट अस्पष्ट" : "site unclear"}</span>
+                            ) : r.confidence < 0.8 ? (
+                              <span className="text-[#B45309]">{x.lowConf}</span>
+                            ) : (
+                              <span className="text-[#6B6B75]">{r.flag ?? "—"}</span>
+                            )}
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </Card>
+
+          {job && done && rows.length > 0 && (
+            <Card>
+              <CardTitle>{nCheck > 0 ? `⚠ ${x.attention}` : x.looksOk}</CardTitle>
+              <div className="space-y-3">
+                {unclearSites.map((u) => (
+                  <div key={u.site} className="rounded-xl border border-dashed border-[#A1A1AA] bg-[#FAFAFB] p-3 text-[13px]">
+                    <p className="font-semibold">? {u.site}</p>
+                    <p className="text-[#3A3A40]">{x.siteUnclear(u.n)}</p>
+                  </div>
+                ))}
+                {flagged.length > 0 && (
+                  <ul id="rv-h" className="space-y-2">
+                    {flagged.map((r) => {
+                      const site = ghatName(r.slug, lang) ?? r.site_as_printed;
+                      const k = paramKey(r.parameter);
+                      const pname = k === "DO" ? x.oxygen : k === "BOD" ? x.bod : r.parameter;
+                      const why = [...(r.needs_review ? [x.needsCheck] : []), ...(r.confidence < 0.8 ? [x.lowConf] : []), ...issueText(r)];
+                      return (
+                        <li key={r.row_id} className="rounded-xl border border-[#FDE68A] bg-[#FFFBEB] p-3">
+                          <p className="text-[13px] font-semibold text-[#111113]">
+                            {site} · {pname}
+                          </p>
+                          <label className="mt-2 flex flex-wrap items-center gap-2 text-[13px]">
+                            <span>{hi ? "नंबर:" : "Number:"}</span>
+                            <input
+                              type="number"
+                              step="any"
+                              inputMode="decimal"
+                              disabled={!reviewable}
+                              value={r.value ?? ""}
+                              onChange={(e) =>
+                                editRows(rows.map((y) => (y.row_id === r.row_id ? { ...y, value: e.target.value === "" ? null : Number(e.target.value) } : y)))
+                              }
+                              className="h-9 w-28 rounded-lg border border-[#C9C9CF] bg-white px-2 text-[14px]"
+                            />
+                            {r.value_as_printed && (
+                              <span className="text-[#6B6B75]">
+                                {x.printed}: “{r.value_as_printed}”
+                              </span>
+                            )}
+                          </label>
+                          <p className="mt-1 text-[12px] text-[#3A3A40]">{why.join(" · ")}</p>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                )}
+                <details className="rounded-xl border border-[#E6E6E9] p-3">
+                  <summary className="cursor-pointer text-[13px] font-semibold">{x.allRows(rows.length)}</summary>
+                  <div className="mt-3 overflow-x-auto">
+                    <ReviewTable job={job} rows={rows} onChange={editRows} pageUrl={(n) => (client ? client.pageUrl(job.id, n) : "")} readOnly={!reviewable} />
+                  </div>
+                </details>
+              </div>
+            </Card>
+          )}
+        </div>
+
+        {/* Right: Claude answer, change, accept/reject */}
+        <div className="space-y-4">
+          {job?.analysis ? (
+            <AiAnalysis jobId={job.id} lang={lang} />
+          ) : (
+            <Card>
+              <CardTitle>{hi ? "Claude का उत्तर" : "Claude answer"}</CardTitle>
+              <p className="text-[13px] text-[#6B6B75]">{hi ? "रिपोर्ट पढ़ने के बाद सार यहां दिखेगा।" : "The plain-language answer appears here after the report is read."}</p>
+            </Card>
+          )}
+          {job?.analysis && <Changes job={job} lang={lang} after={job.status === "accepted"} />}
+
+          {job && reviewable && (
+            <Card className="space-y-2">
+              {edited && (
+                <button type="button" disabled={busy} onClick={rerun} className="w-full rounded-xl border border-[#E6E6E9] bg-white px-3 py-2.5 text-[14px] font-semibold text-[#111113] hover:bg-[#F6F6F7] disabled:opacity-60">
+                  🔄 {x.checkAgain}
+                </button>
+              )}
+              <button type="button" disabled={busy} onClick={accept} className="w-full rounded-xl bg-[#111113] px-3 py-2.5 text-[14px] font-semibold text-white hover:bg-[#2B2B30] disabled:opacity-60">
+                ✔ {x.accept}
+              </button>
+              <button type="button" disabled={busy} onClick={reject} className="w-full rounded-xl border border-[#FECACA] bg-white px-3 py-2.5 text-[14px] font-semibold text-[#B91C1C] hover:bg-[#FEF2F2] disabled:opacity-60">
+                ✖ {x.reject}
+              </button>
+              {busy && <p className="text-[13px] text-[#6B6B75]">{x.working}</p>}
+            </Card>
+          )}
+
+          {msg && (
+            <p className={`rounded-xl border px-3 py-2 text-[14px] font-semibold ${msg.ok ? "border-[#E6E6E9] bg-white text-[#111113]" : "border-[#FECACA] bg-[#FEF2F2] text-[#B91C1C]"}`} role="status">
+              {msg.ok ? "✅ " : "❌ "}
+              {msg.text}
             </p>
           )}
-          <details open={manual} onToggle={(e) => setManual((e.target as HTMLDetailsElement).open)} className="rounded-xl border-2 border-rule p-3">
-            <summary className="min-h-12 flex items-center text-lg font-semibold cursor-pointer">✍ {x.manual}</summary>
-            <div className="mt-3">
-              <ManualForm onSubmit={onManual} busy={busy} />
-            </div>
-          </details>
-        </section>
-      )}
-
-      {jobId && (
-        <p className="text-lg">
-          <span className="text-muted">{x.file}: </span>
-          <b>{job?.source.file_name ?? "…"}</b>
-        </p>
-      )}
-
-      {job && (
-        <ol className="space-y-2 text-xl" aria-live="polite">
-          {x.steps.map((label, i) => {
-            const cur = stepOf(job);
-            const failed = job.status === "failed";
-            const state = failed && i === Math.min(cur, 3) ? "fail" : i < cur || (i === 3 && cur === 4) ? "done" : i === cur ? "now" : "todo";
-            if (i === 3 && state !== "done") return null;
-            return (
-              <li key={i} className={state === "todo" ? "text-muted" : "font-semibold"}>
-                <span aria-hidden className="inline-block w-8">{state === "done" ? "✅" : state === "now" ? "⏳" : state === "fail" ? "❌" : "○"}</span>
-                {label}
-              </li>
-            );
-          })}
-          {job.status === "failed" && <li className="text-lg text-critical">{x.failed}</li>}
-        </ol>
-      )}
-
-      {job && done && rows.length > 0 && (
-        <section aria-labelledby="rv-h" className="space-y-3">
-          <p className="text-xl font-bold">{x.found(rows.length, nCheck)}</p>
-          {unclearSites.map((u) => (
-            <div key={u.site} className="rounded-xl border-2 border-dashed border-[#6b7280] bg-[#f1f2f4] p-3 text-lg">
-              <p className="font-bold">? {u.site}</p>
-              <p>{x.siteUnclear(u.n)}</p>
-            </div>
-          ))}
-          {flagged.length > 0 && (
-            <>
-              <h2 id="rv-h" className="text-2xl font-bold">
-                ⚠ {x.attention}
-              </h2>
-              <ul className="space-y-3">
-                {flagged.map((r) => {
-                  const site = ghatName(r.slug, lang) ?? r.site_as_printed;
-                  const k = paramKey(r.parameter);
-                  const pname = k === "DO" ? x.oxygen : k === "BOD" ? x.bod : r.parameter;
-                  const why = [
-                    ...(r.needs_review ? [x.needsCheck] : []),
-                    ...(r.confidence < 0.8 ? [x.lowConf] : []),
-                    ...issueText(r),
-                  ];
-                  return (
-                    <li key={r.row_id} className="rounded-xl border-2 border-[#b45309] bg-[#fff4e0] p-3">
-                      <p className="text-lg font-bold">
-                        {site} · {pname}
-                      </p>
-                      <label className="mt-2 flex flex-wrap items-center gap-3 text-lg">
-                        <span>{lang === "hi" ? "नंबर:" : "Number:"}</span>
-                        <input
-                          type="number"
-                          step="any"
-                          inputMode="decimal"
-                          disabled={!reviewable}
-                          value={r.value ?? ""}
-                          onChange={(e) =>
-                            editRows(rows.map((y) => (y.row_id === r.row_id ? { ...y, value: e.target.value === "" ? null : Number(e.target.value) } : y)))
-                          }
-                          className="min-h-12 w-32 rounded-lg border-2 border-ink bg-paper px-3 text-xl"
-                        />
-                        {r.value_as_printed && (
-                          <span className="text-muted">
-                            {x.printed}: “{r.value_as_printed}”
-                          </span>
-                        )}
-                      </label>
-                      <p className="mt-1 text-base">{why.join(" · ")}</p>
-                    </li>
-                  );
-                })}
-              </ul>
-            </>
+          {jobId && (
+            <Link href="/" className="block rounded-xl border border-[#E6E6E9] bg-white px-3 py-2.5 text-center text-[14px] font-medium text-[#111113] no-underline hover:bg-[#F6F6F7]">
+              {x.back}
+            </Link>
           )}
-          {nCheck === 0 && <p className="text-lg">✅ {x.looksOk}</p>}
-          <details className="rounded-xl border-2 border-rule p-3">
-            <summary className="min-h-12 flex items-center text-lg font-semibold cursor-pointer">{x.allRows(rows.length)}</summary>
-            <div className="mt-3 overflow-x-auto">
-              <ReviewTable job={job} rows={rows} onChange={editRows} pageUrl={(n) => (client ? client.pageUrl(job.id, n) : "")} readOnly={!reviewable} />
-            </div>
-          </details>
-        </section>
-      )}
-
-      {job?.analysis && <Changes job={job} lang={lang} after={job.status === "accepted"} />}
-
-      {job?.analysis && <AiAnalysis jobId={job.id} lang={lang} />}
-
-      {job && reviewable && (
-        <div className="grid gap-3">
-          {edited && (
-            <button type="button" disabled={busy} onClick={rerun} className="min-h-14 rounded-xl border-2 border-accent bg-paper text-xl font-bold text-accent disabled:opacity-60">
-              🔄 {x.checkAgain}
-            </button>
-          )}
-          <button type="button" disabled={busy} onClick={accept} className="min-h-16 rounded-xl bg-accent text-2xl font-bold text-white shadow disabled:opacity-60">
-            ✔ {x.accept}
-          </button>
-          <button type="button" disabled={busy} onClick={reject} className="min-h-14 rounded-xl border-2 border-rule bg-paper text-xl font-semibold text-ink disabled:opacity-60">
-            ✖ {x.reject}
-          </button>
-          {busy && <p className="text-lg text-muted">{x.working}</p>}
         </div>
-      )}
-
-      {msg && (
-        <p className={`text-xl font-bold ${msg.ok ? "text-ink" : "text-critical"}`} role="status">
-          {msg.ok ? "✅ " : "❌ "}
-          {msg.text}
-        </p>
-      )}
-
-      {jobId && (
-        <div className="grid gap-3 sm:grid-cols-2">
-          <button type="button" onClick={reset} className="min-h-14 rounded-xl border-2 border-accent bg-paper text-xl font-bold text-accent">
-            ⬆ {x.another}
-          </button>
-          <Link href="/" className="min-h-14 flex items-center justify-center rounded-xl border-2 border-rule bg-paper text-xl font-bold text-ink no-underline">
-            🏠 {x.back}
-          </Link>
-        </div>
-      )}
+      </div>
     </div>
   );
 }
+
+const TIER_TONE: Record<string, PillTone> = { high: "danger", medium: "watch", low: "lower", insufficient_data: "missing" };
+const TIER_LABEL: Record<string, { en: string; hi: string }> = {
+  high: { en: "Danger", hi: "खतरा" },
+  medium: { en: "Watch", hi: "निगरानी" },
+  low: { en: "Lower risk", hi: "कम जोखिम" },
+  insufficient_data: { en: "Not tested", hi: "जांच नहीं हुई" },
+};
 
 function Changes({ job, lang, after }: { job: Job; lang: Lang; after: boolean }) {
   const x = T[lang];
@@ -454,26 +573,26 @@ function Changes({ job, lang, after }: { job: Job; lang: Lang; after: boolean })
   const list = a.ghats.filter((g) => g.changed || g.before.tier !== g.after.tier || g.before.rank !== g.after.rank);
   const shown = list.length > 0 ? list : a.ghats;
   return (
-    <section aria-labelledby="ch-h" className="rounded-xl border-2 border-accent p-4 space-y-3">
-      <h2 id="ch-h" className="text-2xl font-bold">
+    <section aria-labelledby="ch-h" className="space-y-3 rounded-2xl border border-[#E6E6E9] bg-white p-5">
+      <h2 id="ch-h" className="text-[13px] font-semibold uppercase tracking-wide text-[#3A3A40]">
         {after ? x.changed : x.willChange}
       </h2>
-      {list.length === 0 && <p className="text-lg">{x.noChange}</p>}
+      {list.length === 0 && <p className="text-[13px] text-[#6B6B75]">{x.noChange}</p>}
       <ul className="space-y-3">
         {shown.map((g) => (
-          <li key={g.slug} className="rounded-lg border border-rule bg-surface p-3">
-            <p className="text-xl font-bold">
-              <Link href={`/ghat/${g.slug}`} className="text-ink">
+          <li key={g.slug} className="rounded-xl border border-[#EFEFF1] bg-[#FAFAFB] p-3">
+            <p className="text-[14px] font-semibold">
+              <Link href={`/ghat/${g.slug}`} className="text-[#111113]">
                 {g.name[lang]}
               </Link>
             </p>
             <div className="mt-2 flex flex-wrap items-center gap-2">
-              <StatusPill tier={g.before.tier} lang={lang} />
-              <span aria-hidden className="text-2xl">→</span>
+              <Pill tone={TIER_TONE[g.before.tier]}>{TIER_LABEL[g.before.tier][lang]}</Pill>
+              <span aria-hidden className="text-lg">→</span>
               <span className="sr-only">{lang === "hi" ? "बदलकर" : "becomes"}</span>
-              <StatusPill tier={g.after.tier} lang={lang} />
+              <Pill tone={TIER_TONE[g.after.tier]}>{TIER_LABEL[g.after.tier][lang]}</Pill>
             </div>
-            <p className="mt-1 text-lg">{x.rank(g.before.rank, g.after.rank)}</p>
+            <p className="mt-1 text-[13px] text-[#3A3A40]">{x.rank(g.before.rank, g.after.rank)}</p>
           </li>
         ))}
       </ul>

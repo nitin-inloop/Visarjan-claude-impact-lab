@@ -1,6 +1,6 @@
 // Plain-language words for the simple UI (home, brief, ghat page, intake).
 // Short sentences, everyday words. Status is always colour + icon + word.
-import type { ActionCode, Lang, Reason, Tier } from "./types";
+import type { ActionCode, GhatRank, Lang, Reason, Tier } from "./types";
 
 export interface StatusLook {
   icon: string;
@@ -128,4 +128,16 @@ export function daysLeftText(n: number, lang: Lang): string {
   if (n === 1) return lang === "hi" ? "विसर्जन कल है" : "1 day left";
   if (n === 0) return lang === "hi" ? "विसर्जन आज है" : "Visarjan is today";
   return lang === "hi" ? "विसर्जन हो चुका" : "Visarjan is over";
+}
+
+/** The reason that set the tier (same rule as the brief): the oxygen or BOD breach the tier rule names. */
+export function tierReason(g: GhatRank): Reason | null {
+  const rule = g.tier_rule?.en ?? "";
+  const want = rule.includes("oxygen") ? "Dissolved oxygen" : rule.includes("BOD") ? "BOD" : null;
+  return (
+    (want && g.reasons.find((x) => x.kind === "breach" && x.parameter === want)) ||
+    g.reasons.find((x) => x.kind === "breach") ||
+    g.reasons[0] ||
+    null
+  );
 }

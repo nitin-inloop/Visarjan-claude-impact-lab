@@ -12,9 +12,14 @@
 
 ## What the officer does (one workflow)
 
-1. **Opens the home page.** It shows the days left until 20 October, the alerts, and the 7 ghats ranked by risk. Each ghat has a status word with an icon (⛔ Danger, ⚠ Watch, ▽ Lower risk, ? Not tested), one plain reason ("Oxygen 0, needs 5 or more"), the report page it came from, what to do, and a map. Text is large, Hindi or English, and every card has a **सुनें / Listen** button.
-2. **Uploads a new test report** (PDF or phone photo) when the 2026 pre-immersion results arrive. Claude reads the table, every value keeps its page, and suspicious values (for example DO 45) are held back for checking. The officer reviews only the rows that need attention, then presses Accept. The ranking updates, and a 3–5 sentence answer in Hindi and English says what changed, what to do, where and by when.
-3. **Forwards the brief.** A WhatsApp-length summary sits at the top, with the full one-page brief below it in Hindi and English. Every number carries its MPPCB report page. Buttons: Copy, Share on WhatsApp, Print, Listen.
+1. **Dashboard (`/`).** Shows days left until 20 October, 4 headline numbers (DO below limit 42/116, BOD above limit 100/112, ghats needing action, days left) and a chart of limit breaches by festival and phase (DO / BOD / pH). Beside the chart: the breach forecast and the map with a Map / Satellite switch. Below: the alerts, and the **ghat priority table**, where each ghat has its status (Danger, Watch, Lower risk, Not tested), the reading that set it against the limit, the report page link, the actions and a **सुनें / Listen** button. Export CSV and Download brief are at the top. Hindi or English.
+2. **ML Insights (second item in the sidebar, `/models`).** The 4-model leaderboard, what drives the forecast, each ghat's forecast with how far the 4 models agree, and a plain "how to read this" panel. The forecast is a model estimate and is not used in the ranking.
+3. **Upload & OCR (`/intake`).** The officer uploads the 2026 test report (PDF or photo).
+   - The PDF text layer, or OCR for scans and photos, extracts the table. Every value keeps its page, and suspicious values (for example DO 45) are flagged for checking.
+   - **Claude then answers in seconds**, using the extracted values. The answer covers what the report shows, which ghat needs what action by when, and what is still missing. The before → after status change is shown.
+   - The officer presses Accept to update the ranking.
+4. **Ghat map (`/map`).** Mapbox streets or satellite when a token is set, otherwise OpenStreetMap and Esri satellite. Markers are numbered by priority and coloured by status.
+5. **Brief (`/brief`).** A WhatsApp-length summary on top, with the full one-page brief in Hindi and English below it, every number with its MPPCB page. Buttons: Copy, Share on WhatsApp, Print, Listen.
 
 ## How the answer is made
 
@@ -22,8 +27,9 @@
 - **Missing is never clean.** Blank, `*`, `**`, `_` and "not sampled" never enter the score. BDL is kept as BDL. A ghat with no Durga 2025 test, or a new site without both DO and BOD, is shown as **Not tested / Test first** and listed at the top, never as low risk.
 - **Alerts (rules, AI only rephrases).** DO = 0 → critical, aerate by 19 Oct. DO < 3 → aerate by 19 Oct. BOD > 6 → clean by 19 Oct. No recent test → test by 17 Oct. Suspicious value → check the page by 15 Oct. An upload that changed a tier → plan crews by 18 Oct. Each alert carries its source page.
 - **AI** (details in [docs/METHOD-AI.md](docs/METHOD-AI.md)). AI never decides a score, tier or rank.
-  - **Claude** reads uploaded PDFs and photos into rows that keep the page. Where the PDF has a text layer, each extracted number is checked against that page.
-  - **Cerebras** writes the short officer answer and alert wording, because it is fast. Claude is the fallback.
+  - **Extraction order.** The PDF text layer is read first. OCR (PaddleOCR in `backend/.ocr-venv`) runs for scans and photos. Claude reads the document only as a fallback, and every value keeps its page.
+  - **The answer after an upload** comes from Claude first (`claude-haiku-5-5`, fast settings), grounded on the extracted rows and the rule-based facts. Cerebras is the fallback. The screen shows the chain, for example "OCR → Claude · 1.2 s".
+  - **Alert wording** comes from Cerebras first, because it is fast.
   - **Guards.** Any AI text that adds or drops a number, mentions health effects, presents the forecast as certain, or is too long is rejected, and the standard template is shown instead. The screen always says which one you are reading ("Written by AI (Cerebras, 0.4 s) · numbers checked" or "Standard text").
   - **Without API keys** everything works on the template text.
 - **Voice.** ElevenLabs reads Hindi or English aloud. Units and codes are spoken as words ("मिलीग्राम प्रति लीटर", "घुलित ऑक्सीजन"). Audio is cached. Without a key, the browser's own voice is used.
@@ -59,6 +65,7 @@ http://localhost:3000
 
 - **No key is required.** Without keys the app uses checked template text and the browser voice.
 - **If the API is down,** the frontend shows the saved snapshot in `frontend/public/data/`, and report-page links still open (the PDFs are copied into `frontend/public/pdf/` by `npm run dev` / `npm run build`).
+- **Mapbox (optional):** put your public token in `frontend/.env.local` as `NEXT_PUBLIC_MAPBOX_TOKEN=pk...` and restart `npm run dev`. Without it the map uses OpenStreetMap and Esri satellite tiles.
 - **Precomputed files** (ranking, brief, trained models) are committed. `python scripts/build_artifacts.py` rebuilds them; on macOS XGBoost needs `brew install libomp`.
 - **Scanned PDFs and photos** need either the Claude key or PaddleOCR in `backend/.ocr-venv` (see [docs/METHOD-INTAKE.md](docs/METHOD-INTAKE.md)).
 - **Sample report:** `samples/dummy/` holds a SYNTHETIC test report (text PDF, scanned PDF and photo, plus the expected values) to try the upload.
@@ -98,15 +105,15 @@ CQL (experimental) policy values in the simulator, higher is better: CQL −13.2
 - **Upload (text PDF):** the synthetic sample reads 51 of 51 values correctly, including BDL, blank, `*` and a new kund. The typo DO 45 is held back for checking, not scored. Accepting re-ranks; removing restores the original ranking exactly.
 - **Manual entry and what-if:** impossible values (negative, DO > 20, pH > 14) are rejected with a message.
 - **Alerts and the post-upload answer:** these work on template text with no keys. With keys, the AI wording goes through the guards above (tested with mocked providers).
-- **Interface:** simple light UI for slow readers (18 px base text, status = icon + colour + word, 48 px buttons). Real map with labelled markers, plus an offline schematic fallback. Works with the API off.
+- **Interface:** a professional dashboard (sidebar, top bar with ghat search and alerts bell, KPI cards, charts, priority table), plus the ML Insights page and a map with Map / Satellite layers and an offline fallback. Status is always icon/colour + word, and "Not tested" is never green. Works with the API off.
 - **Checks:**
-  - Backend: 47 pass, 1 skipped; `test_6_models` needs `libomp` on macOS.
+  - Backend: 67 pass, 2 skipped; `test_6_models` needs `libomp` on macOS.
   - Frontend: `npm run lint` and `npm run build` pass.
   - Screens checked at 390 px and 1440 px in both languages.
 
 **Not verified (no keys on the build machine)**
 - **Real API calls:** Claude reading real or scanned MPPCB pages, real Cerebras and Claude response quality and latency, and ElevenLabs Hindi audio. All of these were tested only with mocked responses. The code falls back to template text and the browser voice on any failure.
-- **OCR without the Claude key:** PaddleOCR was not installed on the build machine. It was verified earlier on the 2025 report page 28 (117 of 117 values).
+- **OCR:** verified on the build machine (PaddleOCR 3.7). The scanned synthetic report gave 51 of 51 values, in 43 s, with mean confidence 0.986. The 2025 report page 28 gave 117 of 117 values.
 
 **Doesn't / limits**
 - **Units:** the reports print no units. Units are the standard ones for each test (as in the data pack).

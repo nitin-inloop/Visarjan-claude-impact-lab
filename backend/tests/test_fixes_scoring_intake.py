@@ -153,6 +153,8 @@ def test_scanned_dummy_without_ocr_fails_cleanly(client, monkeypatch):
     from ghatwatch.intake import ocr
     if ocr.status(refresh=True)["available"]:
         pytest.skip("OCR installed; slow OCR path not exercised here")
+    from ghatwatch.ai import extract as AI
+    monkeypatch.setattr(AI, "available", lambda: False)  # no Claude fallback either
     pdf = (DUMMY / "durga-2026-pre-SYNTHETIC-scanned.pdf").read_bytes()
     jid = client.post("/api/intake/upload", files={"file": ("scan.pdf", pdf, "application/pdf")}).json()["job_id"]
     job = _wait(client, jid)
@@ -162,11 +164,7 @@ def test_scanned_dummy_without_ocr_fails_cleanly(client, monkeypatch):
 
 # ---------------------------------------------------------------- Claude extractor hook
 
-@pytest.mark.skipif(not (DUMMY / "expected.json").exists(), reason="run scripts/make_dummy_reports.py first")
-def test_ai_extract_hook_used_then_fallback(client, monkeypatch):
-    from ghatwatch.ai import extract as AI
-    calls = []
-
+def _fake_claude_rows(calls):
     def fake(path, mime, year=None, festival=None):
         calls.append((Path(path).name, mime))
         return [{"page": 1, "table": 0, "site_as_printed": "Prempura Visarjanghat, Bhopal", "year": 2026,
@@ -175,23 +173,64 @@ def test_ai_extract_hook_used_then_fallback(client, monkeypatch):
                 {"page": 1, "table": 0, "site_as_printed": "Prempura Visarjanghat, Bhopal", "year": 2026,
                  "festival": "Durga", "phase": "pre", "parameter_as_printed": "BOD",
                  "value_as_printed": "6.4", "confidence": 0.95}]
+    return fake
 
+
+def _extract_log(job):
+    return [x["text"] for x in next(s for s in job["stages"] if s["key"] == "extract")["log"]]
+
+
+@pytest.mark.skipif(not (DUMMY / "expected.json").exists(), reason="run scripts/make_dummy_reports.py first")
+def test_text_layer_first_claude_not_called(client, monkeypatch):
+    """OCR/text first: a text PDF is read by the text layer even when Claude is available."""
+    from ghatwatch.ai import extract as AI
+    calls = []
     monkeypatch.setattr(AI, "available", lambda: True)
-    monkeypatch.setattr(AI, "extract_rows", fake)
+    monkeypatch.setattr(AI, "extract_rows", _fake_claude_rows(calls))
     pdf = (DUMMY / "durga-2026-pre-SYNTHETIC.pdf").read_bytes()
     jid = client.post("/api/intake/upload", files={"file": ("ai.pdf", pdf, "application/pdf")}).json()["job_id"]
+    job = _wait(client, jid)
+    assert not calls
+    assert job["status"] == "needs_review" and job["source"]["extractor"] == "text"
+    assert len(job["rows"]) == 51
+    log = _extract_log(job)
+    assert any("PDF text layer" in t["en"] for t in log) and any("PDF टेक्स्ट परत" in t["hi"] for t in log)
+
+
+@pytest.mark.skipif(not (DUMMY / "expected.json").exists(), reason="run scripts/make_dummy_reports.py first")
+def test_claude_extractor_fallback_for_scan_without_ocr(client, monkeypatch):
+    """Claude reads the document only as the fallback: a scan when OCR is unavailable."""
+    from ghatwatch.ai import extract as AI
+    from ghatwatch.intake import ocr
+    monkeypatch.setattr(ocr, "status", lambda refresh=False: {"available": False, "render": False})
+    calls = []
+    monkeypatch.setattr(AI, "available", lambda: True)
+    monkeypatch.setattr(AI, "extract_rows", _fake_claude_rows(calls))
+    pdf = (DUMMY / "durga-2026-pre-SYNTHETIC-scanned.pdf").read_bytes()
+    jid = client.post("/api/intake/upload", files={"file": ("scan.pdf", pdf, "application/pdf")}).json()["job_id"]
     job = _wait(client, jid)
     assert calls and calls[0][1] == "application/pdf"
     assert job["status"] == "needs_review", job.get("error")
     assert job["source"]["extractor"] == "claude" and len(job["rows"]) == 2
-    log = [x["text"] for x in next(s for s in job["stages"] if s["key"] == "extract")["log"]]
-    assert any("Claude" in t["en"] for t in log) and any("Claude" in t["hi"] for t in log)
+    log = _extract_log(job)
+    assert any("Falling back to the Claude extractor" in t["en"] for t in log)
+    assert any("Claude" in t["hi"] for t in log)
     assert {r["slug"] for r in job["rows"]} == {"prempura"} and all(r["page"] == 1 for r in job["rows"])
 
-    monkeypatch.setattr(AI, "extract_rows", lambda *a, **k: None)  # unavailable / failed -> text parser
-    jid = client.post("/api/intake/upload", files={"file": ("ai2.pdf", pdf, "application/pdf")}).json()["job_id"]
+    monkeypatch.setattr(AI, "extract_rows", lambda *a, **k: None)  # Claude fails too -> clean failure
+    jid = client.post("/api/intake/upload", files={"file": ("scan2.pdf", pdf, "application/pdf")}).json()["job_id"]
     job = _wait(client, jid)
-    assert job["status"] == "needs_review" and job["source"]["extractor"] == "text/ocr"
-    assert len(job["rows"]) == 51
-    log = [x["text"]["en"] for x in next(s for s in job["stages"] if s["key"] == "extract")["log"]]
-    assert any("falling back" in t for t in log) and any("PDF text layer / OCR" in t for t in log)
+    assert job["status"] == "failed" and "PaddleOCR is not installed" in job["error"]
+
+
+def test_parser_tolerates_ocr_lmmersion_header():
+    """PaddleOCR read 'Pre Immersion' as 'Pre lmmersion' on the scanned dummy; that table must still parse."""
+    from ghatwatch.intake.parse_mppcb import parse_pages
+    text = ("Durga Idol Immersion -2026\n"
+            "         Location- Ahmedpur Visarjan Kund, Bhopal.\n"
+            "S.No.    Parameter                           Pre lmmersion\n"
+            "  1     PH                                       8.12\n"
+            "  5      D.Oxygen                                 5.6\n"
+            "  6      BOD                                      3.8\n")
+    raw, info = parse_pages([{"page": 2, "text": text, "lines": None}], {})
+    assert info["tables"] == 1 and len(raw) == 3

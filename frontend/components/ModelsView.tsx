@@ -1,171 +1,328 @@
 "use client";
 
+// ML Insights: leaderboard, feature importances, per-ghat forecast agreement, and an honest reading guide.
+// The forecast is a model estimate (never a measurement) and is NOT used in the ranking.
+
 import { useState } from "react";
-import clsx from "clsx";
-import { fetchAllocation, fetchLeaderboard } from "@/lib/api";
+import Link from "next/link";
+import { fetchLeaderboard, fetchRanking } from "@/lib/api";
 import { useLang } from "@/lib/lang";
 import { useLive } from "@/lib/useLive";
-import type { Allocation, Bilingual, Leaderboard, Ranking } from "@/lib/types";
-import { modelLabel } from "./ForecastPanel";
+import { STATUS } from "@/lib/plain";
+import type { GhatRank, Lang, Leaderboard, LeaderboardRow, Ranking } from "@/lib/types";
+import { Card, CardTitle, Kpi, Pill, type PillTone } from "./dash/ui";
+import { MODEL_SHADE, featureLabel, modelName } from "./ml/labels";
 import { LoadState } from "./LoadState";
 
-const fmt = (v: number | null | undefined, d = 2) => (typeof v === "number" ? v.toFixed(d) : "—");
+type Row = LeaderboardRow & { auc_groupkfold_std?: number; n_test_temporal?: number };
+type Lb = Omit<Leaderboard, "rows" | "importances"> & {
+  n_sites?: number;
+  positive_rate?: number;
+  label?: string;
+  caveat?: { en: string; hi: string };
+  importances: Record<string, { feature: string; importance: number; method?: string }[]>;
+  rows: Row[];
+};
 
-export function ModelsView({ initialLb, initialAlloc, ranking }: { initialLb: Leaderboard | null; initialAlloc: Allocation | null; ranking: Ranking | null }) {
-  const { lang, t } = useLang();
+const MODELS = ["random_forest", "logreg", "xgboost", "lightgbm"];
+const f3 = (v: number | null | undefined) => (typeof v === "number" ? v.toFixed(3) : "—");
+const pct = (v: number) => `${Math.round(v * 100)}%`;
+const TONE: Record<GhatRank["tier"], PillTone> = { high: "danger", medium: "watch", low: "lower", insufficient_data: "missing" };
+
+const METHOD: Record<string, Record<Lang, string>> = {
+  abs_coefficient_standardised: { en: "absolute standardised coefficient", hi: "मानकीकृत गुणांक (निरपेक्ष)" },
+  impurity: { en: "impurity decrease", hi: "impurity में कमी" },
+  gain: { en: "gain", hi: "gain" },
+  split: { en: "split count", hi: "split गिनती" },
+  mean_abs_shap: { en: "mean |SHAP| value", hi: "औसत |SHAP| मान" },
+};
+
+export function ModelsView({
+  initialLb,
+  ranking: initialRanking,
+}: {
+  initialLb: Leaderboard | null;
+  ranking: Ranking | null;
+  /** accepted for older callers (components/live/Tabs.tsx); not shown here */
+  initialAlloc?: unknown;
+}) {
+  const { lang } = useLang();
+  const hi = lang === "hi";
   const lb = useLive(fetchLeaderboard, initialLb);
-  const [budget, setBudget] = useState<number>(initialAlloc?.budget ?? 8);
-  const [query, setQuery] = useState<number | undefined>(undefined);
-  const alloc = useLive(() => fetchAllocation(query), initialAlloc, [query]);
-  const names: Record<string, Bilingual> = Object.fromEntries((ranking?.ghats ?? []).map((g) => [g.slug, g.name]));
+  const rk = useLive(fetchRanking, initialRanking);
+  const [tab, setTab] = useState<string | null>(null);
 
   if (!lb.data) return <LoadState error={lb.error} />;
-  const L = lb.data;
-  const imps = L.importances[L.champion] ?? [];
-  const maxImp = Math.max(...imps.map((i) => Math.abs(i.importance)), 1e-9);
-  const A = alloc.data;
-  const pv = A ? Object.entries(A.policy_values) : [];
-  const pvMax = Math.max(...pv.map(([, v]) => v));
+  const L = lb.data as unknown as Lb;
+  const champ = L.champion;
+  const champRow = L.rows.find((r) => r.model === champ);
+  const model = tab ?? champ;
+  const imps = [...(L.importances[model] ?? [])].sort((a, b) => Math.abs(b.importance) - Math.abs(a.importance)).slice(0, 10);
+  const maxImp = Math.max(1e-9, ...imps.map((i) => Math.abs(i.importance)));
+  const method = imps[0]?.method;
+  const rows = [...L.rows].sort((a, b) => b.auc_groupkfold - a.auc_groupkfold);
 
-  const actionName = (a: string) =>
-    a
-      .split("+")
-      .map((x) => (t.action as Record<string, string>)[x === "test" ? "test_first" : x] ?? x)
-      .join(" + ");
-  const th = "px-2 py-2 text-right font-semibold whitespace-nowrap";
-  const td = "px-2 py-1.5 text-right tabular";
+  const ghats = [...(rk.data?.ghats ?? [])].sort((a, b) => a.rank - b.rank);
+  const withF = ghats.filter((g) => g.forecast?.available && typeof g.forecast.p_breach === "number");
+  const ps = withF.map((g) => g.forecast.p_breach as number);
+  const allP = withF.flatMap((g) => Object.values(g.forecast.models ?? {}));
+  const pMin = ps.length ? Math.min(...ps) : null;
+  const pMax = ps.length ? Math.max(...ps) : null;
+  const missing = ghats.length - withF.length;
+
+  const basisText = (g: GhatRank) => {
+    const b = g.forecast.basis;
+    if (!b) return null;
+    const fest = b.festival === "Durga" ? (hi ? "दुर्गा" : "Durga") : b.festival === "Ganesh" ? (hi ? "गणेश" : "Ganesh") : b.festival;
+    return hi ? `${fest} ${b.year} की विसर्जन-पूर्व रीडिंग से` : `from ${fest} ${b.year} pre-immersion readings`;
+  };
 
   return (
-    <div className="pt-6 space-y-8">
+    <div className="space-y-5 pb-10 pt-6">
       <header>
-        <h1 className="text-[1.6rem] font-bold leading-tight">
-          {t.modelsTitle}{" "}
-          <span className="align-middle inline-block rounded border-2 border-dashed border-medium text-medium text-sm px-2 py-0.5">{t.experimental}</span>
-        </h1>
-        <p className="text-muted mt-1">{t.trainedOn(L.n_train)}</p>
+        <h1 className="text-[26px] font-bold leading-tight text-[#111113]">{hi ? "एमएल अंतर्दृष्टि" : "ML Insights"}</h1>
+        <p className="mt-1 text-sm text-[#6B6B75]">
+          {hi
+            ? `विसर्जन के दौरान/बाद में सीमा उल्लंघन का पूर्वानुमान · ${L.n_train} मध्य प्रदेश स्थल-त्योहार रिकॉर्ड (2023–25) पर प्रशिक्षित`
+            : `Forecast of limit breach during/after immersion · trained on ${L.n_train} MP site-festival records (2023–25)`}
+        </p>
+        <p className="mt-2 inline-flex items-center gap-2 rounded-md border border-dashed border-[#A1A1AA] px-2 py-1 text-xs font-semibold text-[#52525B]">
+          {hi ? "मॉडल अनुमान, मापन नहीं · रैंकिंग में उपयोग नहीं" : "Model estimate, not a measurement · not used in the ranking"}
+        </p>
       </header>
 
-      <section aria-labelledby="lb-h">
-        <h2 id="lb-h" className="text-xl font-bold mb-2">
-          {t.leaderboard}
-        </h2>
-        <div className="overflow-x-auto border border-rule rounded-md -mx-4 sm:mx-0">
-          <table className="w-full text-sm border-collapse min-w-max">
-            <thead className="bg-surface">
-              <tr>
-                <th className={clsx(th, "!text-left")}>{t.colModel}</th>
-                <th className={th}>{t.colAuc}</th>
-                <th className={th}>{t.colAucT}</th>
-                <th className={th}>{t.colPr}</th>
-                <th className={th}>{t.colBrier}</th>
-                <th className={th}>{t.colLog}</th>
-                <th className={th}>{t.colF1}</th>
-              </tr>
-            </thead>
-            <tbody>
-              {L.rows.map((r) => {
-                const champ = r.model === L.champion;
-                return (
-                  <tr key={r.model} className={clsx("border-t border-rule", champ && "bg-accent/5 font-semibold")}>
-                    <th scope="row" className="px-2 py-1.5 text-left whitespace-nowrap">
-                      {champ && <span aria-hidden>★ </span>}
-                      {modelLabel(r.model)}
-                    </th>
-                    <td className={td}>{fmt(r.auc_groupkfold)}</td>
-                    <td className={td}>{fmt(r.auc_temporal_2025)}</td>
-                    <td className={td}>{fmt(r.pr_auc)}</td>
-                    <td className={td}>{fmt(r.brier)}</td>
-                    <td className={td}>{fmt(r.logloss)}</td>
-                    <td className={td}>{fmt(r.f1)}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-        <p className="mt-2 text-[0.95rem]">
-          <b>{t.championRule}:</b> {L.selection_rule}
-        </p>
-      </section>
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+        <Kpi label={hi ? "चैंपियन मॉडल" : "Champion model"} value={modelName(champ, lang)} sub={hi ? "सबसे अधिक CV ROC-AUC" : "highest CV ROC-AUC"} />
+        <Kpi
+          label="CV ROC-AUC"
+          value={f3(champRow?.auc_groupkfold)}
+          sub={
+            champRow?.auc_groupkfold_std !== undefined
+              ? `± ${champRow.auc_groupkfold_std.toFixed(3)} · ${hi ? "5 फोल्ड, स्थल-वार" : "5 folds, grouped by site"}`
+              : undefined
+          }
+        />
+        <Kpi
+          label={hi ? "2025 होल्ड-आउट AUC" : "2025 hold-out AUC"}
+          value={f3(champRow?.auc_temporal_2025)}
+          sub={champRow?.n_test_temporal ? (hi ? `2025 के ${champRow.n_test_temporal} रिकॉर्ड पर` : `on ${champRow.n_test_temporal} unseen 2025 records`) : undefined}
+        />
+        <Kpi
+          label={hi ? "प्रशिक्षण रिकॉर्ड" : "Training records"}
+          value={String(L.n_train)}
+          sub={[
+            L.n_sites ? (hi ? `${L.n_sites} स्थल` : `${L.n_sites} sites`) : null,
+            typeof L.positive_rate === "number" ? (hi ? `${pct(L.positive_rate)} में उल्लंघन` : `${pct(L.positive_rate)} breached`) : null,
+          ]
+            .filter(Boolean)
+            .join(" · ")}
+        />
+      </div>
 
-      <section aria-labelledby="imp-h">
-        <h2 id="imp-h" className="text-xl font-bold mb-2">
-          {t.importances} ({modelLabel(L.champion)})
-        </h2>
-        <ul className="space-y-1.5 text-sm">
-          {imps.map((i) => (
-            <li key={i.feature} className="grid grid-cols-[minmax(8rem,12rem)_1fr_3.5rem] items-center gap-2">
-              <span className="truncate">{i.feature}</span>
-              <span className="h-3 bg-surface rounded-sm">
-                <span className="block h-full bg-accent rounded-sm" style={{ width: `${(Math.abs(i.importance) / maxImp) * 100}%` }} />
-              </span>
-              <span className="tabular text-right">{fmt(i.importance)}</span>
-            </li>
-          ))}
-        </ul>
-      </section>
-
-      <section aria-labelledby="cql-h" className="border-2 border-dashed border-medium rounded-md p-4">
-        <h2 id="cql-h" className="text-xl font-bold mb-2">
-          {t.cql} <span className="text-sm font-semibold text-medium">({t.experimental})</span>
-        </h2>
-        {!A ? (
-          <LoadState error={alloc.error} />
-        ) : (
-          <>
-            <p className="text-[0.95rem]">{A.caveat[lang]}</p>
-            <h3 className="mt-4 font-semibold">{t.policyValues}</h3>
-            <table className="mt-1 text-sm">
+      <div className="grid grid-cols-1 gap-5 xl:grid-cols-5">
+        <Card className="xl:col-span-3">
+          <CardTitle info={L.selection_rule}>{hi ? "मॉडल लीडरबोर्ड" : "Model leaderboard"}</CardTitle>
+          <div className="-mx-5 overflow-x-auto px-5">
+            <table className="w-full min-w-[480px] text-sm">
+              <thead>
+                <tr className="border-b border-[#E6E6E9] text-left text-[11px] font-semibold uppercase tracking-wide text-[#6B6B75]">
+                  <th className="py-2 pr-3">{hi ? "मॉडल" : "Model"}</th>
+                  <th className="py-2 pr-3">CV AUC</th>
+                  <th className="py-2 pr-3">{hi ? "2025 AUC" : "2025 AUC"}</th>
+                  <th className="py-2 pr-3">PR-AUC</th>
+                  <th className="py-2">Brier ↓</th>
+                </tr>
+              </thead>
               <tbody>
-                {pv.map(([k, v]) => (
-                  <tr key={k} className={clsx(v === pvMax && "font-semibold")}>
-                    <th scope="row" className="pr-4 py-1 text-left font-normal">
-                      {t.policy[k] ?? k}
-                    </th>
-                    <td className="py-1 text-right tabular">{fmt(v)}</td>
+                {rows.map((r) => (
+                  <tr key={r.model} className="border-b border-[#F0F0F2] last:border-0">
+                    <td className="py-3 pr-3">
+                      <span className="font-semibold text-[#111113]">{modelName(r.model, lang)}</span>{" "}
+                      {r.model === champ && <Pill tone="neutral">{hi ? "चैंपियन" : "Champion"}</Pill>}
+                    </td>
+                    <MetricCell v={r.auc_groupkfold} strong={r.model === champ} />
+                    <MetricCell v={r.auc_temporal_2025} strong={r.model === champ} />
+                    <MetricCell v={r.pr_auc} strong={r.model === champ} />
+                    <MetricCell v={r.brier} strong={r.model === champ} max={0.3} />
                   </tr>
                 ))}
               </tbody>
             </table>
+          </div>
+          <p className="mt-3 text-xs text-[#6B6B75]">
+            {hi ? "चयन नियम: " : "Selection rule: "}
+            {L.selection_rule} {hi ? "Brier: कम बेहतर है।" : "Brier: lower is better."}
+          </p>
+        </Card>
 
-            <form
-              className="mt-4 flex items-end gap-2 no-print"
-              onSubmit={(e) => {
-                e.preventDefault();
-                setQuery(budget);
-              }}
-            >
-              <label className="block">
-                <span className="block text-sm font-semibold mb-1">{t.budget}</span>
-                <input
-                  type="number"
-                  min={0}
-                  max={50}
-                  value={budget}
-                  onChange={(e) => setBudget(Number(e.target.value))}
-                  className="w-24 rounded border border-ink/60 px-2 py-1.5 tabular"
-                />
-              </label>
-              <button type="submit" className="rounded bg-accent text-paper px-4 py-2 font-semibold">
-                {t.update}
+        <Card className="xl:col-span-2">
+          <CardTitle info={method ? (METHOD[method]?.[lang] ?? method) : undefined}>{hi ? "पूर्वानुमान किससे चलता है" : "What drives the forecast"}</CardTitle>
+          <div role="tablist" className="mb-4 inline-flex flex-wrap rounded-lg border border-[#E6E6E9] bg-[#F6F6F7] p-0.5 text-xs">
+            {MODELS.filter((m) => L.importances[m]).map((m) => (
+              <button
+                key={m}
+                role="tab"
+                aria-selected={m === model}
+                onClick={() => setTab(m)}
+                className={`rounded-md px-2.5 py-1.5 font-semibold ${m === model ? "bg-white text-[#111113] shadow-sm" : "text-[#6B6B75] hover:text-[#111113]"}`}
+              >
+                {modelName(m, lang)}
               </button>
-            </form>
-            <h3 className="mt-4 font-semibold">
-              {t.plan}: {t.budget} {A.budget}
-            </h3>
-            <ol className="mt-1 list-decimal pl-5 space-y-1">
-              {A.plan.map((p, i) => (
-                <li key={`${p.slug}-${i}`}>
-                  <b>{names[p.slug]?.[lang] ?? p.slug}</b>: {actionName(p.action)}{" "}
-                  <span className="text-sm text-muted tabular">
-                    ({t.cost} {p.cost}, {t.gain} {fmt(p.q_gain)})
-                  </span>
+            ))}
+          </div>
+          <ul className="space-y-2">
+            {imps.map((i) => (
+              <li key={i.feature} className="grid grid-cols-[minmax(0,11rem)_1fr_3.2rem] items-center gap-2 text-[13px]">
+                <span className="truncate text-[#3A3A40]" title={i.feature}>
+                  {featureLabel(i.feature, lang)}
+                </span>
+                <span className="h-2.5 rounded-sm bg-[#F0F0F2]">
+                  <span className="block h-full rounded-sm bg-[#2B2B30]" style={{ width: `${(Math.abs(i.importance) / maxImp) * 100}%` }} />
+                </span>
+                <span className="text-right tabular-nums text-[#6B6B75]">{Math.abs(i.importance) < 0.01 ? i.importance.toExponential(1) : i.importance.toFixed(3)}</span>
+              </li>
+            ))}
+          </ul>
+          <p className="mt-3 text-xs text-[#6B6B75]">
+            {hi
+              ? "बार इस मॉडल के अंदर का महत्व दिखाते हैं। मॉडलों के बीच संख्याएं तुलनीय नहीं हैं।"
+              : "Bars show importance within this model; numbers are not comparable across models."}
+            {method && ` (${METHOD[method]?.[lang] ?? method})`}
+          </p>
+        </Card>
+      </div>
+
+      <Card>
+        <CardTitle
+          info={hi ? "गहरी पट्टी = चैंपियन का अनुमान; बिंदु = चारों मॉडल" : "Dark bar = champion estimate; dots = each of the 4 models"}
+          right={
+            <ul className="hidden flex-wrap items-center gap-3 text-xs text-[#6B6B75] sm:flex">
+              {MODELS.map((m) => (
+                <li key={m} className="flex items-center gap-1.5">
+                  <span className="h-2.5 w-2.5 rounded-full border border-white ring-1 ring-[#9A9AA3]" style={{ background: MODEL_SHADE[m] }} />
+                  {modelName(m, lang)}
                 </li>
               ))}
-            </ol>
-          </>
-        )}
-      </section>
+            </ul>
+          }
+        >
+          {hi ? "घाट-वार पूर्वानुमान" : "Per-ghat forecast"}
+        </CardTitle>
+        {ghats.length === 0 && <p className="text-sm text-[#6B6B75]">{hi ? "रैंकिंग डेटा उपलब्ध नहीं।" : "Ranking data not available."}</p>}
+        <ul className="divide-y divide-[#F0F0F2]">
+          {ghats.map((g) => {
+            const f = g.forecast;
+            const ok = f?.available && typeof f.p_breach === "number";
+            const reason = f?.top_reasons?.[0]?.text?.[lang];
+            return (
+              <li key={g.slug} className="grid grid-cols-1 gap-2 py-3 md:grid-cols-[15rem_1fr_4rem] md:items-center md:gap-4">
+                <div className="min-w-0">
+                  <p className="flex items-center gap-2 text-sm font-semibold text-[#111113]">
+                    <span className="tabular-nums text-[#6B6B75]">{g.rank}.</span>
+                    <Link href={`/ghat/${g.slug}`} className="truncate text-[#111113] hover:underline">
+                      {g.name[lang]}
+                    </Link>
+                  </p>
+                  <p className="mt-1">
+                    <Pill tone={TONE[g.tier]}>{STATUS[g.tier].word[lang]}</Pill>
+                  </p>
+                </div>
+                {ok ? (
+                  <div className="min-w-0">
+                    <AgreementBar p={f.p_breach as number} models={f.models ?? {}} lang={lang} />
+                    <p className="mt-1.5 text-xs text-[#6B6B75]">
+                      {basisText(g)}
+                      {reason && <> · {reason}</>}
+                    </p>
+                  </div>
+                ) : (
+                  <p className="rounded-md border border-dashed border-[#A1A1AA] px-2 py-1.5 text-xs text-[#52525B]">
+                    {hi ? "पूर्वानुमान नहीं: विसर्जन-पूर्व रीडिंग नहीं है।" : "No forecast: no pre-immersion reading to base it on."}
+                  </p>
+                )}
+                <p className="text-right text-xl font-bold tabular-nums text-[#111113]">{ok ? pct(f.p_breach as number) : "—"}</p>
+              </li>
+            );
+          })}
+        </ul>
+        <p className="mt-2 text-xs text-[#6B6B75]">
+          {hi
+            ? "p(उल्लंघन) = मॉडल का अनुमान कि विसर्जन के दौरान या एक सप्ताह बाद सीमा टूटेगी। यह मापन नहीं है।"
+            : "p(breach) = the model's estimate that a limit is broken during or one week after immersion. It is not a measurement."}
+        </p>
+      </Card>
+
+      <Card>
+        <CardTitle>{hi ? "इसे कैसे पढ़ें" : "How to read this"}</CardTitle>
+        <ul className="list-disc space-y-2 pl-5 text-sm leading-relaxed text-[#3A3A40]">
+          {pMin !== null && pMax !== null && (
+            <li>
+              {hi
+                ? `सभी ${withF.length} घाटों का चैंपियन अनुमान ${pMin.toFixed(2)}–${pMax.toFixed(2)} के बीच है (चारों मॉडल: ${Math.min(...allP).toFixed(3)}–${Math.max(...allP).toFixed(3)})। मॉडल ऊंचे जोखिम की पुष्टि करता है, पर घाटों को एक-दूसरे से अलग नहीं करता।`
+                : `All ${withF.length} ghats sit at ${pMin.toFixed(2)}–${pMax.toFixed(2)} on the champion (all four models: ${Math.min(...allP).toFixed(3)}–${Math.max(...allP).toFixed(3)}). The model confirms high risk everywhere but does not separate the ghats from each other.`}
+            </li>
+          )}
+          {missing > 0 && (
+            <li>
+              {hi ? `${missing} घाटों का पूर्वानुमान नहीं है; उन्हें सुरक्षित न मानें।` : `${missing} ghat(s) have no forecast; do not read that as safe.`}
+            </li>
+          )}
+          <li>
+            {hi
+              ? "प्राथमिकता क्रम CPCB स्नान मानकों और MPPCB रिपोर्ट की रीडिंग (पृष्ठ संख्या सहित) से बनता है, इस मॉडल से नहीं।"
+              : "The priority ranking is built from CPCB bathing limits and MPPCB report readings (with page numbers), not from this model."}
+          </li>
+          {L.label && (
+            <li>
+              {hi ? "लेबल: " : "Label: "}
+              {hi ? "उल्लंघन = विसर्जन के दौरान या एक सप्ताह बाद कोई भी DO < 5 mg/l या BOD > 3 mg/l।" : L.label.replace(/^P\(breach\)\s*=\s*/, "a breach = ") + "."}
+            </li>
+          )}
+          {typeof L.positive_rate === "number" && (
+            <li>
+              {hi
+                ? `प्रशिक्षण के ${L.n_train} रिकॉर्ड में से ${pct(L.positive_rate)} में उल्लंघन हुआ था, इसलिए आधार दर पहले से ऊंची है।`
+                : `${pct(L.positive_rate)} of the ${L.n_train} training records breached, so the base rate is already high.`}
+            </li>
+          )}
+          {L.caveat && <li className="font-semibold text-[#111113]">{L.caveat[lang]}</li>}
+        </ul>
+      </Card>
+    </div>
+  );
+}
+
+function MetricCell({ v, strong, max = 1 }: { v: number | undefined; strong: boolean; max?: number }) {
+  const w = typeof v === "number" ? Math.min(1, v / max) * 100 : 0;
+  return (
+    <td className="py-3 pr-3">
+      <div className="flex items-center gap-2">
+        <span className={`w-11 tabular-nums ${strong ? "font-bold text-[#111113]" : "text-[#3A3A40]"}`}>{f3(v)}</span>
+        <span className="hidden h-1.5 w-12 rounded-sm bg-[#F0F0F2] sm:block">
+          <span className={`block h-full rounded-sm ${strong ? "bg-[#2B2B30]" : "bg-[#8A8A93]"}`} style={{ width: `${w}%` }} />
+        </span>
+      </div>
+    </td>
+  );
+}
+
+function AgreementBar({ p, models, lang }: { p: number; models: Record<string, number>; lang: Lang }) {
+  return (
+    <div className="relative h-5" role="img" aria-label={`${modelName("random_forest", lang)} ${pct(p)}; ${Object.entries(models).map(([m, v]) => `${modelName(m, lang)} ${pct(v)}`).join(", ")}`}>
+      <div className="absolute inset-x-0 top-1/2 h-2.5 -translate-y-1/2 rounded-sm bg-[#F0F0F2]">
+        <div className="h-full rounded-sm bg-[#2B2B30]" style={{ width: `${p * 100}%` }} />
+      </div>
+      {[0.25, 0.5, 0.75].map((t) => (
+        <span key={t} className="absolute top-0 h-5 w-px bg-[#E6E6E9]" style={{ left: `${t * 100}%` }} aria-hidden />
+      ))}
+      {MODELS.filter((m) => typeof models[m] === "number").map((m) => (
+        <span
+          key={m}
+          title={`${modelName(m, lang)}: ${pct(models[m])}`}
+          className="absolute top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white ring-1 ring-[#9A9AA3]"
+          style={{ left: `${models[m] * 100}%`, background: MODEL_SHADE[m] }}
+        />
+      ))}
     </div>
   );
 }

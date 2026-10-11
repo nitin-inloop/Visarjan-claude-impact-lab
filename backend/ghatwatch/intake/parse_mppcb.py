@@ -15,9 +15,9 @@ from .normalize import canon_param, parse_value
 
 PHASES = ["pre", "during", "after"]
 _COL_RE = {
-    "pre": re.compile(r"pre[\s\-.]*immersion|before\s+immersion", re.I),
-    "during": re.compile(r"during[\s\-.]*immersion|during", re.I),
-    "after": re.compile(r"after[\s\-.]*one[\s\-.]*week|after[\s\-.]*immersion|post[\s\-.]*immersion|after", re.I),
+    "pre": re.compile(r"pre[\s\-.]*[il1|]mmersion|before\s+[il1|]mmersion", re.I),
+    "during": re.compile(r"during[\s\-.]*[il1|]mmersion|during", re.I),
+    "after": re.compile(r"after[\s\-.]*one[\s\-.]*week|after[\s\-.]*[il1|]mmersion|post[\s\-.]*[il1|]mmersion|after", re.I),
 }
 _LOC_RE = re.compile(r"^\s*(?:name\s+of\s+)?location\s*(?:name)?\s*[-:–.]+\s*(.*\S)\s*$", re.I)
 _LOC_BARE_RE = re.compile(r"^\s*location\s+(.*\S)\s*$", re.I)
@@ -52,7 +52,7 @@ def detect_context(text: str) -> tuple[int | None, str | None]:
 
 def _header_columns(line: str) -> dict[str, float] | None:
     """Pre/During/After header line -> {phase: centre column}; None if not a table header."""
-    if not re.search(r"pre[\s\-.]*immersion", line, re.I):
+    if not re.search(r"pre[\s\-.]*[il1|]mmersion", line, re.I):
         return None
     cols: dict[str, float] = {}
     pos = 0

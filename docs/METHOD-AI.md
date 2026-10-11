@@ -5,14 +5,30 @@ Tests: `backend/tests/test_ai.py`.
 
 ## The rule
 
+The flow: **the officer uploads a PDF → the text layer / OCR pulls out the values → rules + ML analyse them →
+Claude answers quickly, grounded on what was extracted.**
+
+```
+upload ─► PDF text layer (pypdf) ──poor text (scan/photo)──► PaddleOCR (backend/.ocr-venv)
+             │                                                   │
+             └──── rows ◄────────────────────────────────────────┘
+                    │  no rows, or OCR needed but not installed ─► Claude reads the document (fallback)
+                    ▼
+          normalise → validate → analyse (scoring rules + ML forecast) → report      source.extractor = text | ocr | claude
+                    ▼
+          POST /api/ai/jobs/{id}/analysis: fast Claude (claude-haiku-5-5) → Cerebras → template, all guarded
+```
+
 AI never decides a score, a tier or a rank. Those come only from `ghatwatch.scoring` (CPCB class B
 rules) and the forecast models in `ghatwatch/ml`. AI has two jobs:
 
-1. **Read documents** (Claude). It turns an uploaded MPPCB report PDF or a photo of a lab sheet into table
-   rows, which then go through the same normalise → validate → analyse → review → accept pipeline as the
+1. **Read documents** (Claude, as the fallback). The PDF text layer is read first, then OCR for scans and
+   photos. Claude reads the document only when text + OCR produced no rows, or when OCR is needed but not
+   installed. Its rows then go through the same normalise → validate → analyse → review → accept pipeline as the
    PDF-text and OCR paths (docs/METHOD-INTAKE.md). The officer still reviews every row before it counts.
-2. **Write short officer text** (Cerebras for speed, Claude as fallback). It rewrites a template answer
-   into plainer words, in English and Hindi.
+2. **Write short officer text.** The officer answer for an uploaded report uses fast Claude first
+   (Cerebras as fallback); alert rephrasing and the brief polish use Cerebras first (Claude as fallback).
+   It writes from the extracted rows and the template answer, in English and Hindi.
 
 Every AI output is checked. If a check fails, or no key is set, or the provider is slow or down, the
 officer sees the **template text** (marked "Standard text"). The app works fully with no keys.
@@ -21,11 +37,13 @@ officer sees the **template text** (marked "Standard text"). The app works fully
 
 | Job | Order | Timeout |
 |---|---|---|
-| Officer text (job answer, alert rephrasing, brief polish) | Cerebras (`CEREBRAS_MODEL`, default `gpt-oss-120b`) → Claude (`GHATWATCH_CLAUDE_MODEL`, default `claude-opus-5-5`, effort low) → template | ~8 s Cerebras, ~16 s Claude |
-| Reading a PDF / photo | Claude (document or image block, structured JSON output) → PDF text layer / OCR (the intake's existing path) | ~30 s |
+| Officer answer for one job | Order from `GHATWATCH_ANSWER_PROVIDERS` (default `claude,cerebras`): Claude fast (`GHATWATCH_CLAUDE_FAST_MODEL`, default `claude-haiku-5-5`, thinking off, effort low, max_tokens 1200) → Cerebras → template | ~10 s Claude, ~8 s Cerebras |
+| Alert rephrasing, brief polish | Cerebras (`CEREBRAS_MODEL`, default `gpt-oss-120b`) → Claude (`GHATWATCH_CLAUDE_MODEL`, default `claude-opus-5-5`, effort low) → template | ~8 s Cerebras, ~16 s Claude |
+| Reading a PDF / photo | PDF text layer → PaddleOCR (if text is poor and OCR is installed) → Claude fallback (document or image block, structured JSON output) | OCR: measured 43-96 s for the 2-page scanned dummy on CPU (51/51 values exact); Claude ~30 s |
 
 Every AI result records `provider`, `model` and `latency_ms`. Responses carry `ai_written: true|false`
-and `numbers_checked: true`.
+and `numbers_checked: true`; the job answer also carries `extractor` (`text` | `ocr` | `claude`), so the UI can
+show e.g. "OCR → Claude · 1.2 s". The extract stage log names the extractor used, in English and Hindi.
 
 ## Document reading (extract.py)
 
@@ -39,8 +57,9 @@ and `numbers_checked: true`.
   page's text. A number that isn't on its page is marked `text_check: "mismatch"` and its confidence drops
   to 0.4, so the validator flags it for officer review ("check against the page"). Unreadable cells are
   given confidence 0.5.
-- Returns `None` when there is no key, the file is too large, or the call fails; the pipeline then uses
-  the PDF text / OCR path.
+- Called only as the fallback (text + OCR gave no rows, or a scan/photo with OCR not installed). Returns
+  `None` when there is no key, the file is too large, or the call fails; the stage then fails with the
+  original reason (e.g. "PaddleOCR is not installed").
 
 ## Officer answer for one job (analyze.py)
 
@@ -50,7 +69,12 @@ and where (test team / aerators / cleaning crew), by when (17 Oct for tests, 19 
 20 Oct 2026), the forecast as a **model estimate, not a measurement**, and what is still missing
 (blank / not-sampled cells, flagged values). The facts come only from the job's analysis (scoring + models).
 
-The LLM gets the facts and the template and may only reword them. Its output goes through the guards.
+The LLM prompt (`EXTRACTED`) holds the extracted rows (ghat, parameter, `value_as_printed`, page, flag,
+phase, status, needs_review; up to 120 rows), the deterministic analysis (before/after tier per ghat,
+breaches vs limits, the forecast as an estimate, gaps) and the template. It must say what the report
+shows, which ghat needs what action by when (before 20 Oct 2026), and what is missing, without changing
+any tier, action or deadline. Its output goes through the guards; numbers may come only from `EXTRACTED`
+or the template, and every template number must stay.
 
 ## Alerts (alerts.py)
 
@@ -100,14 +124,20 @@ the API:
 CEREBRAS_API_KEY=...
 ANTHROPIC_API_KEY=...
 # optional: CEREBRAS_MODEL=gpt-oss-120b  GHATWATCH_CLAUDE_MODEL=claude-opus-5-5  GHATWATCH_AI=0 (force template)
+# optional: GHATWATCH_CLAUDE_FAST_MODEL=claude-haiku-5-5  GHATWATCH_ANSWER_PROVIDERS=claude,cerebras
 ```
+
+`ANTHROPIC_API_KEY` alone is enough for the main flow (fast Claude answers + Claude extraction fallback).
+OCR for scans: `python3 -m venv backend/.ocr-venv && backend/.ocr-venv/bin/pip install paddlepaddle paddleocr pypdfium2`.
 
 ## Tests (backend/tests/test_ai.py)
 
 No network, no keys. Mocked Cerebras and Claude. Covered: the invented-number guard, the two-way guard
 and dates, health / estimate / length guards, the no-key template path (which itself passes every guard),
 a good Cerebras output being used, invented-number and health-claim outputs falling back to the template,
-Cerebras failure falling through to Claude, Claude extraction keeping the parser row shape (blank stays "", text-layer
+the job answer using fast Claude first (Haiku, thinking off, effort low, ≤10 s, prompt holds the extracted rows),
+Claude failure / guard failure falling through to Cerebras then the template, the `GHATWATCH_ANSWER_PROVIDERS`
+and `GHATWATCH_CLAUDE_FAST_MODEL` overrides, Claude extraction keeping the parser row shape (blank stays "", text-layer
 mismatch lowers confidence), every alert rule, unaccepted jobs not raising alerts, guarded alert
 rephrasing, and the endpoints with no keys.
 

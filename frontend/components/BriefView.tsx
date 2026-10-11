@@ -14,7 +14,7 @@ type View = Lang | "both";
 
 function Memo({ md, lang }: { md: string; lang: Lang }) {
   return (
-    <div lang={lang} className="memo border border-rule rounded-md bg-paper px-5 py-6 sm:px-8 sm:py-8 shadow-[0_1px_0_var(--rule)]">
+    <div lang={lang} className="memo rounded-2xl border border-[#E6E6E9] bg-white px-5 py-6 sm:px-8 sm:py-8">
       <ReactMarkdown>{md}</ReactMarkdown>
     </div>
   );
@@ -61,19 +61,19 @@ export function BriefView({ initial }: { initial: Brief | null }) {
   const short = data.short?.[shortLang] ?? null;
   const waText = short ?? (plain.length > 3500 ? `${plain.slice(0, 3400)}\n…` : plain);
   const wa = `https://wa.me/?text=${encodeURIComponent(waText)}`;
-  const big = "min-h-14 inline-flex items-center justify-center gap-2 rounded-xl px-5 text-xl font-bold no-underline";
+  const big = "min-h-11 inline-flex items-center justify-center gap-2 rounded-xl px-4 text-[14px] font-semibold no-underline";
 
   return (
-    <div className={clsx("pt-6", view === "both" && "xl:w-[min(1200px,94vw)] xl:relative xl:left-1/2 xl:-translate-x-1/2")}>
+    <div className={clsx("mx-auto", view === "both" ? "max-w-[1300px]" : "max-w-4xl")}>
       <div className="no-print">
-        <h1 className="text-3xl font-extrabold leading-tight">{lang === "hi" ? "ब्रीफ भेजें" : "Brief to forward"}</h1>
-        <p className="mt-1 text-lg">
+        <h1 className="text-[26px] font-bold tracking-tight text-[#111113]">{lang === "hi" ? "ब्रीफ भेजें" : "Brief to forward"}</h1>
+        <p className="mt-1 text-[14px] text-[#6B6B75]">
           {lang === "hi"
             ? "यह एक पेज का नोट है। कॉपी करें, WhatsApp पर भेजें या प्रिंट करें।"
             : "This is a one-page note. Copy it, send it on WhatsApp, or print it."}
         </p>
         <div className="mt-4 grid gap-3 sm:grid-cols-3">
-          <button type="button" className={clsx(big, "border-2 border-accent bg-paper text-accent hover:bg-surface")} onClick={copy}>
+          <button type="button" className={clsx(big, "border border-[#E6E6E9] bg-white text-[#111113] hover:bg-[#F6F6F7]")} onClick={copy}>
             <span aria-hidden>{copied ? "✅" : "📋"}</span>
             {copied ? (lang === "hi" ? "कॉपी हो गया" : "Copied") : lang === "hi" ? "कॉपी करें" : "Copy"}
           </button>
@@ -81,7 +81,7 @@ export function BriefView({ initial }: { initial: Brief | null }) {
             <span aria-hidden>💬</span>
             {lang === "hi" ? "WhatsApp पर भेजें" : "Share on WhatsApp"}
           </a>
-          <button type="button" className={clsx(big, "bg-accent text-white hover:opacity-90")} onClick={() => window.print()}>
+          <button type="button" className={clsx(big, "bg-[#111113] text-white hover:bg-[#2B2B30]")} onClick={() => window.print()}>
             <span aria-hidden>🖨</span>
             {lang === "hi" ? "प्रिंट करें" : "Print"}
           </button>
@@ -96,8 +96,8 @@ export function BriefView({ initial }: { initial: Brief | null }) {
                 aria-pressed={view === tb.v}
                 onClick={() => setChoice(tb.v)}
                 className={clsx(
-                  "min-h-12 px-4 text-lg border-2 border-ink first:rounded-l-lg last:rounded-r-lg",
-                  view === tb.v ? "bg-ink text-paper font-bold" : "bg-paper hover:bg-surface",
+                  "min-h-10 px-3 text-[14px] border border-[#E6E6E9] first:rounded-l-xl last:rounded-r-xl",
+                  view === tb.v ? "bg-[#111113] text-white font-semibold" : "bg-white hover:bg-[#F6F6F7]",
                 )}
               >
                 {tb.label}
@@ -110,17 +110,17 @@ export function BriefView({ initial }: { initial: Brief | null }) {
         </div>
       </div>
       {short && (
-        <section lang={shortLang} className="mt-5 rounded-xl border-2 border-accent bg-paper p-4 sm:p-5" aria-label={lang === "hi" ? "छोटा सार" : "Short summary"}>
+        <section lang={shortLang} className="mt-5 rounded-2xl border border-[#E6E6E9] bg-white p-5" aria-label={lang === "hi" ? "छोटा सार" : "Short summary"}>
           <p className="text-base font-semibold text-muted">
             {lang === "hi" ? "छोटा सार (WhatsApp पर यही जाएगा)" : "Short summary (this is what WhatsApp sends)"}
           </p>
           <div className="mt-3">
             <ListenButton text={short} lang={shortLang} size="lg" />
           </div>
-          <p className="mt-2 whitespace-pre-line text-xl leading-relaxed">{short}</p>
+          <p className="mt-2 whitespace-pre-line text-[16px] leading-relaxed">{short}</p>
         </section>
       )}
-      {short && <h2 className="no-print mt-6 text-2xl font-bold">{lang === "hi" ? "पूरा ब्रीफ" : "Full brief"}</h2>}
+      {short && <h2 className="no-print mt-6 text-[13px] font-semibold uppercase tracking-wide text-[#3A3A40]">{lang === "hi" ? "पूरा ब्रीफ" : "Full brief"}</h2>}
       <div className={clsx("mt-5 grid gap-5", view === "both" && "xl:grid-cols-2")}>
         {langs.map((l, i) => (
           <div key={l} className={i > 0 ? "print-break" : undefined}>
