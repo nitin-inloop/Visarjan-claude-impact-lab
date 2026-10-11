@@ -23,3 +23,6 @@ Thumbs.db
 
 # Note: backend/artifacts/ (JSON and models/*.joblib) is committed on purpose,
 # so the app runs without retraining.
+
+# Live pipeline logs (runtime only)
+backend/live_logs/
