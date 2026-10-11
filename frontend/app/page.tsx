@@ -1,8 +1,8 @@
-import { ActionSheet } from "@/components/ActionSheet";
+import { CommandCenter } from "@/components/live/CommandCenter";
 import { readSnapshot } from "@/lib/snapshot";
 import type { Ranking } from "@/lib/types";
 
 export default async function Home() {
-  const initial = await readSnapshot<Ranking>("ranking.json");
-  return <ActionSheet initial={initial} />;
+  const initialRanking = await readSnapshot<Ranking>("ranking.json");
+  return <CommandCenter initialRanking={initialRanking} />;
 }

@@ -146,7 +146,7 @@ export function ModelsView({ initialLb, initialAlloc, ranking }: { initialLb: Le
                   className="w-24 rounded border border-ink/60 px-2 py-1.5 tabular"
                 />
               </label>
-              <button type="submit" className="rounded bg-accent text-white px-4 py-2 font-semibold">
+              <button type="submit" className="rounded bg-accent text-paper px-4 py-2 font-semibold">
                 {t.update}
               </button>
             </form>

@@ -33,7 +33,7 @@ export function ActionSheet({ initial }: { initial: Ranking | null }) {
           {t.summaryBod(s.bod_above_3, s.bod_readings)}
         </p>
         <div className="mt-4 flex flex-wrap gap-2 no-print">
-          <Link href="/brief" className="rounded bg-accent text-white px-4 py-2 font-semibold no-underline hover:opacity-90">
+          <Link href="/brief" className="rounded bg-accent text-paper px-4 py-2 font-semibold no-underline hover:opacity-90">
             {t.openBrief}
           </Link>
           <Link href="/whatif" className="rounded border-2 border-accent text-accent px-4 py-1.5 font-semibold no-underline hover:bg-surface">

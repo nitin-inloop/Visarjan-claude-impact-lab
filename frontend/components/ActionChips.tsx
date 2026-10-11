@@ -28,7 +28,7 @@ export function ActionChips({ slug, actions, trackable = true }: { slug: string;
                 aria-pressed={done}
                 className={clsx(
                   "no-print shrink-0 rounded px-2 py-0.5 text-sm border",
-                  done ? "bg-low text-white border-low" : "border-rule text-muted hover:border-ink hover:text-ink",
+                  done ? "bg-low text-paper border-low" : "border-rule text-muted hover:border-ink hover:text-ink",
                 )}
               >
                 {done ? `✓ ${t.done}` : t.markDone}

@@ -79,7 +79,7 @@ export function RankCard({ g }: { g: GhatRank }) {
       <ActionChips slug={g.slug} actions={g.actions} />
 
       <div className="mt-4 no-print">
-        <Link href={`/ghat/${g.slug}`} className="inline-block rounded bg-accent text-white px-4 py-2 font-semibold no-underline hover:opacity-90">
+        <Link href={`/ghat/${g.slug}`} className="inline-block rounded bg-accent text-paper px-4 py-2 font-semibold no-underline hover:opacity-90">
           {t.evidence}
         </Link>
       </div>

@@ -21,6 +21,23 @@
 7. **Forecasts** the chance that a ghat breaches the bathing limit during/after immersion, from a model trained on 544 MP site-festival records (2023–25). Four algorithms are trained (logistic regression, random forest, XGBoost, LightGBM); the best on grouped cross-validation is served and all four are shown for agreement. Labelled as an estimate, never as a measurement.
 8. **Experimental:** a Conservative Q-Learning (offline RL) policy that suggests how to split a fixed budget of tests/cleaning/aeration across ghats, trained on a simulator calibrated to the data because no real intervention log exists. See [docs/METHOD.md](docs/METHOD.md) for the caveats.
 
+## Live mode (phase 2): real-time pipeline, one dark screen, voice
+
+The home screen is a control-room view for immersion day. A simulated telemetry source (today) or real sensors and field tests (tomorrow, through the same contract) feed a real-time pipeline in the backend:
+
+```
+simulator / field readings → validate + staleness → rolling windows + hysteresis breach state
+→ live score and tier → alerts (escalating, baseline-aware) → dispatch suggestions (CQL Q-table on the live state)
+→ applied actions fed back into the simulation → Hindi/English situation report → WebSocket to the screen → voice
+```
+
+- **Simulator**: steady-state start from each ghat's latest pre-immersion readings, Poisson idol arrivals peaking 17:00–23:00 on 20 Oct 2026, Streeter-Phelps style oxygen balance with reaeration per water-body type, BOD and solids from a fitted per-idol leachable load, sensor noise and dropouts. Bairagarh and Malikhedi have **no live sensor** on purpose (mirroring the data gap); their state is hidden until a test team is sent. Every parameter is an assumption and is listed in `docs/METHOD-LIVE.md`. Everything on the screen carries a "SIMULATED" badge.
+- **One screen**: sim clock and speed, alert feed, seven live ghat tiles, a detail drawer, and tabs for the ranked plan, dispatch, sitrep and models. The phase 1 pages still exist at their old URLs.
+- **Voice**: click "Enable voice" once (Chrome requires a user gesture). Alerts of high severity and above and the sitrep are spoken in the selected language. Hindi speech needs a Hindi voice on the machine (Windows: Settings → Time & language → Language → add Hindi with the speech pack; Chrome also offers an online Hindi voice when connected). Without one the English text is spoken and the UI says so. Commands can be typed in the command box; the microphone button appears when the browser supports speech recognition (Chrome, online).
+- **If the API is down** the screen runs on a built-in demo generator that emits the same message shapes, so the demo never looks dead. The connection pill tells you which source is active.
+
+_Phase 2 results (tests, calibration error, alert codes) are filled in at the end of this section after integration._
+
 ## How to run (5 steps)
 
 ```bash

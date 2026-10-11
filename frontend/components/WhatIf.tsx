@@ -141,7 +141,7 @@ export function WhatIf({ initial }: { initial: Ranking | null }) {
           ))}
         </fieldset>
         {msg && <p className="text-high font-semibold">{msg}</p>}
-        <button type="submit" disabled={busy} className="rounded bg-accent text-white px-5 py-2.5 font-semibold disabled:opacity-60">
+        <button type="submit" disabled={busy} className="rounded bg-accent text-paper px-5 py-2.5 font-semibold disabled:opacity-60">
           {busy ? t.working : t.calculate}
         </button>
       </form>

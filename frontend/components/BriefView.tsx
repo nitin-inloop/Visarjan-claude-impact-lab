@@ -69,7 +69,7 @@ export function BriefView({ initial }: { initial: Brief | null }) {
                 role="tab"
                 aria-selected={view === tb.v}
                 onClick={() => setChoice(tb.v)}
-                className={clsx("px-3 py-1.5", view === tb.v ? "bg-ink text-white font-semibold" : "hover:bg-surface")}
+                className={clsx("px-3 py-1.5", view === tb.v ? "bg-ink text-paper font-semibold" : "hover:bg-surface")}
               >
                 {tb.label}
               </button>
@@ -78,7 +78,7 @@ export function BriefView({ initial }: { initial: Brief | null }) {
           <button type="button" className={btn} onClick={copy}>
             {copied ? `✓ ${t.copied}` : t.copy}
           </button>
-          <button type="button" className={clsx(btn, "bg-accent text-white border-accent hover:bg-accent hover:opacity-90")} onClick={() => window.print()}>
+          <button type="button" className={clsx(btn, "bg-accent text-paper border-accent hover:bg-accent hover:opacity-90")} onClick={() => window.print()}>
             {t.print}
           </button>
           <button type="button" className={btn} onClick={download}>
