@@ -328,7 +328,7 @@ __turbopack_context__.s([
     ()=>postWhatIf
 ]);
 var __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$polyfills$2f$process$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__ = /*#__PURE__*/ __turbopack_context__.i("[project]/node_modules/next/dist/build/polyfills/process.js [app-client] (ecmascript)");
-const API_URL = (__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$build$2f$polyfills$2f$process$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000").replace(/\/$/, "");
+const API_URL = (("TURBOPACK compile-time value", "http://localhost:8002") ?? "http://localhost:8000").replace(/\/$/, "");
 async function getJson(url, timeoutMs = 2500, init) {
     const ctrl = new AbortController();
     const timer = setTimeout(()=>ctrl.abort(), timeoutMs);

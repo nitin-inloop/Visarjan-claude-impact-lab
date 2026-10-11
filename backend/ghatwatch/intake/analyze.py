@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import copy
 import math
+from functools import lru_cache
 
 import numpy as np
 import pandas as pd
@@ -118,11 +119,7 @@ def forecast_for(slug: str, rows: list[dict]) -> dict | None:
     pre = {PRE_KEY[r["parameter"]]: float(r["value"]) for r in pre_rows
            if int(r["year"]) == y and r["festival"] == fest}
     try:
-        from ..ml.predict import whatif_forecast
-        if (y, fest) == (2026, "Durga"):
-            fc = whatif_forecast(slug, pre)
-        else:
-            fc = _forecast_basis(slug, pre, y, fest)
+        fc = _forecast_basis(slug, pre, y, fest)
     except Exception as e:  # forecast is optional
         return {"available": False, "reason": f"forecast failed: {e!r}", "champion": None, "p_breach": None,
                 "models": {}, "top_reasons": [], "basis": {"year": y, "festival": fest, "phase": "pre"}}
@@ -132,14 +129,15 @@ def forecast_for(slug: str, rows: list[dict]) -> dict | None:
 
 
 def _forecast_basis(slug: str, pre: dict, year: int, festival: str) -> dict:
-    """As ml.predict.whatif_forecast but for the year/festival the uploaded pre values belong to."""
-    from ..ml.dataset import PRE_FEATURES, bhopal_feature_rows, featurise
+    """ml.predict.whatif_forecast generalised to the year/festival the entered pre values belong to
+    (identical to it for Durga 2026); the Bhopal feature table is cached per process."""
+    from ..ml.dataset import PRE_FEATURES, featurise
     from ..ml.predict import WHATIF_KEYS, forecast_row, load_models
     loaded = load_models()
     if loaded is None:
         return {"available": False, "reason": "ML models not built"}
     _, meta = loaded
-    t = bhopal_feature_rows(meta["top_ros"])
+    t = _feature_rows(tuple(meta["top_ros"]))
     row = t[t["slug"] == slug].copy()
     for c in PRE_FEATURES:
         row[c] = np.nan
@@ -149,6 +147,23 @@ def _forecast_basis(slug: str, pre: dict, year: int, festival: str) -> dict:
             row[f] = float(pre[k])
     X = featurise(row.reset_index(drop=True), meta["top_ros"])
     return forecast_row(X, {"year": year, "festival": festival, "phase": "pre"})
+
+
+@lru_cache(maxsize=4)
+def _feature_rows(top_ros: tuple):
+    from ..ml.dataset import bhopal_feature_rows
+    return bhopal_feature_rows(list(top_ros))
+
+
+def warm_up() -> None:
+    """Import the ML stack and load the models once (first analysis would otherwise pay ~15 s)."""
+    try:
+        from ..ml.predict import load_models
+        loaded = load_models()
+        if loaded is not None:
+            _feature_rows(tuple(loaded[1]["top_ros"]))
+    except Exception:
+        pass
 
 
 def allocation_hint(gh_after: dict, rows: list[dict]) -> dict | None:

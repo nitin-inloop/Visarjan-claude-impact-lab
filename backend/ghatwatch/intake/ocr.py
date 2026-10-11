@@ -74,7 +74,7 @@ def status(refresh: bool = False) -> dict:
             ver = None
             if ok:
                 di = sorted(sp.glob("paddleocr-*.dist-info"))
-                ver = di[-1].name.split("-")[1] if di else "3.x"
+                ver = di[-1].name[len("paddleocr-"):-len(".dist-info")] if di else "3.x"
             v = {"available": bool(ok), "version": ver, "render": bool(render),
                  "detail": None if ok else ("venv not found" if py is None else "paddleocr not installed in venv")}
         _CACHE.update(t=time.time(), v=v)

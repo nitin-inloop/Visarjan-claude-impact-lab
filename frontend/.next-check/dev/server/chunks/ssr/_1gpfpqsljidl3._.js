@@ -267,7 +267,7 @@ __turbopack_context__.s([
     "postWhatIf",
     ()=>postWhatIf
 ]);
-const API_URL = (process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:8000").replace(/\/$/, "");
+const API_URL = (("TURBOPACK compile-time value", "http://localhost:8002") ?? "http://localhost:8000").replace(/\/$/, "");
 async function getJson(url, timeoutMs = 2500, init) {
     const ctrl = new AbortController();
     const timer = setTimeout(()=>ctrl.abort(), timeoutMs);

@@ -1056,6 +1056,10 @@
     height: 100%;
   }
 
+  .max-h-48 {
+    max-height: calc(var(--spacing) * 48);
+  }
+
   .max-h-\[27rem\] {
     max-height: 27rem;
   }

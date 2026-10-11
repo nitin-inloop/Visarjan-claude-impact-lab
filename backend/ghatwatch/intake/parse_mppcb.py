@@ -183,8 +183,10 @@ def parse_pages(pages: list[dict], context: dict | None = None) -> tuple[list[di
                 cand = re.sub(r"\s+", " ", line).strip().rstrip(".").strip()
                 if len(cand) >= 6 and re.search(r"[A-Za-z]{3}", cand):
                     last_candidate = cand
-                    if cur is not None and cur["params"]:
-                        cur = None  # a new site line closes the table
+                    site_like = (re.search(r"(ghat|kund|lake|visarjan|bhopal|dam|talab|river|,)", cand, re.I)
+                                 and not re.search(r"(^|\s)\d+(\.\d+)?(\s|$)", cand))
+                    if cur is not None and cur["params"] and site_like:
+                        cur = None  # a new site line closes the table (a garbled OCR row does not)
     tables = [t for t in tables if t["rows"] > 0]
     for t in tables:
         log.append(f"p{t['page']}: '{t['site_as_printed']}' {t['festival'] or '?'} {t['year'] or '?'} "

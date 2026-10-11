@@ -137,12 +137,27 @@ def main(argv: list[str]) -> int:
             result["version"] = getattr(paddleocr, "__version__", "3.x")
             kw = dict(use_doc_orientation_classify=False, use_doc_unwarping=False,
                       use_textline_orientation=True, lang="en")
-            try:  # Paddle 3.x oneDNN on Windows CPU raises NotImplementedError (PIR attribute); disable it
-                ocr = PaddleOCR(enable_mkldnn=False, **kw)
-            except TypeError:
-                ocr = PaddleOCR(**kw)
+            side = int(os.environ.get("GHATWATCH_OCR_DET_SIDE", "1600"))
+            if side > 0:  # cap the detector input (a 200 dpi A4 page is 1654 x 2339 px)
+                kw.update(text_det_limit_side_len=side, text_det_limit_type="max")
+            mk = os.environ.get("GHATWATCH_OCR_MKLDNN", "1") == "1"
+
+            def make(mkldnn: bool):
+                try:
+                    return PaddleOCR(enable_mkldnn=mkldnn, **kw)
+                except TypeError:
+                    return PaddleOCR(**kw)
+
+            ocr = make(mk)
+            result["mkldnn"] = mk
             for p, png in rendered:
-                res = ocr.predict(input=str(png))
+                try:
+                    res = ocr.predict(input=str(png))
+                except NotImplementedError:
+                    # Paddle 3.x oneDNN on Windows CPU: "ConvertPirAttribute2RuntimeAttribute not support"
+                    ocr = make(False)
+                    result["mkldnn"] = False
+                    res = ocr.predict(input=str(png))
                 words = []
                 for r in res or []:
                     texts = _get(r, "rec_texts") or []

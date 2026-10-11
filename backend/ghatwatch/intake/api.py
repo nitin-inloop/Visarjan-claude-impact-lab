@@ -16,6 +16,15 @@ from .store import get_store
 router = APIRouter(prefix="/api/intake", tags=["intake"])
 
 
+def _warm() -> None:
+    from .analyze import warm_up
+    warm_up()
+
+
+if not __import__("os").environ.get("GHATWATCH_NO_WARMUP"):
+    threading.Thread(target=_warm, daemon=True, name="intake-warmup").start()
+
+
 class JSONUTF8(JSONResponse):
     media_type = "application/json; charset=utf-8"
 

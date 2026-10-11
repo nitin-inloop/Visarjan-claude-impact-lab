@@ -664,6 +664,14 @@ var __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$intake$2f$shar
 ;
 ;
 ;
+const JOB_KEY = "ghatwatch.intakeJob";
+const remember = (id)=>{
+    try {
+        if (id) sessionStorage.setItem(JOB_KEY, id);
+        else sessionStorage.removeItem(JOB_KEY);
+    } catch  {
+    /* private mode */ }
+};
 function IntakePanel({ onOpenPlan }) {
     const { lang, t } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$lang$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useLang"])();
     const x = __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$intakeI18n$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["ix"][lang];
@@ -689,6 +697,7 @@ function IntakePanel({ onOpenPlan }) {
             setRows([]);
             setJob(null);
             setJobId(r.job_id);
+            remember(r.job_id);
         } catch  {
             setMsg({
                 ok: false,
@@ -709,7 +718,20 @@ function IntakePanel({ onOpenPlan }) {
             setClient(c);
             setCaps(k);
             // ?demo=1 starts a demo job (mock only) so the flow can be shown without a file.
-            if (c.kind === "mock" && new URLSearchParams(window.location.search).get("demo") === "1") {
+            let stored = null;
+            try {
+                stored = sessionStorage.getItem(JOB_KEY);
+            } catch  {
+                stored = null;
+            }
+            const deep = new URLSearchParams(window.location.search).get("job");
+            if (deep && /^[\w-]{1,64}$/.test(deep)) stored = deep; // ?job=<id> opens an existing job
+            if (stored) {
+                // Re-open the job from before a tab switch / reload (if the backend still knows it).
+                c.job(stored).then(()=>{
+                    if (alive) setJobId(stored);
+                }).catch(()=>remember(null));
+            } else if (c.kind === "mock" && new URLSearchParams(window.location.search).get("demo") === "1") {
                 void startUpload(c, new File([
                     "demo"
                 ], "mppcb_2025_p28.jpg", {
@@ -753,6 +775,7 @@ function IntakePanel({ onOpenPlan }) {
             setRows([]);
             setJob(null);
             setJobId(r.job_id);
+            remember(r.job_id);
         } catch  {
             setMsg({
                 ok: false,
@@ -836,6 +859,7 @@ function IntakePanel({ onOpenPlan }) {
         }
     };
     const reset = ()=>{
+        remember(null);
         setJobId(null);
         setJob(null);
         setRows([]);
@@ -857,7 +881,7 @@ function IntakePanel({ onOpenPlan }) {
                         children: x.title
                     }, void 0, false, {
                         fileName: "[project]/components/intake/IntakePanel.tsx",
-                        lineNumber: 176,
+                        lineNumber: 204,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -865,7 +889,7 @@ function IntakePanel({ onOpenPlan }) {
                         children: x.sub
                     }, void 0, false, {
                         fileName: "[project]/components/intake/IntakePanel.tsx",
-                        lineNumber: 177,
+                        lineNumber: 205,
                         columnNumber: 9
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$intake$2f$CapabilitiesBanner$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["CapabilitiesBanner"], {
@@ -873,13 +897,13 @@ function IntakePanel({ onOpenPlan }) {
                         kind: client?.kind ?? null
                     }, void 0, false, {
                         fileName: "[project]/components/intake/IntakePanel.tsx",
-                        lineNumber: 178,
+                        lineNumber: 206,
                         columnNumber: 9
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/intake/IntakePanel.tsx",
-                lineNumber: 175,
+                lineNumber: 203,
                 columnNumber: 7
             }, this),
             !jobId ? /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$intake$2f$SourceChooser$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["SourceChooser"], {
@@ -890,7 +914,7 @@ function IntakePanel({ onOpenPlan }) {
                 onManual: onManual
             }, void 0, false, {
                 fileName: "[project]/components/intake/IntakePanel.tsx",
-                lineNumber: 182,
+                lineNumber: 210,
                 columnNumber: 9
             }, this) : /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
                 className: "flex flex-wrap items-center gap-3 text-sm",
@@ -900,7 +924,7 @@ function IntakePanel({ onOpenPlan }) {
                         children: job?.source.file_name ?? (job?.kind === "manual" ? x.manual : "…")
                     }, void 0, false, {
                         fileName: "[project]/components/intake/IntakePanel.tsx",
-                        lineNumber: 185,
+                        lineNumber: 213,
                         columnNumber: 11
                     }, this),
                     job && job.source.pages.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -908,7 +932,7 @@ function IntakePanel({ onOpenPlan }) {
                         children: job.source.pages.map((p)=>x.pageThumb(p)).join(", ")
                     }, void 0, false, {
                         fileName: "[project]/components/intake/IntakePanel.tsx",
-                        lineNumber: 186,
+                        lineNumber: 214,
                         columnNumber: 50
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -918,13 +942,13 @@ function IntakePanel({ onOpenPlan }) {
                         children: x.newJob
                     }, void 0, false, {
                         fileName: "[project]/components/intake/IntakePanel.tsx",
-                        lineNumber: 187,
+                        lineNumber: 215,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/intake/IntakePanel.tsx",
-                lineNumber: 184,
+                lineNumber: 212,
                 columnNumber: 9
             }, this),
             job && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$intake$2f$StageTimeline$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["StageTimeline"], {
@@ -932,7 +956,7 @@ function IntakePanel({ onOpenPlan }) {
                 now: now
             }, void 0, false, {
                 fileName: "[project]/components/intake/IntakePanel.tsx",
-                lineNumber: 193,
+                lineNumber: 221,
                 columnNumber: 15
             }, this),
             job && rows.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("section", {
@@ -947,7 +971,7 @@ function IntakePanel({ onOpenPlan }) {
                                 children: x.review
                             }, void 0, false, {
                                 fileName: "[project]/components/intake/IntakePanel.tsx",
-                                lineNumber: 198,
+                                lineNumber: 226,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -958,7 +982,7 @@ function IntakePanel({ onOpenPlan }) {
                                         children: x.year
                                     }, void 0, false, {
                                         fileName: "[project]/components/intake/IntakePanel.tsx",
-                                        lineNumber: 200,
+                                        lineNumber: 228,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
@@ -969,13 +993,13 @@ function IntakePanel({ onOpenPlan }) {
                                         onChange: (e)=>setContext(Number(e.target.value) || ctxYear, ctxFest)
                                     }, void 0, false, {
                                         fileName: "[project]/components/intake/IntakePanel.tsx",
-                                        lineNumber: 201,
+                                        lineNumber: 229,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/intake/IntakePanel.tsx",
-                                lineNumber: 199,
+                                lineNumber: 227,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("label", {
@@ -986,7 +1010,7 @@ function IntakePanel({ onOpenPlan }) {
                                         children: x.festival
                                     }, void 0, false, {
                                         fileName: "[project]/components/intake/IntakePanel.tsx",
-                                        lineNumber: 210,
+                                        lineNumber: 238,
                                         columnNumber: 15
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("select", {
@@ -1000,7 +1024,7 @@ function IntakePanel({ onOpenPlan }) {
                                                 children: t.festival.Ganesh
                                             }, void 0, false, {
                                                 fileName: "[project]/components/intake/IntakePanel.tsx",
-                                                lineNumber: 212,
+                                                lineNumber: 240,
                                                 columnNumber: 17
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("option", {
@@ -1008,19 +1032,19 @@ function IntakePanel({ onOpenPlan }) {
                                                 children: t.festival.Durga
                                             }, void 0, false, {
                                                 fileName: "[project]/components/intake/IntakePanel.tsx",
-                                                lineNumber: 213,
+                                                lineNumber: 241,
                                                 columnNumber: 17
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/components/intake/IntakePanel.tsx",
-                                        lineNumber: 211,
+                                        lineNumber: 239,
                                         columnNumber: 15
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/intake/IntakePanel.tsx",
-                                lineNumber: 209,
+                                lineNumber: 237,
                                 columnNumber: 13
                             }, this),
                             job.kind === "upload" && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1032,13 +1056,13 @@ function IntakePanel({ onOpenPlan }) {
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/components/intake/IntakePanel.tsx",
-                                lineNumber: 216,
+                                lineNumber: 244,
                                 columnNumber: 39
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/intake/IntakePanel.tsx",
-                        lineNumber: 197,
+                        lineNumber: 225,
                         columnNumber: 11
                     }, this),
                     q && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1054,7 +1078,7 @@ function IntakePanel({ onOpenPlan }) {
                         })
                     }, void 0, false, {
                         fileName: "[project]/components/intake/IntakePanel.tsx",
-                        lineNumber: 219,
+                        lineNumber: 247,
                         columnNumber: 13
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$intake$2f$ReviewTable$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["ReviewTable"], {
@@ -1065,7 +1089,7 @@ function IntakePanel({ onOpenPlan }) {
                         readOnly: !reviewable
                     }, void 0, false, {
                         fileName: "[project]/components/intake/IntakePanel.tsx",
-                        lineNumber: 223,
+                        lineNumber: 251,
                         columnNumber: 11
                     }, this),
                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -1079,7 +1103,7 @@ function IntakePanel({ onOpenPlan }) {
                                 children: x.rerun
                             }, void 0, false, {
                                 fileName: "[project]/components/intake/IntakePanel.tsx",
-                                lineNumber: 225,
+                                lineNumber: 253,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1090,7 +1114,7 @@ function IntakePanel({ onOpenPlan }) {
                                 children: x.accept
                             }, void 0, false, {
                                 fileName: "[project]/components/intake/IntakePanel.tsx",
-                                lineNumber: 228,
+                                lineNumber: 256,
                                 columnNumber: 13
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("button", {
@@ -1101,7 +1125,7 @@ function IntakePanel({ onOpenPlan }) {
                                 children: x.reject
                             }, void 0, false, {
                                 fileName: "[project]/components/intake/IntakePanel.tsx",
-                                lineNumber: 231,
+                                lineNumber: 259,
                                 columnNumber: 13
                             }, this),
                             busy && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -1109,19 +1133,19 @@ function IntakePanel({ onOpenPlan }) {
                                 children: x.working
                             }, void 0, false, {
                                 fileName: "[project]/components/intake/IntakePanel.tsx",
-                                lineNumber: 234,
+                                lineNumber: 262,
                                 columnNumber: 22
                             }, this)
                         ]
                     }, void 0, true, {
                         fileName: "[project]/components/intake/IntakePanel.tsx",
-                        lineNumber: 224,
+                        lineNumber: 252,
                         columnNumber: 11
                     }, this)
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/intake/IntakePanel.tsx",
-                lineNumber: 196,
+                lineNumber: 224,
                 columnNumber: 9
             }, this),
             msg && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -1130,7 +1154,7 @@ function IntakePanel({ onOpenPlan }) {
                 children: msg.text
             }, void 0, false, {
                 fileName: "[project]/components/intake/IntakePanel.tsx",
-                lineNumber: 240,
+                lineNumber: 268,
                 columnNumber: 9
             }, this),
             job?.analysis && client && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$intake$2f$IntakeResults$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["IntakeResults"], {
@@ -1139,7 +1163,7 @@ function IntakePanel({ onOpenPlan }) {
                 onOpenPlan: onOpenPlan
             }, void 0, false, {
                 fileName: "[project]/components/intake/IntakePanel.tsx",
-                lineNumber: 245,
+                lineNumber: 273,
                 columnNumber: 35
             }, this),
             client && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$intake$2f$AcceptedList$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["AcceptedList"], {
@@ -1147,13 +1171,13 @@ function IntakePanel({ onOpenPlan }) {
                 version: acceptedV
             }, void 0, false, {
                 fileName: "[project]/components/intake/IntakePanel.tsx",
-                lineNumber: 247,
+                lineNumber: 275,
                 columnNumber: 18
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/intake/IntakePanel.tsx",
-        lineNumber: 174,
+        lineNumber: 202,
         columnNumber: 5
     }, this);
 }
@@ -2463,7 +2487,7 @@ function ReviewTable({ job, rows, onChange, pageUrl, readOnly = false }) {
                                                         }, this);
                                                         const o = original.get(r.row_id);
                                                         const edited = !!o && (o.value !== r.value || o.flag !== r.flag);
-                                                        const rIssues = r.issues.map((id)=>issueById.get(id)).filter((i)=>!!i);
+                                                        const rIssues = r.issues.map((id)=>issueById.get(id)).filter((i)=>!!i && i.level !== "info");
                                                         return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
                                                             className: "px-2 py-0.5 align-middle",
                                                             children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -2576,19 +2600,12 @@ function ReviewTable({ job, rows, onChange, pageUrl, readOnly = false }) {
                             lineNumber: 132,
                             columnNumber: 11
                         }, this),
-                        s.issues.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("ul", {
-                            className: "px-3 py-2 border-t border-rule space-y-1",
-                            children: s.issues.map((i)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(IssueLine, {
-                                    i: i
-                                }, i.id, false, {
-                                    fileName: "[project]/components/intake/ReviewTable.tsx",
-                                    lineNumber: 196,
-                                    columnNumber: 17
-                                }, this))
+                        s.issues.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(SiteIssues, {
+                            issues: s.issues
                         }, void 0, false, {
                             fileName: "[project]/components/intake/ReviewTable.tsx",
-                            lineNumber: 194,
-                            columnNumber: 13
+                            lineNumber: 193,
+                            columnNumber: 35
                         }, this)
                     ]
                 }, s.site, true, {
@@ -2602,13 +2619,79 @@ function ReviewTable({ job, rows, onChange, pageUrl, readOnly = false }) {
                 onClose: ()=>setZoom(null)
             }, void 0, false, {
                 fileName: "[project]/components/intake/ReviewTable.tsx",
-                lineNumber: 202,
+                lineNumber: 196,
                 columnNumber: 25
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/intake/ReviewTable.tsx",
         lineNumber: 80,
+        columnNumber: 5
+    }, this);
+}
+/** warnings/errors listed; info notes (e.g. "already in pack", often one per row) folded into a count */ function SiteIssues({ issues }) {
+    const { lang } = (0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$lang$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["useLang"])();
+    const x = __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$intakeI18n$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["ix"][lang];
+    const loud = issues.filter((i)=>i.level !== "info");
+    const info = issues.filter((i)=>i.level === "info");
+    return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+        className: "px-3 py-2 border-t border-rule space-y-1",
+        children: [
+            loud.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("ul", {
+                className: "space-y-1",
+                children: loud.map((i)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(IssueLine, {
+                        i: i
+                    }, i.id, false, {
+                        fileName: "[project]/components/intake/ReviewTable.tsx",
+                        lineNumber: 212,
+                        columnNumber: 13
+                    }, this))
+            }, void 0, false, {
+                fileName: "[project]/components/intake/ReviewTable.tsx",
+                lineNumber: 210,
+                columnNumber: 9
+            }, this),
+            info.length > 0 && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("details", {
+                className: "text-xs",
+                children: [
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("summary", {
+                        className: "cursor-pointer text-muted",
+                        children: [
+                            x.level.info,
+                            ": ",
+                            info.length,
+                            " — ",
+                            info[0].text[lang]
+                        ]
+                    }, void 0, true, {
+                        fileName: "[project]/components/intake/ReviewTable.tsx",
+                        lineNumber: 218,
+                        columnNumber: 11
+                    }, this),
+                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("ul", {
+                        className: "mt-1 space-y-1 max-h-48 overflow-y-auto",
+                        children: info.map((i)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])(IssueLine, {
+                                i: i
+                            }, i.id, false, {
+                                fileName: "[project]/components/intake/ReviewTable.tsx",
+                                lineNumber: 223,
+                                columnNumber: 15
+                            }, this))
+                    }, void 0, false, {
+                        fileName: "[project]/components/intake/ReviewTable.tsx",
+                        lineNumber: 221,
+                        columnNumber: 11
+                    }, this)
+                ]
+            }, void 0, true, {
+                fileName: "[project]/components/intake/ReviewTable.tsx",
+                lineNumber: 217,
+                columnNumber: 9
+            }, this)
+        ]
+    }, void 0, true, {
+        fileName: "[project]/components/intake/ReviewTable.tsx",
+        lineNumber: 208,
         columnNumber: 5
     }, this);
 }
@@ -2627,7 +2710,7 @@ function IssueLine({ i }) {
                 ]
             }, void 0, true, {
                 fileName: "[project]/components/intake/ReviewTable.tsx",
-                lineNumber: 212,
+                lineNumber: 237,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
@@ -2635,13 +2718,13 @@ function IssueLine({ i }) {
                 children: i.text[lang]
             }, void 0, false, {
                 fileName: "[project]/components/intake/ReviewTable.tsx",
-                lineNumber: 215,
+                lineNumber: 240,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/intake/ReviewTable.tsx",
-        lineNumber: 211,
+        lineNumber: 236,
         columnNumber: 5
     }, this);
 }

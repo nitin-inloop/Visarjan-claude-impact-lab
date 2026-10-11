@@ -79,10 +79,14 @@ export function IntakePanel({ onOpenPlan }: { onOpenPlan?: () => void }) {
       } catch {
         stored = null;
       }
+      const deep = new URLSearchParams(window.location.search).get("job");
+      if (deep && /^[\w-]{1,64}$/.test(deep)) stored = deep; // ?job=<id> opens an existing job
       if (stored) {
         // Re-open the job from before a tab switch / reload (if the backend still knows it).
         c.job(stored)
-          .then(() => alive && setJobId(stored))
+          .then(() => {
+            if (alive) setJobId(stored);
+          })
           .catch(() => remember(null));
       } else if (c.kind === "mock" && new URLSearchParams(window.location.search).get("demo") === "1") {
         void startUpload(c, new File(["demo"], "mppcb_2025_p28.jpg", { type: "image/jpeg" }), {});

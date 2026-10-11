@@ -156,7 +156,7 @@ export function ReviewTable({ job, rows, onChange, pageUrl, readOnly = false }: 
                         if (!r) return <td key={ph} className="px-2 py-1 text-muted">—</td>;
                         const o = original.get(r.row_id);
                         const edited = !!o && (o.value !== r.value || o.flag !== r.flag);
-                        const rIssues = r.issues.map((id) => issueById.get(id)).filter((i): i is JobIssue => !!i);
+                        const rIssues = r.issues.map((id) => issueById.get(id)).filter((i): i is JobIssue => !!i && i.level !== "info");
                         return (
                           <td key={ph} className="px-2 py-0.5 align-middle">
                             <div className="flex items-center gap-1.5">
@@ -190,16 +190,41 @@ export function ReviewTable({ job, rows, onChange, pageUrl, readOnly = false }: 
               </tbody>
             </table>
           </div>
-          {s.issues.length > 0 && (
-            <ul className="px-3 py-2 border-t border-rule space-y-1">
-              {s.issues.map((i) => (
-                <IssueLine key={i.id} i={i} />
-              ))}
-            </ul>
-          )}
+          {s.issues.length > 0 && <SiteIssues issues={s.issues} />}
         </section>
       ))}
       {zoom !== null && <Lightbox src={pageUrl(zoom)} alt={x.pageThumb(zoom)} onClose={() => setZoom(null)} />}
+    </div>
+  );
+}
+
+/** warnings/errors listed; info notes (e.g. "already in pack", often one per row) folded into a count */
+function SiteIssues({ issues }: { issues: JobIssue[] }) {
+  const { lang } = useLang();
+  const x = ix[lang];
+  const loud = issues.filter((i) => i.level !== "info");
+  const info = issues.filter((i) => i.level === "info");
+  return (
+    <div className="px-3 py-2 border-t border-rule space-y-1">
+      {loud.length > 0 && (
+        <ul className="space-y-1">
+          {loud.map((i) => (
+            <IssueLine key={i.id} i={i} />
+          ))}
+        </ul>
+      )}
+      {info.length > 0 && (
+        <details className="text-xs">
+          <summary className="cursor-pointer text-muted">
+            {x.level.info}: {info.length} — {info[0].text[lang]}
+          </summary>
+          <ul className="mt-1 space-y-1 max-h-48 overflow-y-auto">
+            {info.map((i) => (
+              <IssueLine key={i.id} i={i} />
+            ))}
+          </ul>
+        </details>
+      )}
     </div>
   );
 }
