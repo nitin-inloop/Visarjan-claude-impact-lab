@@ -117,11 +117,11 @@ export function IntakeResults({ job, client, onOpenPlan }: { job: Job; client: I
       <p className="text-xs text-muted">
         {a.standard} · {x.notVerified}
       </p>
-      <div className="grid gap-3 xl:grid-cols-2">
+      <div className="@container"><div className="grid gap-3 @4xl:grid-cols-2">
         {ghats.map((g) => (
           <GhatResult key={g.slug} g={g} client={client} />
         ))}
-      </div>
+      </div></div>
       <div className="flex flex-wrap gap-2">
         <button type="button" className={btn} disabled={!job.report_available} onClick={() => download("en")}>
           {x.downloadEn}

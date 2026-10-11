@@ -1640,15 +1640,22 @@ function IntakeResults({ job, client, onOpenPlan }) {
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                className: "grid gap-3 xl:grid-cols-2",
-                children: ghats.map((g)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(GhatResult, {
-                        g: g,
-                        client: client
-                    }, g.slug, false, {
-                        fileName: "[project]/components/intake/IntakeResults.tsx",
-                        lineNumber: 122,
-                        columnNumber: 11
-                    }, this))
+                className: "@container",
+                children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                    className: "grid gap-3 @4xl:grid-cols-2",
+                    children: ghats.map((g)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(GhatResult, {
+                            g: g,
+                            client: client
+                        }, g.slug, false, {
+                            fileName: "[project]/components/intake/IntakeResults.tsx",
+                            lineNumber: 122,
+                            columnNumber: 11
+                        }, this))
+                }, void 0, false, {
+                    fileName: "[project]/components/intake/IntakeResults.tsx",
+                    lineNumber: 120,
+                    columnNumber: 35
+                }, this)
             }, void 0, false, {
                 fileName: "[project]/components/intake/IntakeResults.tsx",
                 lineNumber: 120,
@@ -2655,7 +2662,7 @@ function ReviewTable({ job, rows, onChange, pageUrl, readOnly = false }) {
                                                                 className: "flex items-center gap-1.5",
                                                                 children: [
                                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
-                                                                        className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$clsx$2f$dist$2f$clsx$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$intake$2f$shared$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cellInput"], "w-20 tabular", (0, __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$intake$2f$shared$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["confClass"])(r.confidence), edited && "outline outline-1 outline-accent"),
+                                                                        className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$clsx$2f$dist$2f$clsx$2e$mjs__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$intake$2f$shared$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["cellInput"], "w-[6.5rem] tabular", (0, __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$intake$2f$shared$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["confClass"])(r.confidence), edited && "outline outline-1 outline-accent"),
                                                                         value: drafts[r.row_id] ?? display(r),
                                                                         readOnly: readOnly,
                                                                         "aria-label": `${s.site} ${(0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$i18n$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["paramName"])(t, p)} ${t.phase[ph]}`,

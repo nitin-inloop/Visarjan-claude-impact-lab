@@ -502,6 +502,10 @@
 @layer components;
 
 @layer utilities {
+  .\@container {
+    container-type: inline-size;
+  }
+
   .collapse {
     visibility: collapse;
   }
@@ -929,6 +933,10 @@
 
   .w-36 {
     width: calc(var(--spacing) * 36);
+  }
+
+  .w-\[6\.5rem\] {
+    width: 6.5rem;
   }
 
   .w-full {
@@ -2318,6 +2326,12 @@
   @media (min-width: 96rem) {
     .\32 xl\:grid-cols-7 {
       grid-template-columns: repeat(7, minmax(0, 1fr));
+    }
+  }
+
+  @container (min-width: 56rem) {
+    .\@4xl\:grid-cols-2 {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
     }
   }
 

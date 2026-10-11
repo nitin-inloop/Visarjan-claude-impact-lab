@@ -161,7 +161,7 @@ export function ReviewTable({ job, rows, onChange, pageUrl, readOnly = false }: 
                           <td key={ph} className="px-2 py-0.5 align-middle">
                             <div className="flex items-center gap-1.5">
                               <input
-                                className={clsx(cellInput, "w-20 tabular", confClass(r.confidence), edited && "outline outline-1 outline-accent")}
+                                className={clsx(cellInput, "w-[6.5rem] tabular", confClass(r.confidence), edited && "outline outline-1 outline-accent")}
                                 value={drafts[r.row_id] ?? display(r)}
                                 readOnly={readOnly}
                                 aria-label={`${s.site} ${paramName(t, p)} ${t.phase[ph]}`}
