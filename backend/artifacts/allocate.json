@@ -1,0 +1,78 @@
+{
+  "available": true,
+  "experimental": true,
+  "budget": 8,
+  "plan": [
+    {
+      "slug": "hathaikheda",
+      "action": "clean",
+      "cost": 2.0,
+      "q_gain": 0.6928,
+      "gain_per_cost": 0.3464,
+      "state": {
+        "do_tier": 0,
+        "bod_tier": 1,
+        "known": 1,
+        "trend": 1
+      }
+    },
+    {
+      "slug": "khatlapura",
+      "action": "clean",
+      "cost": 2.0,
+      "q_gain": 0.6928,
+      "gain_per_cost": 0.3464,
+      "state": {
+        "do_tier": 0,
+        "bod_tier": 1,
+        "known": 1,
+        "trend": 1
+      }
+    },
+    {
+      "slug": "shahpura",
+      "action": "clean",
+      "cost": 2.0,
+      "q_gain": 0.1527,
+      "gain_per_cost": 0.0763,
+      "state": {
+        "do_tier": 2,
+        "bod_tier": 2,
+        "known": 1,
+        "trend": 1
+      }
+    },
+    {
+      "slug": "bairagarh",
+      "action": "clean",
+      "cost": 2.0,
+      "q_gain": 0.1123,
+      "gain_per_cost": 0.0561,
+      "state": {
+        "do_tier": 2,
+        "bod_tier": 1,
+        "known": 0,
+        "trend": 1
+      }
+    }
+  ],
+  "spent": 8.0,
+  "costs": {
+    "none": 0.0,
+    "test": 1.0,
+    "clean": 2.0,
+    "aerate": 3.0,
+    "clean_aerate": 5.0
+  },
+  "policy_values": {
+    "cql": -13.2545,
+    "heuristic": -13.5912,
+    "random": -16.4354,
+    "do_nothing": -14.2311
+  },
+  "caveat": {
+    "en": "Experimental. No intervention is logged in the MPPCB data, so this policy was learned from a simulator with assumed action effects, not from real outcomes. Use it only as a starting point for discussion. Logging what BMC actually does in 2026 (the action-log export) would let next year's version learn from real results.",
+    "hi": "प्रायोगिक। MPPCB डेटा में कोई कार्रवाई दर्ज नहीं है, इसलिए यह नीति वास्तविक परिणामों से नहीं बल्कि मान्य प्रभावों वाले सिम्युलेटर से सीखी गई है। इसे केवल चर्चा की शुरुआत मानें। 2026 में BMC की वास्तविक कार्रवाइयों को दर्ज करने (एक्शन-लॉग निर्यात) से अगले वर्ष वास्तविक परिणामों से सीखा जा सकेगा।"
+  },
+  "generated_at": "2026-10-11T12:44:03+05:30"
+}

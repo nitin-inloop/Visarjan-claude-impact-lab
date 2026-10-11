@@ -1,0 +1,635 @@
+{
+  "generated_at": "2026-10-11T12:44:03+05:30",
+  "ghats": [
+    {
+      "slug": "bairagarh",
+      "name": {
+        "en": "Bairagarh (Sant Hirdaram) kund",
+        "hi": "बैरागढ़ (संत हिरदाराम) कुंड"
+      },
+      "rank": 1,
+      "tier": "insufficient_data",
+      "coverage": 0.722,
+      "coverage_by_table": {
+        "Ganesh 2023": 1.0,
+        "Durga 2023": 1.0,
+        "Ganesh 2024": 1.0,
+        "Durga 2024": 1.0,
+        "Ganesh 2025": 0.333,
+        "Durga 2025": 0.0
+      },
+      "gaps": [
+        {
+          "kind": "parameter_absent",
+          "year": 2023,
+          "festival": "Durga",
+          "phase": null,
+          "parameters": [
+            "Suspended solids"
+          ],
+          "source": {
+            "report": "MPPCB 2023",
+            "pdf": "2023",
+            "page": 60
+          },
+          "text": {
+            "en": "Suspended solids not in the Durga 2023 table at all (not tested that year at any Bhopal ghat). Page 60.",
+            "hi": "दुर्गा 2023 की तालिका में निलंबित ठोस शामिल ही नहीं है (उस वर्ष किसी भी भोपाल घाट पर जांच नहीं)। पृष्ठ 60।"
+          }
+        },
+        {
+          "kind": "phase_not_sampled",
+          "year": 2025,
+          "festival": "Ganesh",
+          "phase": "pre",
+          "parameters": [
+            "pH",
+            "Total solids",
+            "Dissolved solids",
+            "Suspended solids",
+            "Dissolved oxygen",
+            "BOD",
+            "COD",
+            "Turbidity",
+            "Conductivity",
+            "Chromium",
+            "Lead",
+            "Zinc",
+            "Copper"
+          ],
+          "source": {
+            "report": "MPPCB 2025",
+            "pdf": "2025",
+            "page": 28
+          },
+          "text": {
+            "en": "Not sampled before immersion in Ganesh 2025 (report prints '*' / '**'). Page 28.",
+            "hi": "गणेश 2025 में विसर्जन से पहले नमूना नहीं लिया गया (रिपोर्ट में '*' / '**')। पृष्ठ 28।"
+          }
+        },
+        {
+          "kind": "phase_not_sampled",
+          "year": 2025,
+          "festival": "Ganesh",
+          "phase": "after",
+          "parameters": [
+            "pH",
+            "Total solids",
+            "Dissolved solids",
+            "Suspended solids",
+            "Dissolved oxygen",
+            "BOD",
+            "COD",
+            "Turbidity",
+            "Conductivity",
+            "Chromium",
+            "Lead",
+            "Zinc",
+            "Copper"
+          ],
+          "source": {
+            "report": "MPPCB 2025",
+            "pdf": "2025",
+            "page": 28
+          },
+          "text": {
+            "en": "Not sampled one week after immersion in Ganesh 2025 (report prints '*' / '**'). Page 28.",
+            "hi": "गणेश 2025 में विसर्जन के एक सप्ताह बाद नमूना नहीं लिया गया (रिपोर्ट में '*' / '**')। पृष्ठ 28।"
+          }
+        },
+        {
+          "kind": "missing_table",
+          "year": 2025,
+          "festival": "Durga",
+          "phase": null,
+          "parameters": [
+            "pH",
+            "Total solids",
+            "Dissolved solids",
+            "Suspended solids",
+            "Dissolved oxygen",
+            "BOD",
+            "COD",
+            "Turbidity",
+            "Conductivity",
+            "Chromium",
+            "Lead",
+            "Zinc",
+            "Copper"
+          ],
+          "source": {
+            "report": "MPPCB 2025",
+            "pdf": "2025",
+            "page": 64
+          },
+          "text": {
+            "en": "No Durga 2025 test exists for this ghat: the MPPCB 2025 report has no table for it (other Bhopal ghats are on pages 64–65).",
+            "hi": "इस घाट की दुर्गा 2025 की कोई जांच नहीं है: MPPCB 2025 रिपोर्ट में इसकी तालिका नहीं है (भोपाल के अन्य घाट पृष्ठ 64–65 पर हैं)।"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "malikhedi",
+      "name": {
+        "en": "Malikhedi kund",
+        "hi": "मालीखेड़ी कुंड"
+      },
+      "rank": 2,
+      "tier": "insufficient_data",
+      "coverage": 0.722,
+      "coverage_by_table": {
+        "Ganesh 2023": 1.0,
+        "Durga 2023": 1.0,
+        "Ganesh 2024": 1.0,
+        "Durga 2024": 1.0,
+        "Ganesh 2025": 0.333,
+        "Durga 2025": 0.0
+      },
+      "gaps": [
+        {
+          "kind": "parameter_absent",
+          "year": 2023,
+          "festival": "Durga",
+          "phase": null,
+          "parameters": [
+            "Suspended solids"
+          ],
+          "source": {
+            "report": "MPPCB 2023",
+            "pdf": "2023",
+            "page": 61
+          },
+          "text": {
+            "en": "Suspended solids not in the Durga 2023 table at all (not tested that year at any Bhopal ghat). Page 61.",
+            "hi": "दुर्गा 2023 की तालिका में निलंबित ठोस शामिल ही नहीं है (उस वर्ष किसी भी भोपाल घाट पर जांच नहीं)। पृष्ठ 61।"
+          }
+        },
+        {
+          "kind": "phase_not_sampled",
+          "year": 2025,
+          "festival": "Ganesh",
+          "phase": "pre",
+          "parameters": [
+            "pH",
+            "Total solids",
+            "Dissolved solids",
+            "Suspended solids",
+            "Dissolved oxygen",
+            "BOD",
+            "COD",
+            "Turbidity",
+            "Conductivity",
+            "Chromium",
+            "Lead",
+            "Zinc",
+            "Copper"
+          ],
+          "source": {
+            "report": "MPPCB 2025",
+            "pdf": "2025",
+            "page": 29
+          },
+          "text": {
+            "en": "Not sampled before immersion in Ganesh 2025 (report prints '*' / '**'). Page 29.",
+            "hi": "गणेश 2025 में विसर्जन से पहले नमूना नहीं लिया गया (रिपोर्ट में '*' / '**')। पृष्ठ 29।"
+          }
+        },
+        {
+          "kind": "phase_not_sampled",
+          "year": 2025,
+          "festival": "Ganesh",
+          "phase": "after",
+          "parameters": [
+            "pH",
+            "Total solids",
+            "Dissolved solids",
+            "Suspended solids",
+            "Dissolved oxygen",
+            "BOD",
+            "COD",
+            "Turbidity",
+            "Conductivity",
+            "Chromium",
+            "Lead",
+            "Zinc",
+            "Copper"
+          ],
+          "source": {
+            "report": "MPPCB 2025",
+            "pdf": "2025",
+            "page": 29
+          },
+          "text": {
+            "en": "Not sampled one week after immersion in Ganesh 2025 (report prints '*' / '**'). Page 29.",
+            "hi": "गणेश 2025 में विसर्जन के एक सप्ताह बाद नमूना नहीं लिया गया (रिपोर्ट में '*' / '**')। पृष्ठ 29।"
+          }
+        },
+        {
+          "kind": "missing_table",
+          "year": 2025,
+          "festival": "Durga",
+          "phase": null,
+          "parameters": [
+            "pH",
+            "Total solids",
+            "Dissolved solids",
+            "Suspended solids",
+            "Dissolved oxygen",
+            "BOD",
+            "COD",
+            "Turbidity",
+            "Conductivity",
+            "Chromium",
+            "Lead",
+            "Zinc",
+            "Copper"
+          ],
+          "source": {
+            "report": "MPPCB 2025",
+            "pdf": "2025",
+            "page": 64
+          },
+          "text": {
+            "en": "No Durga 2025 test exists for this ghat: the MPPCB 2025 report has no table for it (other Bhopal ghats are on pages 64–65).",
+            "hi": "इस घाट की दुर्गा 2025 की कोई जांच नहीं है: MPPCB 2025 रिपोर्ट में इसकी तालिका नहीं है (भोपाल के अन्य घाट पृष्ठ 64–65 पर हैं)।"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "shahpura",
+      "name": {
+        "en": "Shahpura lake ghat",
+        "hi": "शाहपुरा झील घाट"
+      },
+      "rank": 3,
+      "tier": "high",
+      "coverage": 1.0,
+      "coverage_by_table": {
+        "Ganesh 2023": 1.0,
+        "Durga 2023": 1.0,
+        "Ganesh 2024": 1.0,
+        "Durga 2024": 1.0,
+        "Ganesh 2025": 1.0,
+        "Durga 2025": 1.0
+      },
+      "gaps": [
+        {
+          "kind": "parameter_absent",
+          "year": 2023,
+          "festival": "Durga",
+          "phase": null,
+          "parameters": [
+            "Suspended solids"
+          ],
+          "source": {
+            "report": "MPPCB 2023",
+            "pdf": "2023",
+            "page": 60
+          },
+          "text": {
+            "en": "Suspended solids not in the Durga 2023 table at all (not tested that year at any Bhopal ghat). Page 60.",
+            "hi": "दुर्गा 2023 की तालिका में निलंबित ठोस शामिल ही नहीं है (उस वर्ष किसी भी भोपाल घाट पर जांच नहीं)। पृष्ठ 60।"
+          }
+        },
+        {
+          "kind": "parameter_absent",
+          "year": 2025,
+          "festival": "Durga",
+          "phase": null,
+          "parameters": [
+            "Suspended solids"
+          ],
+          "source": {
+            "report": "MPPCB 2025",
+            "pdf": "2025",
+            "page": 65
+          },
+          "text": {
+            "en": "Suspended solids not in the Durga 2025 table at all (not tested that year at any Bhopal ghat). Page 65.",
+            "hi": "दुर्गा 2025 की तालिका में निलंबित ठोस शामिल ही नहीं है (उस वर्ष किसी भी भोपाल घाट पर जांच नहीं)। पृष्ठ 65।"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "rani-kamlapati",
+      "name": {
+        "en": "Rani Kamlapati ghat / Kamla Park kund",
+        "hi": "रानी कमलापति घाट / कमला पार्क कुंड"
+      },
+      "rank": 4,
+      "tier": "high",
+      "coverage": 1.0,
+      "coverage_by_table": {
+        "Ganesh 2023": 1.0,
+        "Durga 2023": 1.0,
+        "Ganesh 2024": 1.0,
+        "Durga 2024": 1.0,
+        "Ganesh 2025": 1.0,
+        "Durga 2025": 1.0
+      },
+      "gaps": [
+        {
+          "kind": "parameter_absent",
+          "year": 2023,
+          "festival": "Durga",
+          "phase": null,
+          "parameters": [
+            "Suspended solids"
+          ],
+          "source": {
+            "report": "MPPCB 2023",
+            "pdf": "2023",
+            "page": 59
+          },
+          "text": {
+            "en": "Suspended solids not in the Durga 2023 table at all (not tested that year at any Bhopal ghat). Page 59.",
+            "hi": "दुर्गा 2023 की तालिका में निलंबित ठोस शामिल ही नहीं है (उस वर्ष किसी भी भोपाल घाट पर जांच नहीं)। पृष्ठ 59।"
+          }
+        },
+        {
+          "kind": "parameter_absent",
+          "year": 2025,
+          "festival": "Durga",
+          "phase": null,
+          "parameters": [
+            "Suspended solids"
+          ],
+          "source": {
+            "report": "MPPCB 2025",
+            "pdf": "2025",
+            "page": 64
+          },
+          "text": {
+            "en": "Suspended solids not in the Durga 2025 table at all (not tested that year at any Bhopal ghat). Page 64.",
+            "hi": "दुर्गा 2025 की तालिका में निलंबित ठोस शामिल ही नहीं है (उस वर्ष किसी भी भोपाल घाट पर जांच नहीं)। पृष्ठ 64।"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "hathaikheda",
+      "name": {
+        "en": "Hathaikheda dam / kund",
+        "hi": "हथाईखेड़ा डैम / कुंड"
+      },
+      "rank": 5,
+      "tier": "medium",
+      "coverage": 1.0,
+      "coverage_by_table": {
+        "Ganesh 2023": 1.0,
+        "Durga 2023": 1.0,
+        "Ganesh 2024": 1.0,
+        "Durga 2024": 1.0,
+        "Ganesh 2025": 1.0,
+        "Durga 2025": 1.0
+      },
+      "gaps": [
+        {
+          "kind": "parameter_absent",
+          "year": 2023,
+          "festival": "Durga",
+          "phase": null,
+          "parameters": [
+            "Suspended solids"
+          ],
+          "source": {
+            "report": "MPPCB 2023",
+            "pdf": "2023",
+            "page": 59
+          },
+          "text": {
+            "en": "Suspended solids not in the Durga 2023 table at all (not tested that year at any Bhopal ghat). Page 59.",
+            "hi": "दुर्गा 2023 की तालिका में निलंबित ठोस शामिल ही नहीं है (उस वर्ष किसी भी भोपाल घाट पर जांच नहीं)। पृष्ठ 59।"
+          }
+        },
+        {
+          "kind": "parameter_absent",
+          "year": 2025,
+          "festival": "Durga",
+          "phase": null,
+          "parameters": [
+            "Suspended solids"
+          ],
+          "source": {
+            "report": "MPPCB 2025",
+            "pdf": "2025",
+            "page": 64
+          },
+          "text": {
+            "en": "Suspended solids not in the Durga 2025 table at all (not tested that year at any Bhopal ghat). Page 64.",
+            "hi": "दुर्गा 2025 की तालिका में निलंबित ठोस शामिल ही नहीं है (उस वर्ष किसी भी भोपाल घाट पर जांच नहीं)। पृष्ठ 64।"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "khatlapura",
+      "name": {
+        "en": "Khatlapura ghat",
+        "hi": "खटलापुरा घाट"
+      },
+      "rank": 6,
+      "tier": "low",
+      "coverage": 0.981,
+      "coverage_by_table": {
+        "Ganesh 2023": 1.0,
+        "Durga 2023": 0.889,
+        "Ganesh 2024": 1.0,
+        "Durga 2024": 1.0,
+        "Ganesh 2025": 1.0,
+        "Durga 2025": 1.0
+      },
+      "gaps": [
+        {
+          "kind": "parameter_not_sampled",
+          "year": 2023,
+          "festival": "Ganesh",
+          "phase": "during",
+          "parameters": [
+            "Chromium",
+            "Lead",
+            "Zinc",
+            "Copper"
+          ],
+          "source": {
+            "report": "MPPCB 2023",
+            "pdf": "2023",
+            "page": 26
+          },
+          "text": {
+            "en": "Chromium, Lead, Zinc, Copper not sampled during immersion in Ganesh 2023 (blank or '_' in the report). Page 26.",
+            "hi": "गणेश 2023 में विसर्जन के दौरान क्रोमियम, सीसा (लेड), जस्ता (ज़िंक), तांबा (कॉपर) की जांच नहीं हुई (रिपोर्ट में खाली या '_')। पृष्ठ 26।"
+          }
+        },
+        {
+          "kind": "parameter_not_sampled",
+          "year": 2023,
+          "festival": "Durga",
+          "phase": "during",
+          "parameters": [
+            "BOD"
+          ],
+          "source": {
+            "report": "MPPCB 2023",
+            "pdf": "2023",
+            "page": 59
+          },
+          "text": {
+            "en": "BOD not sampled during immersion in Durga 2023 (blank or '_' in the report). Page 59.",
+            "hi": "दुर्गा 2023 में विसर्जन के दौरान बीओडी की जांच नहीं हुई (रिपोर्ट में खाली या '_')। पृष्ठ 59।"
+          }
+        },
+        {
+          "kind": "parameter_absent",
+          "year": 2023,
+          "festival": "Durga",
+          "phase": null,
+          "parameters": [
+            "Suspended solids"
+          ],
+          "source": {
+            "report": "MPPCB 2023",
+            "pdf": "2023",
+            "page": 59
+          },
+          "text": {
+            "en": "Suspended solids not in the Durga 2023 table at all (not tested that year at any Bhopal ghat). Page 59.",
+            "hi": "दुर्गा 2023 की तालिका में निलंबित ठोस शामिल ही नहीं है (उस वर्ष किसी भी भोपाल घाट पर जांच नहीं)। पृष्ठ 59।"
+          }
+        },
+        {
+          "kind": "parameter_absent",
+          "year": 2025,
+          "festival": "Durga",
+          "phase": null,
+          "parameters": [
+            "Suspended solids"
+          ],
+          "source": {
+            "report": "MPPCB 2025",
+            "pdf": "2025",
+            "page": 64
+          },
+          "text": {
+            "en": "Suspended solids not in the Durga 2025 table at all (not tested that year at any Bhopal ghat). Page 64.",
+            "hi": "दुर्गा 2025 की तालिका में निलंबित ठोस शामिल ही नहीं है (उस वर्ष किसी भी भोपाल घाट पर जांच नहीं)। पृष्ठ 64।"
+          }
+        }
+      ]
+    },
+    {
+      "slug": "prempura",
+      "name": {
+        "en": "Prempura ghat",
+        "hi": "प्रेमपुरा घाट"
+      },
+      "rank": 7,
+      "tier": "low",
+      "coverage": 0.926,
+      "coverage_by_table": {
+        "Ganesh 2023": 1.0,
+        "Durga 2023": 0.556,
+        "Ganesh 2024": 1.0,
+        "Durga 2024": 1.0,
+        "Ganesh 2025": 1.0,
+        "Durga 2025": 1.0
+      },
+      "gaps": [
+        {
+          "kind": "parameter_not_sampled",
+          "year": 2023,
+          "festival": "Durga",
+          "phase": "pre",
+          "parameters": [
+            "BOD"
+          ],
+          "source": {
+            "report": "MPPCB 2023",
+            "pdf": "2023",
+            "page": 60
+          },
+          "text": {
+            "en": "BOD not sampled before immersion in Durga 2023 (blank or '_' in the report). Page 60.",
+            "hi": "दुर्गा 2023 में विसर्जन से पहले बीओडी की जांच नहीं हुई (रिपोर्ट में खाली या '_')। पृष्ठ 60।"
+          }
+        },
+        {
+          "kind": "parameter_not_sampled",
+          "year": 2023,
+          "festival": "Durga",
+          "phase": "during",
+          "parameters": [
+            "pH",
+            "BOD"
+          ],
+          "source": {
+            "report": "MPPCB 2023",
+            "pdf": "2023",
+            "page": 60
+          },
+          "text": {
+            "en": "pH, BOD not sampled during immersion in Durga 2023 (blank or '_' in the report). Page 60.",
+            "hi": "दुर्गा 2023 में विसर्जन के दौरान पीएच, बीओडी की जांच नहीं हुई (रिपोर्ट में खाली या '_')। पृष्ठ 60।"
+          }
+        },
+        {
+          "kind": "parameter_not_sampled",
+          "year": 2023,
+          "festival": "Durga",
+          "phase": "after",
+          "parameters": [
+            "BOD"
+          ],
+          "source": {
+            "report": "MPPCB 2023",
+            "pdf": "2023",
+            "page": 60
+          },
+          "text": {
+            "en": "BOD not sampled one week after immersion in Durga 2023 (blank or '_' in the report). Page 60.",
+            "hi": "दुर्गा 2023 में विसर्जन के एक सप्ताह बाद बीओडी की जांच नहीं हुई (रिपोर्ट में खाली या '_')। पृष्ठ 60।"
+          }
+        },
+        {
+          "kind": "parameter_absent",
+          "year": 2023,
+          "festival": "Durga",
+          "phase": null,
+          "parameters": [
+            "Suspended solids"
+          ],
+          "source": {
+            "report": "MPPCB 2023",
+            "pdf": "2023",
+            "page": 60
+          },
+          "text": {
+            "en": "Suspended solids not in the Durga 2023 table at all (not tested that year at any Bhopal ghat). Page 60.",
+            "hi": "दुर्गा 2023 की तालिका में निलंबित ठोस शामिल ही नहीं है (उस वर्ष किसी भी भोपाल घाट पर जांच नहीं)। पृष्ठ 60।"
+          }
+        },
+        {
+          "kind": "parameter_absent",
+          "year": 2025,
+          "festival": "Durga",
+          "phase": null,
+          "parameters": [
+            "Suspended solids"
+          ],
+          "source": {
+            "report": "MPPCB 2025",
+            "pdf": "2025",
+            "page": 65
+          },
+          "text": {
+            "en": "Suspended solids not in the Durga 2025 table at all (not tested that year at any Bhopal ghat). Page 65.",
+            "hi": "दुर्गा 2025 की तालिका में निलंबित ठोस शामिल ही नहीं है (उस वर्ष किसी भी भोपाल घाट पर जांच नहीं)। पृष्ठ 65।"
+          }
+        }
+      ]
+    }
+  ]
+}

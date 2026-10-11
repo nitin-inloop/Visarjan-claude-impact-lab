@@ -1,0 +1,14 @@
+# Ghat Watch backend (Python 3.12). anthropic is optional (brief polish, off by default).
+pandas==3.0.5
+numpy==2.5.3
+scikit-learn==1.9.1
+xgboost==3.4.1
+lightgbm==4.7.0
+shap==0.53.0
+joblib==1.6.0
+fastapi==0.115.6
+uvicorn==0.34.0
+pydantic==2.10.4
+httpx==0.28.1
+pytest==8.3.4
+anthropic==0.42.0

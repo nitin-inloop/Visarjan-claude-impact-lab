@@ -1,0 +1,30 @@
+{
+  "artifacts_built_at": "2026-10-11T12:44:03+05:30",
+  "runtime_seconds": 35.1,
+  "timings": {
+    "ml_seconds": 22.4,
+    "rl_seconds": 8.0
+  },
+  "bhopal_rows": 1524,
+  "statewide_cleaning": {
+    "rows_raw": 21600,
+    "rows_needs_check_dropped": 879,
+    "rows_duplicate_dropped": 603,
+    "implausible_nulled": {
+      "DO > 20": 14,
+      "pH > 14 or < 0": 2,
+      "BOD > 500": 1,
+      "negative (other)": 0
+    },
+    "rows_clean": 20118
+  },
+  "sites": [
+    "bairagarh",
+    "khatlapura",
+    "prempura",
+    "rani-kamlapati",
+    "hathaikheda",
+    "malikhedi",
+    "shahpura"
+  ]
+}
