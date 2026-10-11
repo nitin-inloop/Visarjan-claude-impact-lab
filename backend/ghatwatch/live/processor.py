@@ -82,7 +82,7 @@ class Processor:
         if len(m5) == 0:
             m5 = v[-1:]  # dropout gap: fall back to the latest reading within the hour
         slope = None
-        if len(m30) >= 5:
+        if len(m30) >= 10:  # at least 10 min of data before a trend is reported
             tt = (t[t > now - 30 * MIN_MS] - now) / 3_600_000.0
             slope = float(np.polyfit(tt, m30, 1)[0])
         return {"mean_5": round(float(m5.mean()), 3), "mean_30": round(float(m30.mean()), 3),
