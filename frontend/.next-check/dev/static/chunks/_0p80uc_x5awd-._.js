@@ -7916,7 +7916,7 @@ var _s = __turbopack_context__.k.signature();
 ;
 const W = 640;
 const H = 360;
-const LON0 = 77.29;
+const LON0 = 77.3;
 const LON1 = 77.53;
 const LAT0 = 23.165;
 const LAT1 = 23.295;
@@ -8094,7 +8094,7 @@ function MapPanel({ note } = {}) {
                         strokeWidth: 1,
                         children: [
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("path", {
-                                d: "M92,82 C118,50 196,56 238,92 C258,108 262,128 248,140 C224,152 204,168 178,174 C142,182 110,164 100,138 C92,120 86,100 92,82 Z"
+                                d: "M92,82 C118,50 196,56 238,92 C258,108 262,128 248,140 C232,160 222,204 207,210 C192,215 186,190 178,174 C142,182 110,164 100,138 C92,120 86,100 92,82 Z"
                             }, void 0, false, {
                                 fileName: "[project]/components/live/MapPanel.tsx",
                                 lineNumber: 65,
@@ -8115,9 +8115,9 @@ function MapPanel({ note } = {}) {
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("ellipse", {
-                                cx: 396,
-                                cy: 268,
-                                rx: 20,
+                                cx: 338,
+                                cy: 244,
+                                rx: 18,
                                 ry: 12
                             }, void 0, false, {
                                 fileName: "[project]/components/live/MapPanel.tsx",
@@ -8175,8 +8175,8 @@ function MapPanel({ note } = {}) {
                                 columnNumber: 11
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("text", {
-                                x: 420,
-                                y: 296,
+                                x: 366,
+                                y: 280,
                                 textAnchor: "middle",
                                 children: lang === "hi" ? "शाहपुरा झील" : "Shahpura lake"
                             }, void 0, false, {

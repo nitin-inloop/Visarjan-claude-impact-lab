@@ -8,7 +8,7 @@ import { useUi } from "./CommandCenter";
 
 const W = 640;
 const H = 360;
-const LON0 = 77.29;
+const LON0 = 77.3;
 const LON1 = 77.53;
 const LAT0 = 23.165;
 const LAT1 = 23.295;
@@ -62,17 +62,17 @@ export function MapPanel({ note }: { note?: string } = {}) {
         <rect x={0} y={0} width={W} height={H} fill="url(#cc-vignette)" />
         {/* Stylised water bodies (schematic, not to scale) */}
         <g fill="#16324a" stroke="#2c5677" strokeWidth={1}>
-          <path d="M92,82 C118,50 196,56 238,92 C258,108 262,128 248,140 C224,152 204,168 178,174 C142,182 110,164 100,138 C92,120 86,100 92,82 Z" />
+          <path d="M92,82 C118,50 196,56 238,92 C258,108 262,128 248,140 C232,160 222,204 207,210 C192,215 186,190 178,174 C142,182 110,164 100,138 C92,120 86,100 92,82 Z" />
           <path d="M262,118 C270,104 300,100 314,108 C322,114 316,124 302,126 C288,128 268,128 262,118 Z" />
           <path d="M500,72 C508,58 548,56 566,66 C576,74 568,90 548,92 C526,94 504,86 500,72 Z" />
-          <ellipse cx={396} cy={268} rx={20} ry={12} />
+          <ellipse cx={338} cy={244} rx={18} ry={12} />
           <circle cx={556} cy={306} r={6} />
         </g>
         <g fontSize={11} fill="#7f9bb5" fontStyle="italic">
           <text x={150} y={112} textAnchor="middle">{lang === "hi" ? "बड़ा तालाब" : "Upper Lake"}</text>
           <text x={322} y={126} textAnchor="start">{lang === "hi" ? "छोटा तालाब" : "Lower Lake"}</text>
           <text x={535} y={52} textAnchor="middle">{lang === "hi" ? "हथाईखेड़ा जलाशय" : "Hathaikheda reservoir"}</text>
-          <text x={420} y={296} textAnchor="middle">{lang === "hi" ? "शाहपुरा झील" : "Shahpura lake"}</text>
+          <text x={366} y={280} textAnchor="middle">{lang === "hi" ? "शाहपुरा झील" : "Shahpura lake"}</text>
         </g>
         {/* depot */}
         <g>

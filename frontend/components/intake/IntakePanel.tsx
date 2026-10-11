@@ -17,6 +17,16 @@ import { IntakeResults } from "./IntakeResults";
 import { AcceptedList } from "./AcceptedList";
 import { btn, btnPrimary, input } from "./shared";
 
+const JOB_KEY = "ghatwatch.intakeJob";
+const remember = (id: string | null) => {
+  try {
+    if (id) sessionStorage.setItem(JOB_KEY, id);
+    else sessionStorage.removeItem(JOB_KEY);
+  } catch {
+    /* private mode */
+  }
+};
+
 export function IntakePanel({ onOpenPlan }: { onOpenPlan?: () => void }) {
   const { lang, t } = useLang();
   const x = ix[lang];
@@ -44,6 +54,7 @@ export function IntakePanel({ onOpenPlan }: { onOpenPlan?: () => void }) {
         setRows([]);
         setJob(null);
         setJobId(r.job_id);
+        remember(r.job_id);
       } catch {
         setMsg({ ok: false, text: x.failed });
       } finally {
@@ -62,7 +73,18 @@ export function IntakePanel({ onOpenPlan }: { onOpenPlan?: () => void }) {
       setClient(c);
       setCaps(k);
       // ?demo=1 starts a demo job (mock only) so the flow can be shown without a file.
-      if (c.kind === "mock" && new URLSearchParams(window.location.search).get("demo") === "1") {
+      let stored: string | null = null;
+      try {
+        stored = sessionStorage.getItem(JOB_KEY);
+      } catch {
+        stored = null;
+      }
+      if (stored) {
+        // Re-open the job from before a tab switch / reload (if the backend still knows it).
+        c.job(stored)
+          .then(() => alive && setJobId(stored))
+          .catch(() => remember(null));
+      } else if (c.kind === "mock" && new URLSearchParams(window.location.search).get("demo") === "1") {
         void startUpload(c, new File(["demo"], "mppcb_2025_p28.jpg", { type: "image/jpeg" }), {});
       }
     });
@@ -97,6 +119,7 @@ export function IntakePanel({ onOpenPlan }: { onOpenPlan?: () => void }) {
       setRows([]);
       setJob(null);
       setJobId(r.job_id);
+      remember(r.job_id);
     } catch {
       setMsg({ ok: false, text: x.failed });
     } finally {
@@ -158,6 +181,7 @@ export function IntakePanel({ onOpenPlan }: { onOpenPlan?: () => void }) {
   };
 
   const reset = () => {
+    remember(null);
     setJobId(null);
     setJob(null);
     setRows([]);
