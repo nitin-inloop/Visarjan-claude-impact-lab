@@ -16,6 +16,19 @@ def hhmm(t: int) -> str:
     return datetime.fromtimestamp(t / 1000, IST).strftime("%H:%M")
 
 
+_MONTH_HI = {10: "अक्टूबर", 11: "नवंबर", 9: "सितंबर"}
+
+
+def date_en(t: int) -> str:
+    """Simulated calendar date, e.g. '20 Oct 2026' (rolls over after midnight)."""
+    return datetime.fromtimestamp(t / 1000, IST).strftime("%d %b %Y").lstrip("0")
+
+
+def date_hi(t: int) -> str:
+    d = datetime.fromtimestamp(t / 1000, IST)
+    return f"{d.day} {_MONTH_HI.get(d.month, d.strftime('%b'))} {d.year}"
+
+
 def _n(v, d=1):
     return "–" if v is None else f"{v:.{d}f}"
 
@@ -29,9 +42,9 @@ def build(state: dict) -> dict:
     deployed = [r for r in state["resources"] if r["status"] != "idle"]
     ban_k = sum(g["idols_per_h"] for g in ghats if g["ngt_lake_ban"] and g["slug"] not in ("bairagarh",))
 
-    en = [f"## SIMULATED live sitrep, {hhmm(t)} IST, 20 Oct 2026",
+    en = [f"## SIMULATED live sitrep, {hhmm(t)} IST, {date_en(t)}",
           f"Scenario: {sc['label']['en']}. Speed {state['speed']}x. Idols so far: {state['stats']['idols_total']}.", ""]
-    hi = [f"## सिम्युलेटेड लाइव स्थिति रिपोर्ट, {hhmm(t)} IST, 20 अक्टूबर 2026",
+    hi = [f"## सिम्युलेटेड लाइव स्थिति रिपोर्ट, {hhmm(t)} IST, {date_hi(t)}",
           f"परिदृश्य: {sc['label']['hi']}। गति {state['speed']}x। अब तक मूर्तियाँ: {state['stats']['idols_total']}।", ""]
     sp_en = [f"Simulated situation report, {hhmm(t)}."]
     sp_hi = [f"सिम्युलेटेड स्थिति रिपोर्ट, {hhmm(t)}।"]
