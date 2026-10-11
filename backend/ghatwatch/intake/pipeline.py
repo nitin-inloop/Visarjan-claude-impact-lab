@@ -134,9 +134,8 @@ def _process(store: Store, job: dict, raw: list[dict], tables_found: int, rerun:
          an["summary"]["hi"][:300])
     # Reporter
     _begin(store, job, "report")
-    with store.lock:
-        job["status"] = "needs_review" if job["status"] in ("running", "failed", "rejected") else job["status"]
-    md = build_report(job)
+    final = "needs_review" if job["status"] in ("running", "failed", "rejected") else job["status"]
+    md = build_report(job | {"status": final})
     write_report(store, job["id"], md)
     _log(store, job, "report", f"Report written: {md['en'].count(chr(10))} lines (en), {md['hi'].count(chr(10))} lines (hi).",
          f"रिपोर्ट लिखी गई: {md['en'].count(chr(10))} पंक्तियां (अंग्रेज़ी), {md['hi'].count(chr(10))} पंक्तियां (हिंदी)।")
@@ -144,6 +143,9 @@ def _process(store: Store, job: dict, raw: list[dict], tables_found: int, rerun:
         job["report_available"] = True
     _end(store, job, "report", "done", "Bilingual intake report ready (markdown, en + hi).",
          "द्विभाषी इनटेक रिपोर्ट तैयार (मार्कडाउन, अंग्रेज़ी + हिंदी)।")
+    with store.lock:  # status flips only after every stage record is final (pollers rely on it)
+        job["status"] = final
+    store.save(job["id"])
 
 
 def write_report(store: Store, job_id: str, md: dict) -> None:
@@ -197,16 +199,12 @@ def _apply_ocr_confidence(raw: list[dict], pages: list[dict]) -> None:
     segs = {p["page"]: p.get("lines") or [] for p in pages}
     for r in raw:
         lines = segs.get(r["page"])
-        if not lines or r.get("line_no") is None or r.get("col") is None:
-            continue
-        lines_all = "\n".join(x["text"] for x in lines).splitlines()
-        if r["line_no"] >= len(lines):
+        if not lines or r.get("line_no") is None or r.get("col") is None or r["line_no"] >= len(lines):
             continue
         for c0, c1, conf in lines[r["line_no"]]["segs"]:
             if c0 - 1 <= r["col"] <= c1 + 1:
                 r["confidence"] = round(min(r["confidence"], float(conf)), 3)
                 break
-        del lines_all
 
 
 # ---------------------------------------------------------------- upload job
@@ -261,15 +259,28 @@ def run_upload(job_id: str, path: Path, pages_spec: str | None, force_ocr: bool)
                       + OCR.HOW_TO_ENABLE["en"], "इस फ़ाइल के लिए OCR चाहिए पर PaddleOCR इंस्टॉल नहीं है। "
                       + OCR.HOW_TO_ENABLE["hi"])
                 return
-            _log(store, job, "extract", f"Running PaddleOCR {st.get('version') or '3.x'} in backend/.ocr-venv (up to 300 s)…",
-                 f"backend/.ocr-venv में PaddleOCR {st.get('version') or '3.x'} चल रहा है (300 सेकंड तक)…")
+            sel_pages = job["source"]["pages"] if mime == "application/pdf" else [None]
+            _log(store, job, "extract", f"Running PaddleOCR {st.get('version') or '3.x'} in backend/.ocr-venv on "
+                 f"{len(sel_pages)} page(s); CPU OCR takes minutes per page (timeout {OCR.TIMEOUT_S} s per page)…",
+                 f"backend/.ocr-venv में PaddleOCR {st.get('version') or '3.x'} {len(sel_pages)} पृष्ठ पर चल रहा है; "
+                 f"CPU पर प्रति पृष्ठ कुछ मिनट लगते हैं (प्रति पृष्ठ सीमा {OCR.TIMEOUT_S} सेकंड)…")
             out_dir = store.pages_dir(job_id)
-            spec = ",".join(str(p) for p in job["source"]["pages"]) if mime == "application/pdf" else None
-            res = OCR.run_worker(path, out_dir / "ocr.json", spec)
-            if res.get("error"):
-                OCR.mark_failed(res["error"])
-                _fail(store, job, "extract", f"OCR failed: {res['error']}", f"OCR विफल: {res['error']}")
-                return
+            res = {"pages": [], "elapsed_s": 0.0, "wall_s": 0.0}
+            for i, pno in enumerate(sel_pages, 1):
+                one = OCR.run_worker(path, out_dir / f"ocr-{pno or 1}.json", str(pno) if pno else None)
+                if one.get("error"):
+                    OCR.mark_failed(one["error"])
+                    _fail(store, job, "extract", f"OCR failed on page {pno or 1}: {one['error']}",
+                          f"पृष्ठ {pno or 1} पर OCR विफल: {one['error']}")
+                    return
+                res["pages"] += one.get("pages") or []
+                res["engine"], res["version"] = one.get("engine"), one.get("version")
+                res["elapsed_s"] = round(res["elapsed_s"] + float(one.get("elapsed_s") or 0), 1)
+                res["wall_s"] = round(res["wall_s"] + float(one.get("wall_s") or 0), 1)
+                nw = sum(len(p.get("words") or []) for p in one.get("pages") or [])
+                _log(store, job, "extract", f"OCR page {pno or 1} ({i}/{len(sel_pages)}): {nw} text boxes in "
+                     f"{one.get('elapsed_s')} s.", f"OCR पृष्ठ {pno or 1} ({i}/{len(sel_pages)}): {nw} टेक्स्ट बॉक्स, "
+                     f"{one.get('elapsed_s')} सेकंड।")
             pages = [{"page": p["page"], "text": p.get("text", ""), "lines": p.get("lines")} for p in res["pages"]]
             words = sum(len(p.get("words") or []) for p in res["pages"])
             confs = [w["conf"] for p in res["pages"] for w in (p.get("words") or [])]

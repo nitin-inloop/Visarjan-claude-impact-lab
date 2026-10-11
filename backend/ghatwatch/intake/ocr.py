@@ -1,4 +1,5 @@
-"""OCR bridge: detects backend/.ocr-venv + paddleocr and runs ocr_worker.py there (subprocess, 300 s timeout).
+"""OCR bridge: detects backend/.ocr-venv + paddleocr and runs ocr_worker.py there (subprocess, one call per page,
+900 s timeout each; CPU PaddleOCR on this machine is slow).
 
 The API process never imports paddle; any import or runtime failure means OCR is unavailable.
 """
@@ -17,7 +18,7 @@ from .schema import bi
 
 VENV = BACKEND_DIR / ".ocr-venv"
 WORKER = Path(__file__).with_name("ocr_worker.py")
-TIMEOUT_S = 300
+TIMEOUT_S = int(os.environ.get("GHATWATCH_OCR_TIMEOUT", "900"))  # per worker call (one page)
 _CACHE: dict = {}
 _LOCK = threading.Lock()
 
@@ -28,6 +29,13 @@ HOW_TO_ENABLE = bi(
     "एक अलग वातावरण बनाकर उसमें PaddleOCR इंस्टॉल करें (मुख्य बैकएंड नहीं बदलता): "
     "python -m venv backend/.ocr-venv && backend/.ocr-venv/Scripts/python -m pip install paddlepaddle paddleocr "
     "pypdfium2 — फिर API दोबारा शुरू करें। पहली OCR बार PP-OCR मॉडल डाउनलोड करती है (नेटवर्क चाहिए)।")
+
+
+SPEED_NOTE = bi(
+    "CPU OCR is slow: about 2–3 minutes per full report page on this machine (PP-OCRv5 mobile, 150 dpi; "
+    "measured 167 s for 2025 page 28 under load); a photo of one table is faster.",
+    "CPU पर OCR धीमा है: इस मशीन पर रिपोर्ट के एक पूरे पृष्ठ में लगभग 2–3 मिनट (PP-OCRv5 mobile, 150 dpi; "
+    "2025 पृष्ठ 28 पर 167 सेकंड मापा गया); एक तालिका की फ़ोटो जल्दी पढ़ी जाती है।")
 
 
 def venv_python() -> Path | None:
@@ -102,6 +110,9 @@ def capabilities() -> dict:
            "venv": "backend/.ocr-venv", "how_to_enable": HOW_TO_ENABLE}
     if st["available"]:
         ocr["version"] = st["version"]
+        ocr["speed"] = SPEED_NOTE
+        ocr["models"] = {"det": os.environ.get("GHATWATCH_OCR_DET", "PP-OCRv5_mobile_det"),
+                         "rec": os.environ.get("GHATWATCH_OCR_REC", "PP-OCRv5_mobile_rec")}
     if measured:
         ocr["measured"] = measured
     return {"text_pdf": True, "ocr": ocr, "max_upload_mb": 25, "page_images": st["render"]}

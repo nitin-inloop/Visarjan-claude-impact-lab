@@ -2,8 +2,9 @@
 
     backend/.ocr-venv/Scripts/python ocr_worker.py <file.pdf|png|jpg> <out.json> [--pages 28-30] [--dpi 200] [--render-only]
 
-Renders PDF pages with pypdfium2 (200 dpi) or loads the image, runs PaddleOCR 3.x (lang="en",
-use_textline_orientation=True), writes page PNGs next to out.json (page-<n>.png) and out.json:
+Renders PDF pages with pypdfium2 (150 dpi; GHATWATCH_OCR_DPI) or loads the image, runs PaddleOCR 3.x
+(lang="en", enable_mkldnn=False, textline orientation off; models GHATWATCH_OCR_DET / GHATWATCH_OCR_REC,
+default PP-OCRv5_mobile_det / PP-OCRv5_mobile_rec), writes page PNGs next to out.json (page-<n>.png) and out.json:
 {engine, version, elapsed_s, pages: [{page, png, width, height, text, lines: [{text, segs: [[c0, c1, conf]]}],
 words: [{text, box: [x0, y0, x1, y1], conf}]}], error|null}.
 `text` is a line rebuild (cluster word boxes on y with tolerance 0.6 x median box height, sort by x, place each
@@ -12,6 +13,7 @@ box at its character column x / median char width, >= 2 spaces between boxes) th
 from __future__ import annotations
 
 import json
+import os
 import re
 import statistics
 import sys
@@ -113,14 +115,13 @@ def rebuild_lines(words: list[dict]) -> list[dict]:
 
 def main(argv: list[str]) -> int:
     import argparse
-    import os
     os.environ.setdefault("FLAGS_use_mkldnn", "0")
     os.environ.setdefault("PADDLE_PDX_DISABLE_MODEL_SOURCE_CHECK", "True")
     ap = argparse.ArgumentParser()
     ap.add_argument("file")
     ap.add_argument("out")
     ap.add_argument("--pages", default=None)
-    ap.add_argument("--dpi", type=int, default=200)
+    ap.add_argument("--dpi", type=int, default=int(os.environ.get("GHATWATCH_OCR_DPI", "150")))
     ap.add_argument("--render-only", action="store_true")
     a = ap.parse_args(argv)
     t0 = time.perf_counter()
@@ -135,29 +136,26 @@ def main(argv: list[str]) -> int:
             from paddleocr import PaddleOCR
             result["engine"] = "PaddleOCR"
             result["version"] = getattr(paddleocr, "__version__", "3.x")
+            # enable_mkldnn=False: paddle 3.3 oneDNN + PIR on Windows CPU raises NotImplementedError at predict().
+            # Textline orientation off (MPPCB pages are upright). Models configurable; defaults: PP-OCRv5 mobile.
             kw = dict(use_doc_orientation_classify=False, use_doc_unwarping=False,
-                      use_textline_orientation=True, lang="en")
-            side = int(os.environ.get("GHATWATCH_OCR_DET_SIDE", "1600"))
-            if side > 0:  # cap the detector input (a 200 dpi A4 page is 1654 x 2339 px)
+                      use_textline_orientation=os.environ.get("GHATWATCH_OCR_TEXTLINE_ORI", "0") == "1",
+                      lang="en", enable_mkldnn=False,
+                      text_detection_model_name=os.environ.get("GHATWATCH_OCR_DET", "PP-OCRv5_mobile_det"),
+                      text_recognition_model_name=os.environ.get("GHATWATCH_OCR_REC", "PP-OCRv5_mobile_rec"))
+            side = int(os.environ.get("GHATWATCH_OCR_DET_SIDE", "0"))
+            if side > 0:  # optional cap on the detector input size
                 kw.update(text_det_limit_side_len=side, text_det_limit_type="max")
-            mk = os.environ.get("GHATWATCH_OCR_MKLDNN", "1") == "1"
-
-            def make(mkldnn: bool):
-                try:
-                    return PaddleOCR(enable_mkldnn=mkldnn, **kw)
-                except TypeError:
-                    return PaddleOCR(**kw)
-
-            ocr = make(mk)
-            result["mkldnn"] = mk
+            try:
+                ocr = PaddleOCR(**kw)
+            except TypeError:  # older 3.x without some keyword
+                for k in ("text_detection_model_name", "text_recognition_model_name", "enable_mkldnn"):
+                    kw.pop(k, None)
+                ocr = PaddleOCR(**kw)
+            result["models"] = {"det": kw.get("text_detection_model_name"), "rec": kw.get("text_recognition_model_name")}
             for p, png in rendered:
-                try:
-                    res = ocr.predict(input=str(png))
-                except NotImplementedError:
-                    # Paddle 3.x oneDNN on Windows CPU: "ConvertPirAttribute2RuntimeAttribute not support"
-                    ocr = make(False)
-                    result["mkldnn"] = False
-                    res = ocr.predict(input=str(png))
+                tp = time.perf_counter()
+                res = ocr.predict(input=str(png))
                 words = []
                 for r in res or []:
                     texts = _get(r, "rec_texts") or []
@@ -179,6 +177,7 @@ def main(argv: list[str]) -> int:
                 except Exception:
                     wd = ht = None
                 result["pages"].append({"page": p, "png": str(png), "width": wd, "height": ht,
+                                        "elapsed_s": round(time.perf_counter() - tp, 2),
                                         "text": "\n".join(ln["text"] for ln in lines), "lines": lines,
                                         "words": words})
     except Exception as e:  # report, never crash silently

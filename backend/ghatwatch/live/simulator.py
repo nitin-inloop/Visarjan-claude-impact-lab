@@ -149,7 +149,34 @@ def initial_conditions() -> dict[str, dict]:
         v["observed_max_do"] = float(all_do.max()) if len(all_do) else do_sat()
         v["source"] = src
         out[s.slug] = v
+    _prefer_accepted_2026(out, short)
     return out
+
+
+def _prefer_accepted_2026(out: dict[str, dict], short: dict[str, str]) -> None:
+    """PLAN-INTAKE §2 live hook: an officer-accepted 2026 pre-immersion row per ghat overrides the start value
+    (applies on the next reset); `initial_source` names the upload. Never breaks the simulator."""
+    try:
+        from ..data import load_user_readings
+        u = load_user_readings()
+        if u.empty:
+            return
+        u = u[(u["year"] == 2026) & (u["phase"] == "pre") & u["is_numeric"] & u["slug"].notna()]
+        for slug, g in u.groupby("slug"):
+            if slug not in out:
+                continue
+            fest = "Durga" if (g["festival"] == "Durga").any() else "Ganesh"
+            g = g[g["festival"] == fest]
+            vals = {short[r.parameter]: float(r.value) for r in g.itertuples() if r.parameter in short}
+            if not vals:
+                continue
+            out[slug].update(vals)
+            jid, f = str(g["job_id"].iloc[-1]), str(g["source_file"].iloc[-1])
+            out[slug]["source"] = bi(f"officer-added {fest} 2026 pre ({f}), not yet verified by MPPCB",
+                                     f"अधिकारी द्वारा जोड़ा गया {fest} 2026 विसर्जन-पूर्व ({f}), MPPCB द्वारा अभी सत्यापित नहीं")
+            out[slug]["initial_source"] = {"upload": jid, "file_name": f, "parameters": sorted(vals)}
+    except Exception:
+        return
 
 
 def fitted_L_idol() -> tuple[dict[str, float], str]:

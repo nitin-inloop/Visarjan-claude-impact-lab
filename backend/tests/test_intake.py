@@ -1,7 +1,7 @@
 """Phase 3 intake tests (PLAN-INTAKE.md §2). Run from repo root:  python -m pytest backend/tests -q
 
-No network. Runtime data goes to a temporary GHATWATCH_INTAKE_DIR. The OCR test is skipped when
-backend/.ocr-venv (PaddleOCR) is absent.
+No network. Runtime data goes to a temporary GHATWATCH_INTAKE_DIR. The OCR test (7) is slow on CPU and runs
+only with GHATWATCH_RUN_OCR_TEST=1; it is skipped when backend/.ocr-venv (PaddleOCR) is absent.
 """
 from __future__ import annotations
 
@@ -196,9 +196,11 @@ def test_6_pipeline_stages_and_bad_file(client):
 
 def _ocr_ready() -> bool:
     from ghatwatch.intake import ocr
-    return bool(ocr.status(refresh=True)["available"]) and not os.environ.get("GHATWATCH_SKIP_OCR_TEST")
+    return bool(ocr.status(refresh=True)["available"])
 
 
+# CPU PaddleOCR takes minutes per page on the demo machine: opt in with GHATWATCH_RUN_OCR_TEST=1.
+@pytest.mark.skipif(not os.environ.get("GHATWATCH_RUN_OCR_TEST"), reason="slow OCR test; set GHATWATCH_RUN_OCR_TEST=1")
 @pytest.mark.skipif(not _ocr_ready(), reason="backend/.ocr-venv with PaddleOCR not available")
 def test_7_ocr_page_28_khatlapura():
     from ghatwatch.intake import ocr
