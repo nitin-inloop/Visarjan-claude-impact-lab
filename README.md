@@ -10,6 +10,8 @@
 | **The one user** | The Bhopal Municipal Corporation (BMC) officer who plans Durga visarjan at the ghats and decides where to send extra aeration, cleaning crews and water testing before **20 October 2026**. |
 | **The one outcome** | A ranked list of Bhopal's 7 immersion ghats by water-quality risk, with the reason for every rank in plain words, every number traceable to the MPPCB report page, missing data shown as missing, and a one-page brief in Hindi and English the officer can forward. |
 
+📘 Full explanatory guide (problem, solution, pipeline, the 13 parameters, glossary, limits, Hindi summary): [docs/guide/README.md](docs/guide/README.md)
+
 ## What the officer does (one workflow)
 
 1. **Dashboard (`/`).** Shows days left until 20 October, 4 headline numbers (DO below limit 42/116, BOD above limit 100/112, ghats needing action, days left) and a chart of limit breaches by festival and phase (DO / BOD / pH). Beside the chart: the breach forecast and the map with a Map / Satellite switch. Below: the alerts, and the **ghat priority table**, where each ghat has its status (Danger, Watch, Lower risk, Not tested), the reading that set it against the limit, the report page link, the actions and a **सुनें / Listen** button. Export CSV and Download brief are at the top. Hindi or English.
