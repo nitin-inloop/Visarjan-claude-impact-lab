@@ -19,6 +19,7 @@ from .brief import build_brief
 from .data import ARTIFACTS_DIR, PDFS, RESOURCES_DIR, SITE_BY_SLUG
 from .scoring import ranking_payload, whatif as score_whatif
 from .live.api import router as live_router
+from .intake.api import router as intake_router, with_user_data
 
 
 @asynccontextmanager
@@ -34,6 +35,7 @@ app = FastAPI(title="Ghat Watch API", version="1.0.0", lifespan=lifespan)
 _origins = os.environ.get("GHATWATCH_CORS", "http://localhost:3000,http://127.0.0.1:3000").split(",")
 app.add_middleware(CORSMiddleware, allow_origins=_origins, allow_methods=["*"], allow_headers=["*"])
 app.include_router(live_router)
+app.include_router(intake_router)
 
 
 def _artifact(rel: str) -> Any | None:
@@ -53,8 +55,9 @@ def health() -> dict:
 
 
 @app.get("/api/ranking")
-def ranking() -> dict:
-    return _artifact("ranking.json") or _computed()[0]
+def ranking(include_user: int = 1) -> dict:
+    """v1 ranking; accepted officer-added rows (intake) are included unless ?include_user=0."""
+    return with_user_data(_artifact("ranking.json") or _computed()[0], bool(include_user))
 
 
 @app.get("/api/ghats/{slug}")
