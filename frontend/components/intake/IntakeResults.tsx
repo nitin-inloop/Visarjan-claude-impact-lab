@@ -134,7 +134,7 @@ export function IntakeResults({ job, client, onOpenPlan }: { job: Job; client: I
             {x.toPlan} →
           </button>
         ) : (
-          <Link href="/#plan" className={clsx(btn, "no-underline")}>
+          <Link href="/" className={clsx(btn, "no-underline")}>
             {x.toPlan} →
           </Link>
         )}

@@ -47,8 +47,8 @@
       "rank": 1,
       "tier": "insufficient_data",
       "tier_rule": {
-        "en": "Insufficient data: no Durga 2025 test exists for this ghat. Score is on partial data.",
-        "hi": "अपर्याप्त डेटा: इस घाट की दुर्गा 2025 की कोई जांच नहीं है। स्कोर आंशिक डेटा पर है।"
+        "en": "Test first: no Durga 2025 test. Last test: DO 0 mg/l during Ganesh 2025 (2025 report p. 28).",
+        "hi": "पहले जांच करें: दुर्गा 2025 की कोई जांच नहीं। अंतिम जांच: गणेश 2025 विसर्जन के दौरान DO 0 mg/l (2025 रिपोर्ट पृ. 28)।"
       },
       "score": 0.4614,
       "score_label": {
@@ -313,8 +313,8 @@
       "rank": 2,
       "tier": "insufficient_data",
       "tier_rule": {
-        "en": "Insufficient data: no Durga 2025 test exists for this ghat. Score is on partial data.",
-        "hi": "अपर्याप्त डेटा: इस घाट की दुर्गा 2025 की कोई जांच नहीं है। स्कोर आंशिक डेटा पर है।"
+        "en": "Test first: no Durga 2025 test. Last test: DO 0.6 mg/l during Ganesh 2025 (2025 report p. 29).",
+        "hi": "पहले जांच करें: दुर्गा 2025 की कोई जांच नहीं। अंतिम जांच: गणेश 2025 विसर्जन के दौरान DO 0.6 mg/l (2025 रिपोर्ट पृ. 29)।"
       },
       "score": 0.2554,
       "score_label": {

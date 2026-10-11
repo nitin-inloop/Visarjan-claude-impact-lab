@@ -20,7 +20,8 @@
   --link: #0b4f8a;
 }
 
-:root[data-theme="dark"] {
+:root[data-theme="dark"],
+.theme-dark {
   color-scheme: dark;
   --paper: #0a0f1a;
   --surface: #0f1626;
@@ -42,7 +43,8 @@
 }
 
 @media print {
-  :root[data-theme="dark"] {
+  :root[data-theme="dark"],
+  .theme-dark {
     color-scheme: light;
     --ink: #1b1f24;
     --muted: #57606a;
@@ -87,7 +89,7 @@
 
 @layer base {
 html {
-  font-size: 106.25%; /* 17px base */
+  font-size: 112.5%; /* 18px base: body text >= 18px for slow readers */
 }
 @media (min-width: 768px) {
   html {
@@ -125,13 +127,13 @@ a {
 
 /* Brief memo */
 .memo h1 {
-  font-size: 1.35rem;
+  font-size: 1.5rem;
   font-weight: 700;
   line-height: 1.3;
   margin: 0 0 0.6rem;
 }
 .memo h2 {
-  font-size: 1.02rem;
+  font-size: 1.2rem;
   font-weight: 700;
   margin: 1.2rem 0 0.35rem;
   border-bottom: 1px solid var(--rule);
@@ -430,4 +432,71 @@ a {
 @media (prefers-reduced-motion: reduce) {
   .gw-mk.gw-alert .gw-pulse { animation: none; opacity: 0.6; }
   .gw-res { transition: none; }
+}
+
+/* Simple home map (components/home/SimpleMapLeaflet.tsx) */
+.sm-map.leaflet-container {
+  font: inherit;
+  background: #e8eef3;
+}
+.sm-mk {
+  position: relative;
+  cursor: pointer;
+}
+.sm-mk .sm-dot {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 3px solid #fff;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+  color: #fff;
+  font-weight: 800;
+  font-size: 18px;
+  line-height: 34px;
+  text-align: center;
+}
+.sm-mk .sm-lbl {
+  position: absolute;
+  top: 1px;
+  white-space: nowrap;
+  background: #fff;
+  border: 2px solid;
+  border-radius: 6px;
+  padding: 1px 7px;
+  line-height: 1.25;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+.sm-mk .sm-lbl.sm-right {
+  left: 46px;
+}
+.sm-mk .sm-lbl.sm-left {
+  right: 46px;
+}
+.sm-mk .sm-lbl b {
+  display: block;
+  font-size: 15px;
+  color: #111827;
+}
+.sm-mk .sm-lbl i {
+  display: block;
+  font-style: normal;
+  font-weight: 700;
+  font-size: 13px;
+}
+.sm-mk .sm-lbl.sm-up {
+  top: auto;
+  bottom: 44px;
+  left: 50%;
+  transform: translateX(-50%);
+}
+@media (max-width: 640px) {
+  .sm-mk .sm-lbl {
+    padding: 0 5px;
+  }
+  .sm-mk .sm-lbl b {
+    font-size: 13px;
+  }
+  .sm-mk .sm-lbl i {
+    font-size: 11.5px;
+  }
 }

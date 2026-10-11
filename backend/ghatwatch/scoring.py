@@ -33,6 +33,28 @@ METAL_SPIKE_MG_L = 1.5  # screening trigger for "sample metals"; no CPCB bathing
 CONTEXT_PARAMS = ["COD", "Turbidity", "Total solids", "Suspended solids", "Conductivity", *METALS]
 CLEAN_CONTEXT = {"COD", "Turbidity", "Total solids", "Suspended solids"}
 TIER_ORDER = {"insufficient_data": 0, "high": 1, "medium": 2, "low": 3}
+# Physically plausible ranges; anything outside is a typo / unit slip and is never scored.
+PLAUSIBLE = {"Dissolved oxygen": (0.0, 20.0), "BOD": (0.0, 500.0), "pH": (0.0, 14.0)}
+PHASE_WORD = {"pre": "before", "during": "during", "after": "after"}
+
+
+class ImplausibleReading(ValueError):
+    """A reading outside PLAUSIBLE (or negative); the API turns it into a 422."""
+
+
+def implausible(param: str, v: float | None) -> str | None:
+    """Reason text when `v` cannot be a real reading of `param`, else None."""
+    if v is None:
+        return None
+    name = SHORT.get(param, param)
+    if v != v or v in (float("inf"), float("-inf")):
+        return f"{name} {v} is not a number."
+    if v < 0:
+        return f"{name} {v:g} is negative, which is impossible."
+    lo, hi = PLAUSIBLE.get(param, (0.0, float("inf")))
+    if not lo <= v <= hi:
+        return f"{name} {v:g} is outside the plausible range {lo:g}-{hi:g}; check for a typo or unit slip."
+    return None
 
 
 def weights_block() -> dict:
@@ -201,22 +223,65 @@ def coverage_by_table(df: pd.DataFrame, slug: str) -> dict[str, float]:
 
 # ---------------------------------------------------------------- tiers
 
+def worst_recent(readings: list[Reading]) -> Reading | None:
+    """The most exceeding reading of the latest year present (DO first on ties)."""
+    if not readings:
+        return None
+    y = max(r.year for r in readings)
+    latest = [r for r in readings if r.year == y]
+    return max(latest, key=lambda r: (r.exceed, r.parameter == "Dissolved oxygen", r.festival == "Durga",
+                                      {"pre": 0, "during": 2, "after": 1}[r.phase]))
+
+
+def last_test_text(r: Reading | None) -> dict:
+    if r is None:
+        return {"en": "No DO, BOD or pH reading exists yet.", "hi": "अभी तक कोई DO, बीओडी या pH रीडिंग नहीं है।"}
+    unit = f" {r.unit}" if r.unit else ""
+    if r.upload:
+        f = r.source_file or "officer upload"
+        src_en = f"officer-added, {f}" + (f" p. {r.page}" if r.page is not None else "")
+        src_hi = f"अधिकारी द्वारा जोड़ा गया, {f}" + (f" पृ. {r.page}" if r.page is not None else "")
+    elif r.entered:
+        src_en, src_hi = "officer-entered", "अधिकारी द्वारा दर्ज"
+    else:
+        src_en = f"{r.year} report p. {r.page}"
+        src_hi = f"{r.year} रिपोर्ट पृ. {r.page}"
+    name = SHORT[r.parameter]
+    return {"en": f"Last test: {name} {T.fmt(r.value)}{unit} {PHASE_WORD[r.phase]} {r.festival} {r.year} ({src_en}).",
+            "hi": f"अंतिम जांच: {T.FEST_HI[r.festival]} {r.year} {T.PHASE_HI[r.phase]} {name} {T.fmt(r.value)}{unit} ({src_hi})।"}
+
+
+def test_first_rule(why_en: str, why_hi: str, readings: list[Reading]) -> dict:
+    last = last_test_text(worst_recent(readings))
+    return {"en": f"Test first: {why_en}. {last['en']}", "hi": f"पहले जांच करें: {why_hi}। {last['hi']}"}
+
+
 def decide_tier(score: float | None, coverage: float, has_durga_latest: bool,
                 readings: list[Reading], has_2026: bool = False, new_site: bool = False) -> tuple[str, dict]:
-    """§3.4 tiers, applied in order; returns (tier, rule text en/hi)."""
+    """§3.4 tiers, applied in order; returns (tier, rule text en/hi).
+
+    `has_2026` means 2026 Durga data with at least DO and BOD (pH alone does not clear the rule).
+    A new site needs at least one DO and one BOD reading before it can be tiered."""
     s = 0.0 if score is None else score
-    if not new_site:
+    if new_site:
+        have = {r.parameter for r in readings}
+        if not {"Dissolved oxygen", "BOD"} <= have:
+            return "insufficient_data", test_first_rule(
+                "this new site has no DO and BOD readings yet", "इस नए स्थल की DO और बीओडी रीडिंग अभी नहीं है", readings)
+    else:
         if coverage < 0.5:
             pct = round(coverage * 100)
-            return "insufficient_data", {
-                "en": f"Insufficient data: only {pct}% of the expected DO/BOD/pH readings exist. Score is on partial data.",
-                "hi": f"अपर्याप्त डेटा: अपेक्षित DO/BOD/pH रीडिंग में से केवल {pct}% उपलब्ध हैं। स्कोर आंशिक डेटा पर है।"}
+            return "insufficient_data", test_first_rule(
+                f"only {pct}% of the expected DO/BOD/pH readings exist, score is on partial data",
+                f"अपेक्षित DO/BOD/pH रीडिंग में से केवल {pct}% उपलब्ध हैं, स्कोर आंशिक डेटा पर है", readings)
         if not has_durga_latest and not has_2026:
-            return "insufficient_data", {
-                "en": "Insufficient data: no Durga 2025 test exists for this ghat. Score is on partial data.",
-                "hi": "अपर्याप्त डेटा: इस घाट की दुर्गा 2025 की कोई जांच नहीं है। स्कोर आंशिक डेटा पर है।"}
+            return "insufficient_data", test_first_rule(
+                "no Durga 2025 test", "दुर्गा 2025 की कोई जांच नहीं", readings)
     do = [r for r in readings if r.parameter == "Dissolved oxygen"]
     zero = [r for r in do if r.value == 0 and r.year >= 2024]
+    low_new = [r for r in do if r.festival == "Durga" and r.year >= 2025 and r.value < 3]
+    if zero and low_new and max(r.year for r in low_new) > max(r.year for r in zero):
+        zero = []  # newer evidence (e.g. a 2026 Durga reading) leads the rule text; the tier is High either way
     if zero:
         r = max(zero, key=lambda x: (x.year, x.festival == "Durga"))
         return "high", {
@@ -239,23 +304,34 @@ def decide_tier(score: float | None, coverage: float, has_durga_latest: bool,
         n_over = sum(v > 3 for v in bod)
         med = float(np.median(bod))
         if n_over / len(bod) >= BOD_PERSIST_FRAC and med >= BOD_PERSIST_MEDIAN:
-            y0 = BOD_PERSIST_YEARS_FROM
+            span_en, span_hi = _bod_span(readings)
             return "medium", {
                 "en": (f"Medium: BOD was above the bathing limit of 3 mg/l in {n_over} of {len(bod)} readings "
-                       f"since {y0} (median {T.fmt(med)} mg/l, at least twice the limit), even though dissolved "
+                       f"{span_en} (median {T.fmt(med)} mg/l, at least twice the limit), even though dissolved "
                        f"oxygen held up."),
-                "hi": (f"मध्यम: {y0} से बीओडी {len(bod)} में से {n_over} रीडिंग में स्नान मानक 3 mg/l से अधिक रहा "
+                "hi": (f"मध्यम: {span_hi} बीओडी {len(bod)} में से {n_over} रीडिंग में स्नान मानक 3 mg/l से अधिक रहा "
                        f"(माध्यिका {T.fmt(med)} mg/l, मानक से कम से कम दोगुना), हालांकि घुलित ऑक्सीजन ठीक रही।")}
     if bod:
         n_over = sum(v > 3 for v in bod)
         med = float(np.median(bod))
+        span_en, span_hi = _bod_span(readings)
         return "low", {
             "en": (f"Low: risk score {s:.2f} is below {TIER_MEDIUM}. BOD still exceeded 3 mg/l in {n_over} of {len(bod)} "
-                   f"readings since {BOD_PERSIST_YEARS_FROM} (median {T.fmt(med)} mg/l). Lower risk than the other ghats, not clean."),
-            "hi": (f"निम्न: जोखिम स्कोर {s:.2f} है, जो {TIER_MEDIUM} से कम है। फिर भी {BOD_PERSIST_YEARS_FROM} से बीओडी {len(bod)} में से "
+                   f"readings {span_en} (median {T.fmt(med)} mg/l). Lower risk than the other ghats, not clean."),
+            "hi": (f"निम्न: जोखिम स्कोर {s:.2f} है, जो {TIER_MEDIUM} से कम है। फिर भी {span_hi} बीओडी {len(bod)} में से "
                    f"{n_over} रीडिंग में 3 mg/l से अधिक रहा (माध्यिका {T.fmt(med)} mg/l)। अन्य घाटों से कम जोखिम, पर स्वच्छ नहीं।")}
     return "low", {"en": f"Low: risk score {s:.2f} is below {TIER_MEDIUM}.",
                    "hi": f"निम्न: जोखिम स्कोर {s:.2f} है, जो {TIER_MEDIUM} से कम है।"}
+
+
+def _bod_span(readings: list[Reading]) -> tuple[str, str]:
+    """'since 2024' / 'in 2026' for the BOD readings counted by the tier rules."""
+    ys = sorted({r.year for r in readings if r.parameter == "BOD" and r.year >= BOD_PERSIST_YEARS_FROM})
+    if not ys:
+        return "", ""
+    if ys[0] == ys[-1]:
+        return f"in {ys[0]}", f"{ys[0]} में"
+    return f"since {ys[0]}", f"{ys[0]} से"
 
 
 # ---------------------------------------------------------------- reasons
@@ -452,7 +528,8 @@ def assess_ghat(df: pd.DataFrame, slug: str, context_all: dict[str, list[dict]],
     coverage = min(1.0, n_hist / EXPECTED_READINGS)
     has_durga25 = (not g[(g["year"] == 2025) & (g["festival"] == "Durga")].empty
                    or any(r.year == 2025 and r.festival == "Durga" for r in extra))
-    has_2026 = any(r.year >= 2026 and r.festival == "Durga" for r in extra)
+    p26 = {r.parameter for r in extra if r.year >= 2026 and r.festival == "Durga"}
+    has_2026 = {"Dissolved oxygen", "BOD"} <= p26  # pH alone (or DO alone) does not clear "no Durga 2025"
     tier, rule = decide_tier(sr.score, coverage, has_durga25, rd, has_2026=has_2026)
     tr, rates = trend(rd)
     gaps = detect_gaps(df, slug)
@@ -530,6 +607,10 @@ PRE_KEYS = {"pH": "pH", "DO": "Dissolved oxygen", "BOD": "BOD", "COD": "COD", "T
 def entered_readings(pre: dict) -> list[Reading]:
     """Officer-entered 2026 Durga pre-immersion values -> scored readings."""
     out = []
+    bad = [f"{key}: {why}" for key, param in PRE_KEYS.items()
+           if (why := implausible(param, None if pre.get(key) is None else float(pre[key])))]
+    if bad:
+        raise ImplausibleReading("Implausible reading, not scored. " + " ".join(bad))
     for key, param in PRE_KEYS.items():
         v = pre.get(key)
         if v is None or param not in SCORED_PARAMS:
@@ -540,8 +621,14 @@ def entered_readings(pre: dict) -> list[Reading]:
 
 
 def whatif(slug: str | None, pre: dict, new_site: dict | None = None) -> dict:
-    """Re-score with 2026 Durga pre readings (year weight 1.0, phase weight 0.5)."""
-    extra = entered_readings(pre)
+    """Re-score with 2026 Durga pre readings (year weight 1.0, phase weight 0.5).
+
+    Implausible values raise fastapi HTTPException 422 (subclass of ImplausibleReading)."""
+    try:
+        extra = entered_readings(pre)
+    except ImplausibleReading as e:
+        from fastapi import HTTPException
+        raise HTTPException(422, str(e)) from e
     if new_site is not None or slug is None:
         sr = compute_score(extra)
         tier, rule = decide_tier(sr.score, 0.0, False, extra, has_2026=True, new_site=True)

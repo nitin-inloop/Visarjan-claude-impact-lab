@@ -175,6 +175,11 @@ export function ReviewTable({ job, rows, onChange, pageUrl, readOnly = false }: 
                                   </span>
                                 </span>
                               ))}
+                              {r.needs_review && (
+                                <span className="text-[11px] font-bold rounded border border-medium bg-medium-bg text-medium px-1 leading-4 whitespace-nowrap">
+                                  ⚠ {lang === "hi" ? "जांच करें" : "Needs checking"}
+                                </span>
+                              )}
                               <span className={clsx("text-[11px] tabular whitespace-nowrap", confText(r.confidence))}>
                               {Math.round(r.confidence * 100)}%{r.value_as_printed && r.value_as_printed !== display(r) ? ` · “${r.value_as_printed}”` : ""}
                                 {edited && <span className="text-accent"> · {x.edited}</span>}

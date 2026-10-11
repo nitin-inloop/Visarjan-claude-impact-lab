@@ -1,12 +1,8 @@
 import type { Metadata } from "next";
-import { IntakePanel } from "@/components/intake/IntakePanel";
+import { SimpleIntake } from "@/components/intake/SimpleIntake";
 
-export const metadata: Metadata = { title: "Report intake · Ghat Watch" };
+export const metadata: Metadata = { title: "Upload test report · Ghat Watch" };
 
 export default function IntakePage() {
-  return (
-    <div className="pt-6">
-      <IntakePanel />
-    </div>
-  );
+  return <SimpleIntake />;
 }

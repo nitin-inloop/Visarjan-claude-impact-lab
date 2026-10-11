@@ -160,7 +160,8 @@ export function IntakePanel({ onOpenPlan }: { onOpenPlan?: () => void }) {
     setBusy(true);
     try {
       const r = await client.accept(job.id, rows);
-      setMsg({ ok: r.ok, text: x.acceptedMsg(r.accepted_rows, r.ranking_changed.length) });
+      const held = r.held_back ? (lang === "hi" ? ` ${r.held_back} नंबर जांच के लिए रोके गए।` : ` ${r.held_back} value(s) held back for checking.`) : "";
+      setMsg({ ok: r.ok, text: x.acceptedMsg(r.accepted_rows, r.ranking_changed.length) + held });
       setJob({ ...job, status: "accepted" });
       setAcceptedV((v) => v + 1);
     } catch {

@@ -209,6 +209,50 @@ def _apply_ocr_confidence(raw: list[dict], pages: list[dict]) -> None:
 
 # ---------------------------------------------------------------- upload job
 
+def _try_ai_extract(store: Store, job: dict, path: Path, mime: str) -> bool:
+    """Claude extractor first (ai.extract); True when it produced rows and the job was processed.
+    Falls back (False) to the PDF-text / OCR path when unavailable, failed or empty."""
+    from ..ai import extract as AI
+    rows = None
+    try:
+        if AI.available():
+            rows = AI.extract_rows(path, mime, job["context"].get("year"), job["context"].get("festival"))
+            if not rows:
+                _log(store, job, "extract", "Claude extractor returned nothing; falling back to PDF text / OCR.",
+                     "Claude निष्कर्षक से कुछ नहीं मिला; PDF टेक्स्ट / OCR पर लौट रहे हैं।")
+    except Exception as e:  # never let the AI path break intake
+        rows = None
+        _log(store, job, "extract", f"Claude extractor failed ({e!r}); falling back to PDF text / OCR.",
+             f"Claude निष्कर्षक विफल ({e!r}); PDF टेक्स्ट / OCR पर लौट रहे हैं।")
+    if not rows:
+        with store.lock:
+            job["source"]["extractor"] = "text/ocr"
+        _log(store, job, "extract", "Extractor used: PDF text layer / OCR (built-in parser).",
+             "उपयोग किया गया निष्कर्षक: PDF टेक्स्ट परत / OCR (अंतर्निहित पार्सर)।")
+        return False
+    raw = [dict(r) for r in rows]
+    for r in raw:
+        r["year"] = r.get("year") or job["context"].get("year")
+        r["festival"] = r.get("festival") or job["context"].get("festival")
+        r.setdefault("confidence", 0.9)
+    pages = sorted({int(r["page"]) for r in raw if r.get("page") not in (None, "")})
+    tables = len({(r.get("page"), r.get("site_as_printed")) for r in raw})
+    with store.lock:
+        job["source"]["extractor"] = "claude"
+        job["source"]["pages"] = pages or [1]
+    _log(store, job, "extract", f"Extractor used: Claude (ai.extract): {len(raw)} cells from {tables} table(s) on "
+         f"page(s) {', '.join(map(str, pages)) or '?'}; every cell keeps its page for checking.",
+         f"उपयोग किया गया निष्कर्षक: Claude (ai.extract): {tables} तालिका से {len(raw)} कोष्ठ, पृष्ठ "
+         f"{', '.join(map(str, pages)) or '?'}; हर कोष्ठ का पृष्ठ जांच के लिए दर्ज है।")
+    if mime != "application/pdf":
+        _save_image_png(store, job["id"], path)
+    _end(store, job, "extract", "done", f"{tables} tables, {len(raw)} cells extracted by Claude.",
+         f"Claude द्वारा {tables} तालिकाएं, {len(raw)} कोष्ठ निकाले गए।")
+    _process(store, job, raw, tables)
+    store.save(job["id"])
+    return True
+
+
 def run_upload(job_id: str, path: Path, pages_spec: str | None, force_ocr: bool) -> None:
     store = get_store()
     job = store.get(job_id)
@@ -222,6 +266,8 @@ def run_upload(job_id: str, path: Path, pages_spec: str | None, force_ocr: bool)
         if mime is None:
             _fail(store, job, "extract", "Not a PDF, PNG or JPEG file; nothing could be read.",
                   "यह PDF, PNG या JPEG फ़ाइल नहीं है; कुछ भी पढ़ा नहीं जा सका।")
+            return
+        if _try_ai_extract(store, job, path, mime):
             return
         if mime == "application/pdf":
             try:
@@ -477,8 +523,11 @@ def rerun(job_id: str, rows: list[dict]) -> dict:
 
 
 def acceptable(rows: list[dict]) -> list[dict]:
+    """Rows that can be stored; implausible values (DO 45, DO -5) stay out until the officer corrects them."""
+    from .validate import implausible
     return [r for r in rows if r.get("year") and r.get("festival") in ("Ganesh", "Durga")
-            and r.get("phase") in ("pre", "during", "after") and r.get("parameter") in STANDARD_PARAMS]
+            and r.get("phase") in ("pre", "during", "after") and r.get("parameter") in STANDARD_PARAMS
+            and not implausible(r.get("parameter"), r.get("value"))]
 
 
 def accept(job_id: str, rows: list[dict] | None) -> dict:
@@ -492,6 +541,8 @@ def accept(job_id: str, rows: list[dict] | None) -> dict:
     else:
         normalized = job["rows"]
     good = acceptable(normalized)
+    from .validate import implausible
+    held = [r for r in normalized if implausible(r.get("parameter"), r.get("value"))]
     df = load_bhopal()
     before = {g["slug"]: (g["tier"], g["score"], g["rank"]) for g in rank_all(df, extra_by_slug=user_extra()[0])}
     n = store.accept_rows(job, good)
@@ -504,11 +555,17 @@ def accept(job_id: str, rows: list[dict] | None) -> dict:
         _st(job, "report")["log"].append({"t": now_iso(), "text": bi(
             f"Accepted by the officer: {n} rows stored apart from the official pack (not yet verified by MPPCB).",
             f"अधिकारी ने स्वीकार किया: {n} पंक्तियां आधिकारिक डेटा से अलग सहेजी गईं (MPPCB द्वारा अभी सत्यापित नहीं)।")})
+        if held:
+            _st(job, "report")["log"].append({"t": now_iso(), "text": bi(
+                f"{len(held)} implausible value(s) held back, not stored or scored: "
+                + ", ".join(f"{r['parameter']} {r['value']:g} at {r.get('site_as_printed')}" for r in held[:5]),
+                f"{len(held)} असंभाव्य मान रोके गए, न सहेजे न स्कोर किए: "
+                + ", ".join(f"{r['parameter']} {r['value']:g} ({r.get('site_as_printed')})" for r in held[:5]))})
     write_report(store, job_id, build_report(job))
     store.save(job_id)
     from . import api as _api
     _api.invalidate_ranking_cache()
-    return {"ok": True, "accepted_rows": n, "ranking_changed": changed}
+    return {"ok": True, "accepted_rows": n, "ranking_changed": changed, "held_back": len(held)}
 
 
 def manual_template() -> dict:

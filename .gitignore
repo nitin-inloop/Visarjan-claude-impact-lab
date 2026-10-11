@@ -30,3 +30,6 @@ backend/live_logs/
 # Phase 3 intake runtime (uploads, jobs, OCR environment)
 backend/intake_data/
 backend/.ocr-venv/
+
+# Voice layer: ElevenLabs audio cache (runtime only)
+backend/voice_cache/

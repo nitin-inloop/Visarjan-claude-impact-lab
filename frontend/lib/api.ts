@@ -42,13 +42,37 @@ export const fetchLeaderboard = () => liveOrStatic<Leaderboard>("/api/models/lea
 export const fetchAllocation = (budget?: number) =>
   liveOrStatic<Allocation>(budget === undefined ? "/api/allocate" : `/api/allocate?budget=${budget}`, "/data/allocate.json");
 
-/** POST /api/whatif. Throws when the API is unreachable; callers fall back to lib/score.ts. */
-export function postWhatIf(body: WhatIfRequest): Promise<WhatIfResponse> {
-  return getJson<WhatIfResponse>(`${API_URL}/api/whatif`, 5000, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  });
+/** The API understood the request but refused it (HTTP 422), e.g. an implausible reading. */
+export class ApiRejected extends Error {
+  constructor(public detail: string) {
+    super(detail);
+  }
+}
+
+/** POST /api/whatif. Throws ApiRejected on HTTP 422 (show the detail to the user);
+ * throws anything else when the API is unreachable (callers fall back to lib/score.ts). */
+export async function postWhatIf(body: WhatIfRequest): Promise<WhatIfResponse> {
+  const ctrl = new AbortController();
+  const timer = setTimeout(() => ctrl.abort(), 5000);
+  try {
+    const res = await fetch(`${API_URL}/api/whatif`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+      signal: ctrl.signal,
+      cache: "no-store",
+    });
+    if (res.status === 422) {
+      const j = (await res.json().catch(() => null)) as { detail?: unknown } | null;
+      const d = j?.detail;
+      const text = typeof d === "string" ? d : Array.isArray(d) ? d.map((x) => (x as { msg?: string })?.msg ?? "").filter(Boolean).join("; ") : "";
+      throw new ApiRejected(text || "Implausible reading, not scored.");
+    }
+    if (!res.ok) throw new Error(`${res.status} /api/whatif`);
+    return (await res.json()) as WhatIfResponse;
+  } finally {
+    clearTimeout(timer);
+  }
 }
 
 export async function pingApi(): Promise<boolean> {
@@ -60,4 +84,5 @@ export async function pingApi(): Promise<boolean> {
   }
 }
 
-export const pdfHref = (pdf: string, page: number) => `${API_URL}/pdf/${pdf}.pdf#page=${page}`;
+// Served from public/pdf/ (copied by scripts/copy-pdfs.mjs), so links work without the API.
+export const pdfHref = (pdf: string, page: number) => `/pdf/${pdf}.pdf#page=${page}`;

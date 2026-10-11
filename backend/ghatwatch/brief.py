@@ -1,7 +1,7 @@
 """One-page bilingual brief for the BMC officer (PLAN.md §3.9). Templated; no LLM needed.
 
-Optional polish: set GHATWATCH_LLM_POLISH=1 and ANTHROPIC_API_KEY. The polished text is
-accepted only if every number in the templated text survives; otherwise it is discarded.
+Optional polish: set GHATWATCH_LLM_POLISH=1 and CEREBRAS_API_KEY or ANTHROPIC_API_KEY (ai/llm.py). The
+polished text is accepted only if its numbers match the templated text both ways; otherwise it is discarded.
 """
 from __future__ import annotations
 
@@ -46,6 +46,41 @@ def _first_reason(g: dict) -> dict | None:
             if r["kind"] == kind:
                 return r
     return None
+
+
+def _tier_reason(g: dict) -> dict | None:
+    """The reason that explains the tier: if the tier rule names oxygen or BOD, cite that parameter's breach."""
+    rule = (g.get("tier_rule") or {}).get("en", "")
+    want = "Dissolved oxygen" if "oxygen" in rule else "BOD" if "BOD" in rule else None
+    if want:
+        for r in g["reasons"]:
+            if r["kind"] == "breach" and r["parameter"] == want:
+                return r
+    return _first_reason(g)
+
+
+SHORT_GROUPS = [
+    ("insufficient_data", {"en": "Test first (no recent Durga test)", "hi": "पहले जांच करें (हाल की दुर्गा जांच नहीं)"}),
+    ("high", {"en": "Danger: send aeration and cleaning", "hi": "खतरा: एरेशन और सफाई भेजें"}),
+    ("medium", {"en": "Watch: send cleaning", "hi": "सावधान: सफाई भेजें"}),
+    ("low", {"en": "Lower risk, still not clean", "hi": "कम जोखिम, फिर भी साफ़ नहीं"}),
+]
+
+
+def build_short(ranking: dict) -> dict:
+    """WhatsApp-length summary: ghats grouped by tier, no scores. The full brief carries the numbers and pages."""
+    out = {}
+    for lang in ("en", "hi"):
+        lines = [{"en": "Durga visarjan 20 Oct 2026: Bhopal ghat water check (MPPCB tests 2023–2025)",
+                  "hi": "दुर्गा विसर्जन 20 अक्टूबर 2026: भोपाल घाट पानी जांच (MPPCB जांच 2023–2025)"}[lang]]
+        for tier, label in SHORT_GROUPS:
+            names = [g["name"][lang] for g in ranking["ghats"] if g["tier"] == tier]
+            if names:
+                lines.append(f"• {label[lang]}: {', '.join(names)}")
+        lines.append({"en": "Every ghat broke the BOD bathing limit in most recent tests. Full brief with report pages attached.",
+                      "hi": "हर घाट ने हाल की ज़्यादातर जांचों में बीओडी स्नान मानक तोड़ा। रिपोर्ट पृष्ठों सहित पूरा सार संलग्न है।"}[lang])
+        out[lang] = "\n".join(lines)
+    return out
 
 
 def _gap_paragraph(ghats: list[dict], lang: str) -> str:
@@ -94,16 +129,14 @@ def build_brief(ranking: dict, date_text: dict | None = None) -> dict:
         head_gap = {"en": "Data gaps", "hi": "डेटा की कमी"}[lang]
         head_sit = {"en": "Situation", "hi": "स्थिति"}[lang]
         head_note = {"en": "Notes", "hi": "टिप्पणी"}[lang]
-        score_w = {"en": "score", "hi": "स्कोर"}[lang]
         rows_md, rows_txt = [], []
         for g in ranking["ghats"]:
-            r = _first_reason(g)
+            r = _tier_reason(g)
             reason = r["text"][lang] if r else ""
             acts = ", ".join(ACTION_LABEL[a["code"]][lang] for a in g["actions"])
             tier = TIER_LABEL[g["tier"]][lang]
-            sc = fmt(round(g["score"], 2)) if g["score"] is not None else "–"
-            rows_md.append(f"{g['rank']}. **{g['name'][lang]}** — {tier} ({score_w} {sc}) — {reason} — *{acts}*")
-            rows_txt.append(f"{g['rank']}. {g['name'][lang]} — {tier} ({score_w} {sc}) — {reason} — [{acts}]")
+            rows_md.append(f"{g['rank']}. **{g['name'][lang]}** — {tier} — {reason} — *{acts}*")
+            rows_txt.append(f"{g['rank']}. {g['name'][lang]} — {tier} — {reason} — [{acts}]")
         sit = _situation(ranking["summary"], lang)
         gaps = _gap_paragraph(ranking["ghats"], lang)
         foot = _footer(lang)
@@ -116,7 +149,7 @@ def build_brief(ranking: dict, date_text: dict | None = None) -> dict:
                                  head_rank.upper() if lang == "en" else head_rank, *rows_txt, "",
                                  head_gap.upper() if lang == "en" else head_gap, gaps, "",
                                  *[f"- {x}" for x in foot], ""])
-    out = {"markdown": md, "plain": plain, "polished": False, "pdfs": {k: f"/pdf/{k}.pdf" for k in PDFS}}
+    out = {"markdown": md, "plain": plain, "short": build_short(ranking), "polished": False, "pdfs": {k: f"/pdf/{k}.pdf" for k in PDFS}}
     return maybe_polish(out)
 
 
@@ -124,29 +157,31 @@ _NUM = re.compile(r"\d+(?:\.\d+)?")
 
 
 def numbers_preserved(original: str, polished: str) -> bool:
-    """True when every number in the original also appears in the polished text."""
-    have = set(_NUM.findall(polished))
-    return all(n in have for n in _NUM.findall(original))
+    """Two-way: every number in the original survives in the polished text, and the polished text
+    introduces no number that is not in the original."""
+    have, want = set(_NUM.findall(polished)), set(_NUM.findall(original))
+    return want <= have and have <= want
 
 
 def maybe_polish(brief: dict) -> dict:
-    """Optional LLM fluency pass (English only). Off unless GHATWATCH_LLM_POLISH=1 and a key exist."""
-    if os.environ.get("GHATWATCH_LLM_POLISH") != "1" or not os.environ.get("ANTHROPIC_API_KEY"):
+    """Optional LLM fluency pass (English only). Off unless GHATWATCH_LLM_POLISH=1 and an AI key is set
+    (CEREBRAS_API_KEY or ANTHROPIC_API_KEY; see ai/llm.py). Kept only if the two-way number guard and the
+    no-new-health-words guard pass; otherwise the templated text stays."""
+    if os.environ.get("GHATWATCH_LLM_POLISH") != "1":
         return brief
     try:
-        import anthropic
+        from .ai import guards, llm
 
-        client = anthropic.Anthropic()
         src = brief["markdown"]["en"]
-        msg = client.messages.create(
-            model=os.environ.get("GHATWATCH_LLM_MODEL", "claude-sonnet-4-5"), max_tokens=2000,
-            messages=[{"role": "user", "content":
-                       "Rewrite this brief for fluency for a municipal officer. Keep every number, page "
-                       "reference, ghat name and markdown structure exactly. Return only the brief.\n\n" + src}])
-        text = "".join(getattr(b, "text", "") for b in msg.content)
-        if text and numbers_preserved(src, text):
-            brief["markdown"]["en"] = text
+        res = llm.write_text(
+            "Rewrite this brief for fluency for a municipal officer. Keep every number, page reference, ghat "
+            "name and markdown structure exactly. Add no numbers. Make no health claims. Return only the brief.",
+            src, accept=lambda t: numbers_preserved(src, t) and guards.health_ok(t, src), max_tokens=3000)
+        if res is not None:
+            brief["markdown"]["en"] = res["text"]
             brief["polished"] = True
+            brief["polish"] = {"provider": res["provider"], "model": res["model"], "latency_ms": res["latency_ms"],
+                               "numbers_checked": True}
     except Exception:  # polish is optional; templated text stays
         pass
     return brief

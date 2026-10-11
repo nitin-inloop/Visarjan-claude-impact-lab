@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { fetchGhat, fetchRanking, postWhatIf } from "@/lib/api";
+import { ApiRejected, fetchGhat, fetchRanking, postWhatIf } from "@/lib/api";
 import { useLang } from "@/lib/lang";
 import { paramName } from "@/lib/i18n";
 import { scoreGhat, scoreNewSite } from "@/lib/score";
@@ -66,7 +66,13 @@ export function WhatIf({ initial }: { initial: Ranking | null }) {
       const body = isNew ? { new_site: { name: name || "New ghat", water_body: water || "" }, pre } : { slug: selected, pre };
       const r = await postWhatIf(body);
       setRes({ score: r.score_with_2026, tier: r.tier, forecast: r.forecast, reasons: r.reasons ?? [], live: true, driver: null });
-    } catch {
+    } catch (err) {
+      if (err instanceof ApiRejected) {
+        // The server refused the values (HTTP 422): say why; do not score them offline.
+        setRes(null);
+        setMsg(`⚠ ${err.detail}`);
+        return;
+      }
       let s;
       if (isNew) s = scoreNewSite(pre);
       else {

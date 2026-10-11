@@ -42,3 +42,6 @@ next-env.d.ts
 
 # any alternate Next dist dirs (e.g. .next-check used for side builds)
 /.next-*/
+
+# MPPCB reports copied from the data pack by scripts/copy-pdfs.mjs
+/public/pdf/

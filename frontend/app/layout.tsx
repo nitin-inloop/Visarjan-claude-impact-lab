@@ -18,19 +18,19 @@ const deva = Noto_Sans_Devanagari({
 });
 
 export const metadata: Metadata = {
-  title: "Ghat Watch Live · Durga visarjan 2026, Bhopal",
-  description: "Bhopal immersion ghats: live (simulated) water-quality command center and risk ranking against CPCB class B, with report page for every reading.",
+  title: "Ghat Watch · Durga visarjan 2026, Bhopal",
+  description: "Bhopal immersion ghats: which ghat needs cleaning, air machines or a water test first, ranked from MPPCB test reports, with the report page for every number.",
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
-  themeColor: "#0a0f1a",
+  themeColor: "#ffffff",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" data-theme="dark" className={`${inter.variable} ${deva.variable} antialiased`}>
+    <html lang="en" className={`${inter.variable} ${deva.variable} antialiased`}>
       <body className="min-h-screen flex flex-col">{children}</body>
     </html>
   );

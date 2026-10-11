@@ -24,10 +24,10 @@ _LOCK = threading.Lock()
 
 HOW_TO_ENABLE = bi(
     "Create an isolated environment and install PaddleOCR there (the main backend is not touched): "
-    "python -m venv backend/.ocr-venv && backend/.ocr-venv/Scripts/python -m pip install paddlepaddle paddleocr "
+    "python -m venv backend/.ocr-venv && backend/.ocr-venv/bin/python -m pip (Windows: backend/.ocr-venv/Scripts/python) install paddlepaddle paddleocr "
     "pypdfium2 — then restart the API. The first OCR run downloads the PP-OCR models (network needed).",
     "एक अलग वातावरण बनाकर उसमें PaddleOCR इंस्टॉल करें (मुख्य बैकएंड नहीं बदलता): "
-    "python -m venv backend/.ocr-venv && backend/.ocr-venv/Scripts/python -m pip install paddlepaddle paddleocr "
+    "python -m venv backend/.ocr-venv && backend/.ocr-venv/bin/python -m pip (Windows: backend/.ocr-venv/Scripts/python) install paddlepaddle paddleocr "
     "pypdfium2 — फिर API दोबारा शुरू करें। पहली OCR बार PP-OCR मॉडल डाउनलोड करती है (नेटवर्क चाहिए)।")
 
 

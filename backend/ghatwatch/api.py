@@ -20,6 +20,8 @@ from .data import ARTIFACTS_DIR, PDFS, RESOURCES_DIR, SITE_BY_SLUG
 from .scoring import ranking_payload, whatif as score_whatif
 from .live.api import router as live_router
 from .intake.api import router as intake_router, with_user_data
+from .ai.api import router as ai_router
+from .voice.api import router as voice_router
 
 
 @asynccontextmanager
@@ -36,6 +38,8 @@ _origins = os.environ.get("GHATWATCH_CORS", "http://localhost:3000,http://127.0.
 app.add_middleware(CORSMiddleware, allow_origins=_origins, allow_methods=["*"], allow_headers=["*"])
 app.include_router(live_router)
 app.include_router(intake_router)
+app.include_router(ai_router)
+app.include_router(voice_router)
 
 
 def _artifact(rel: str) -> Any | None:

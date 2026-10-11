@@ -1,0 +1,151 @@
+/* Listen button (ListenButton.tsx). Global, prefixed gwv- to avoid clashes. */
+.gwv-btn {
+  --vb-ink: #0b4f8a;
+  --vb-bg: #eef5fc;
+  --vb-bd: #b9d3ec;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 48px;
+  min-width: 48px;
+  padding: 0 1.15rem 0 0.45rem;
+  border-radius: 9999px;
+  border: 2px solid var(--vb-bd);
+  background: var(--vb-bg);
+  color: var(--vb-ink);
+  font-weight: 700;
+  font-size: 1.125rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background 160ms ease, border-color 160ms ease, box-shadow 160ms ease, transform 80ms ease;
+  box-shadow: 0 1px 2px rgba(11, 79, 138, 0.08);
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+}
+.gwv-btn:hover {
+  background: #e2eefa;
+  border-color: #8fb7de;
+}
+.gwv-btn:active {
+  transform: scale(0.97);
+}
+.gwv-btn:focus-visible {
+  outline: 3px solid #0b4f8a;
+  outline-offset: 3px;
+}
+.gwv-lg {
+  min-height: 56px;
+  font-size: 1.25rem;
+  padding-right: 1.4rem;
+}
+.gwv-sm {
+  font-size: 1rem;
+  padding-right: 0.95rem;
+}
+
+.gwv-icon {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 9999px;
+  background: #0b4f8a;
+  color: #fff;
+  flex-shrink: 0;
+}
+.gwv-lg .gwv-icon {
+  width: 42px;
+  height: 42px;
+}
+
+/* playing: solid, calm, with a moving waveform */
+.gwv-on {
+  background: #0b4f8a;
+  border-color: #0b4f8a;
+  color: #fff;
+  box-shadow: 0 0 0 4px rgba(11, 79, 138, 0.14);
+}
+.gwv-on:hover {
+  background: #0a467b;
+  border-color: #0a467b;
+}
+.gwv-on .gwv-icon {
+  background: #fff;
+  color: #0b4f8a;
+}
+
+.gwv-wave {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  height: 20px;
+}
+.gwv-wave i {
+  display: block;
+  width: 3px;
+  height: 100%;
+  border-radius: 2px;
+  background: currentColor;
+  transform-origin: center;
+  animation: gwv-bar 900ms ease-in-out infinite;
+}
+.gwv-wave i:nth-child(2) { animation-delay: -750ms; }
+.gwv-wave i:nth-child(3) { animation-delay: -600ms; }
+.gwv-wave i:nth-child(4) { animation-delay: -450ms; }
+.gwv-wave i:nth-child(5) { animation-delay: -300ms; }
+@keyframes gwv-bar {
+  0%, 100% { transform: scaleY(0.25); }
+  50% { transform: scaleY(1); }
+}
+
+.gwv-spin {
+  width: 18px;
+  height: 18px;
+  border-radius: 9999px;
+  border: 2.5px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  animation: gwv-spin 800ms linear infinite;
+}
+@keyframes gwv-spin {
+  to { transform: rotate(360deg); }
+}
+
+.gwv-wrap {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem 0.6rem;
+}
+.gwv-src {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: #57606a;
+  letter-spacing: 0.01em;
+}
+.gwv-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 9999px;
+  background: #7c3aed;
+}
+.gwv-dotBrowser {
+  background: #94a3b8;
+}
+.gwv-note {
+  flex-basis: 100%;
+  font-size: 0.9375rem;
+  color: #7a4100;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gwv-wave i,
+  .gwv-spin {
+    animation: none;
+  }
+  .gwv-wave i {
+    transform: scaleY(0.6);
+  }
+}

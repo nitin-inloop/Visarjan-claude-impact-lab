@@ -12,6 +12,7 @@ from ..data import ARTIFACTS_DIR, SITE_BY_SLUG, load_bhopal, load_user_readings
 from ..limits import class_limits
 from ..scoring import SCORED_PARAMS, Reading, rank_all
 from .schema import NOT_VERIFIED, bi
+from .validate import implausible
 
 MISSING = {"not sampled", "*", "**", "_", "DRY", "na"}
 PRE_KEY = {"pH": "pH", "Dissolved oxygen": "DO", "BOD": "BOD", "COD": "COD", "Total solids": "TS",
@@ -28,6 +29,9 @@ ACTION_TEXT = {
 def reading_status(r: dict) -> dict:
     lim = class_limits("B")
     p = r["parameter"]
+    if implausible(p, r.get("value")):  # e.g. DO 45: needs review, never "ok" and never scored
+        return {"row_id": r["row_id"], "status": "missing", "needs_review": True,
+                "limit_text": "implausible value: check the page and correct it before accepting"}
     if r.get("flag") in MISSING:
         st = "missing"
     elif p in lim and r.get("value") is not None:
@@ -51,7 +55,8 @@ def rows_to_readings(rows: list[dict], job_id: str | None, source_file: str | No
     for r in rows:
         if (not r.get("slug") or r["slug"] not in SITE_BY_SLUG or r.get("parameter") not in SCORED_PARAMS
                 or r.get("value") is None or r.get("already_in_pack") or r.get("year") is None
-                or r.get("festival") not in ("Ganesh", "Durga") or r.get("phase") not in ("pre", "during", "after")):
+                or r.get("festival") not in ("Ganesh", "Durga") or r.get("phase") not in ("pre", "during", "after")
+                or implausible(r.get("parameter"), r.get("value"))):
             continue
         page = r.get("page")
         out.setdefault(r["slug"], []).append(Reading(

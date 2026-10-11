@@ -7,6 +7,20 @@ export const W_PHASE: Record<string, number> = { pre: 0.5, during: 1.0, after: 1
 
 const clip = (x: number) => Math.max(0, Math.min(1, x));
 
+/** Physically plausible ranges (mirrors backend scoring.PLAUSIBLE); values outside are never scored. */
+export const PLAUSIBLE: Record<string, [number, number]> = { "Dissolved oxygen": [0, 20], BOD: [0, 500], pH: [0, 14] };
+
+/** Reason text when a value cannot be a real reading (negative / out of range / NaN), else null. */
+export function implausibleReason(parameter: string, v: number | null | undefined): string | null {
+  if (v === null || v === undefined) return null;
+  const name = parameter === "Dissolved oxygen" ? "DO" : parameter;
+  if (!Number.isFinite(v)) return `${name} is not a number.`;
+  if (v < 0) return `${name} ${v} is negative, which is impossible.`;
+  const r = PLAUSIBLE[parameter];
+  if (r && (v < r[0] || v > r[1])) return `${name} ${v} is outside the plausible range ${r[0]}-${r[1]}; check for a typo or unit slip.`;
+  return null;
+}
+
 export function exceedance(parameter: string, v: number): number {
   if (parameter === "Dissolved oxygen") return clip((5 - v) / 5);
   if (parameter === "BOD") return clip((v - 3) / 9);
@@ -32,7 +46,7 @@ export interface ScoreResult {
 
 function toPoints(readings: Reading[]): Pt[] {
   return readings
-    .filter((r) => r.parameter in W_PARAM && r.value !== null && r.value !== undefined)
+    .filter((r) => r.parameter in W_PARAM && r.value !== null && r.value !== undefined && !implausibleReason(r.parameter, r.value))
     .map((r) => ({ year: r.year, festival: r.festival, phase: r.phase, parameter: r.parameter, value: r.value as number }));
 }
 
@@ -43,7 +57,7 @@ export function prePoints(pre: PreReadings): Pt[] {
     ["pH", "pH"],
   ];
   return map
-    .filter(([k]) => typeof pre[k] === "number" && Number.isFinite(pre[k]))
+    .filter(([k, p]) => typeof pre[k] === "number" && Number.isFinite(pre[k]) && !implausibleReason(p, pre[k] as number))
     .map(([k, p]) => ({ year: 2026, festival: "Durga", phase: "pre", parameter: p, value: pre[k] as number }));
 }
 
@@ -64,7 +78,7 @@ export function persistentBod(pts: Pt[]): boolean {
   return over / bod.length >= 2 / 3 && median >= 6;
 }
 
-export function scorePoints(pts: Pt[], expected: number): ScoreResult {
+export function scorePoints(pts: Pt[], expected: number, newSite = false): ScoreResult {
   let num = 0;
   let den = 0;
   const byParam: Record<string, number> = {};
@@ -77,11 +91,16 @@ export function scorePoints(pts: Pt[], expected: number): ScoreResult {
   }
   const score = den ? num / den : 0;
   const coverage = pts.length / expected;
-  const recentDurga = pts.some((p) => p.festival === "Durga" && p.year >= 2025);
+  // 2026 entries clear the "no Durga 2025 test" rule only when they include at least DO and BOD
+  const p26 = new Set(pts.filter((p) => p.festival === "Durga" && p.year >= 2026).map((p) => p.parameter));
+  const has2026 = p26.has("Dissolved oxygen") && p26.has("BOD");
+  const recentDurga = pts.some((p) => p.festival === "Durga" && p.year === 2025) || has2026;
   const latestDurgaYear = Math.max(0, ...pts.filter((p) => p.festival === "Durga").map((p) => p.year));
   const DO = pts.filter((p) => p.parameter === "Dissolved oxygen");
+  const have = new Set(pts.map((p) => p.parameter));
   let tier: Tier;
-  if (coverage < 0.5 || !recentDurga) tier = "insufficient_data";
+  if (newSite ? !(have.has("Dissolved oxygen") && have.has("BOD")) : coverage < 0.5 || !recentDurga)
+    tier = "insufficient_data";
   else if (
     DO.some((p) => p.value === 0 && p.year >= 2024) ||
     DO.some((p) => p.festival === "Durga" && p.year === latestDurgaYear && p.value < 3) ||
@@ -100,5 +119,5 @@ export function scoreGhat(readings: Reading[], pre?: PreReadings): ScoreResult {
 }
 
 export function scoreNewSite(pre: PreReadings): ScoreResult {
-  return scorePoints(prePoints(pre), 3);
+  return scorePoints(prePoints(pre), 3, true);
 }

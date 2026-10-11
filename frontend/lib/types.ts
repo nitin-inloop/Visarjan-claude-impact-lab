@@ -153,6 +153,8 @@ export interface GapsResponse {
 export interface Brief {
   markdown: Bilingual;
   plain: Bilingual;
+  /** WhatsApp-length summary (~6 lines, \n breaks, no scores) */
+  short?: Bilingual;
   generated_at: string;
 }
 

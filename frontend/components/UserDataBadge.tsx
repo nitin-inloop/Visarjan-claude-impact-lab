@@ -16,15 +16,8 @@ export function UserDataBadge({ ranking }: { ranking: Ranking | null }) {
       <span aria-hidden>◆</span>
       <span className="font-semibold">{x.badge(u.rows, u.duplicates_ignored)}</span>
       <Link
-        href="/#intake"
+        href="/intake"
         className="text-link underline underline-offset-2"
-        onClick={(e) => {
-          // On the command center a native hash change is needed so the tab switches (hashchange).
-          if (window.location.pathname === "/") {
-            e.preventDefault();
-            window.location.hash = "intake";
-          }
-        }}
       >
         {x.badgeLink}
       </Link>

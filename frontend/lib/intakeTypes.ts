@@ -56,6 +56,8 @@ export interface Row {
   confidence: number;
   issues: string[];
   already_in_pack: boolean;
+  /** backend: value implausible or unreadable; held back (status "missing") until an officer checks it */
+  needs_review?: boolean;
 }
 
 export interface StageLog {
@@ -180,6 +182,8 @@ export interface AcceptRes {
   ok: boolean;
   accepted_rows: number;
   ranking_changed: string[];
+  /** rows not added because they still need checking (needs_review) */
+  held_back?: number;
 }
 
 export interface OkRes {

@@ -12,9 +12,11 @@ export const GHAT_GEO: Record<string, GeoPoint> = {
   bairagarh: { lat: 23.271, lon: 77.337 },
   // OSM way 922790998 "prempura ghat" (Upper Lake south shore); was ~2 km north. Confidence: high.
   prempura: { lat: 23.2176, lon: 77.3753 },
-  // Upper Lake shore nearest OSM "Rani Kamlawati Park" (way 399629364) / Rani Kamlapati Mahal
-  // (way 1002690457); no Kamla Park kund mapped. Small shift. Confidence: medium.
-  "rani-kamlapati": { lat: 23.2517, lon: 77.3969 },
+  // Kamla Park / Rani Kamlapati ghat is listed on the Lower Lake (ranking.json water_body). The old point
+  // (23.2517, 77.3969) sat on the Upper Lake side of the dividing embankment, just west of the OSM
+  // Lower Lake bbox (lat 23.2425-23.2545, lon 77.3975-77.4138; Nominatim, 11 Oct 2026). Moved ~250 m east
+  // to the Lower Lake's west shore by Kamla Park. Ghat spot itself unsurveyed. Confidence: medium.
+  "rani-kamlapati": { lat: 23.2512, lon: 77.3992 },
   // Khatlapura Mandir, Lower Lake bank (wanderlog.com/place/details/4400503, Google-derived);
   // was ~1 km north and inland. Confidence: medium-high.
   khatlapura: { lat: 23.25, lon: 77.4109 },

@@ -11,6 +11,20 @@ RANGES = {"Dissolved oxygen": (0, 20), "pH": (0, 14), "BOD": (0, 500), "COD": (0
           "Total solids": (0, 50000), "Dissolved solids": (0, 50000), "Suspended solids": (0, 50000)}
 
 
+def implausible(param: str | None, v: object) -> bool:
+    """True when a numeric value cannot be a real reading (negative or outside RANGES): needs review, never scored."""
+    if v is None or param is None:
+        return False
+    try:
+        x = float(v)
+    except (TypeError, ValueError):
+        return True
+    if x != x:
+        return True
+    lo, hi_ = RANGES.get(param, (0, float("inf")))
+    return x < 0 or x < lo or x > hi_
+
+
 @lru_cache(maxsize=1)
 def pack_keys() -> set[tuple]:
     df = load_bhopal()
@@ -36,6 +50,7 @@ def validate(rows: list[dict], user_keys: set[tuple] | None = None) -> tuple[lis
     for r in rows:
         r["issues"] = []
         p, v = r["parameter"], r["value"]
+        r["needs_review"] = implausible(p, v)
         where_en = f"{r['parameter']} {r.get('phase') or '?'} at {r.get('site_as_printed') or r.get('slug') or '?'}"
         if v is not None:
             lo, hi_ = RANGES.get(p, (0, float("inf")))

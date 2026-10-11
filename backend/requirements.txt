@@ -1,4 +1,4 @@
-# Ghat Watch backend (Python 3.12). anthropic is optional (brief polish, off by default).
+# Ghat Watch backend (Python 3.12). anthropic is optional (AI reading + text; the app works with no keys).
 pandas==3.0.5
 numpy==2.5.3
 scikit-learn==1.9.1
@@ -11,4 +11,4 @@ uvicorn==0.34.0
 pydantic==2.10.4
 httpx==0.28.1
 pytest==8.3.4
-anthropic==0.42.0
+anthropic==0.125.0
