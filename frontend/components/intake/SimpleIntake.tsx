@@ -16,6 +16,7 @@ import type { Lang } from "@/lib/types";
 import { ManualForm } from "./ManualForm";
 import { ReviewTable } from "./ReviewTable";
 import { ghatName } from "./shared";
+import { SAMPLE_PDF } from "@/lib/mockSample";
 
 const JOB_KEY = "ghatwatch.intakeJob";
 const remember = (id: string | null) => {
@@ -114,7 +115,7 @@ function stepOf(job: Job): number {
   return 2;
 }
 
-export function SimpleIntake() {
+export function SimpleIntake({ ghat }: { ghat?: string } = {}) {
   const { lang } = useLang();
   const x = T[lang];
   const [client, setClient] = useState<IntakeClient | null>(null);
@@ -297,6 +298,11 @@ export function SimpleIntake() {
         <div>
           <h1 className="text-[26px] font-bold tracking-tight text-[var(--d-ink)]">{x.title}</h1>
           <p className="mt-1 max-w-2xl text-[14px] text-[var(--d-muted)]">{x.sub}</p>
+          {ghat && (
+            <p className="mt-3 inline-flex rounded-xl border border-[var(--d-border)] bg-[var(--d-card)] px-3 py-2 text-[14px] text-[var(--d-ink)]">
+              🔍 {lang === "hi" ? `स्थिति जांच: ${ghatName(ghat, lang) ?? ghat} — रिपोर्ट अपलोड करें (OCR) या नीचे मान भरें` : `Checking: ${ghatName(ghat, lang) ?? ghat} — upload a report (OCR) or type the values below`}
+            </p>
+          )}
         </div>
         {jobId && (
           <div className="flex flex-wrap items-center gap-2">
@@ -311,64 +317,91 @@ export function SimpleIntake() {
         )}
       </header>
 
-      <div className="grid items-start gap-4 xl:grid-cols-[250px_minmax(0,1fr)_340px]">
-        {/* Left: upload + pipeline */}
-        <div className="space-y-4">
-          <Card>
-            <CardTitle>{hi ? "अपलोड" : "Upload"}</CardTitle>
-            {!jobId ? (
-              <div className="space-y-3">
-                <button
-                  type="button"
-                  disabled={busy || !client}
-                  onClick={() => fileRef.current?.click()}
-                  onDragOver={(e) => {
-                    e.preventDefault();
-                    setDrag(true);
-                  }}
-                  onDragLeave={() => setDrag(false)}
-                  onDrop={(e) => {
-                    e.preventDefault();
-                    setDrag(false);
-                    upload(e.dataTransfer.files?.[0]);
-                  }}
-                  className={`flex w-full flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed px-4 py-8 text-center disabled:opacity-60 ${drag ? "border-[var(--d-ink)] bg-[var(--d-track)]" : "border-[var(--d-bar-light)] bg-[var(--d-card-alt)] hover:bg-[var(--d-page)]"}`}
-                >
-                  <svg viewBox="0 0 24 24" className="h-8 w-8 text-[var(--d-ink2)]" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden>
-                    <path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4" />
-                  </svg>
-                  <span className="text-[14px] font-semibold text-[var(--d-ink)]">{x.upload}</span>
-                  <span className="text-[12px] text-[var(--d-muted)]">{hi ? "यहां खींचकर छोड़ें · PDF, JPG, PNG" : "Drag and drop here · PDF, JPG, PNG"}</span>
-                </button>
-                <button
-                  type="button"
-                  disabled={busy || !client}
-                  onClick={() => camRef.current?.click()}
-                  className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-card)] px-3 py-2 text-[13px] font-medium text-[var(--d-ink)] hover:bg-[var(--d-page)] disabled:opacity-60"
-                >
-                  📷 {x.camera}
-                </button>
-                <input ref={fileRef} type="file" accept="application/pdf,image/jpeg,image/png,.pdf,.jpg,.jpeg,.png" className="sr-only" tabIndex={-1} onChange={(e) => upload(e.target.files?.[0])} />
-                <input ref={camRef} type="file" accept="image/*" capture="environment" className="sr-only" tabIndex={-1} onChange={(e) => upload(e.target.files?.[0])} />
-                {progress !== null && (
-                  <p className="text-[13px] font-semibold text-[var(--d-ink)]" role="status">
-                    ⏳ {x.sending(progress)}
-                  </p>
-                )}
-                <details open={manual} onToggle={(e) => setManual((e.target as HTMLDetailsElement).open)} className="rounded-xl border border-[var(--d-border)] p-3">
-                  <summary className="cursor-pointer text-[13px] font-semibold text-[var(--d-ink)]">✍ {x.manual}</summary>
-                  <div className="mt-3">
-                    <ManualForm onSubmit={onManual} busy={busy} />
-                  </div>
-                </details>
-              </div>
-            ) : (
-              <p className="text-[13px] text-[var(--d-ink2)]">
-                {x.file}: <b>{job?.source.file_name ?? "…"}</b>
+      {!jobId && (
+        <Card>
+          <div
+            onDragOver={(e) => {
+              e.preventDefault();
+              setDrag(true);
+            }}
+            onDragLeave={() => setDrag(false)}
+            onDrop={(e) => {
+              e.preventDefault();
+              setDrag(false);
+              upload(e.dataTransfer.files?.[0]);
+            }}
+            className={`flex flex-col items-center gap-5 rounded-2xl border-2 border-dashed px-6 py-10 text-center md:flex-row md:px-8 md:text-left ${drag ? "border-[var(--d-ink)] bg-[var(--d-track)]" : "border-[var(--d-bar-light)] bg-[var(--d-card-alt)]"}`}
+          >
+            <span className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-[var(--d-track)] text-[var(--d-ink)]">
+              <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden>
+                <path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4" />
+              </svg>
+            </span>
+            <div className="min-w-0 flex-1">
+              <p className="text-[17px] font-semibold text-[var(--d-ink)]">{x.upload}</p>
+              <p className="mt-1 max-w-xl text-[13px] leading-relaxed text-[var(--d-muted)]">
+                {hi
+                  ? "जांच तालिका की PDF या फ़ोटो यहां खींचकर छोड़ें। टेक्स्ट PDF सीधे पढ़ी जाती है; स्कैन और फ़ोटो OCR से।"
+                  : "Drag and drop a PDF or a photo of the test table here. Text PDFs are read directly; scans and photos go through OCR."}
+              </p>
+              <p className="mt-2 text-[12px] text-[var(--d-muted3)]">PDF · JPG · PNG</p>
+            </div>
+            <div className="flex shrink-0 flex-wrap justify-center gap-2">
+              <button
+                type="button"
+                disabled={busy || !client}
+                onClick={() => fileRef.current?.click()}
+                className="rounded-xl bg-[var(--d-ink)] px-5 py-2.5 text-[14px] font-semibold text-[var(--d-on-inv)] hover:opacity-90 disabled:opacity-60"
+              >
+                {hi ? "फ़ाइल चुनें" : "Choose file"}
+              </button>
+              <button
+                type="button"
+                disabled={busy || !client}
+                onClick={() => camRef.current?.click()}
+                className="rounded-xl border border-[var(--d-border)] bg-[var(--d-card)] px-5 py-2.5 text-[14px] font-medium text-[var(--d-ink)] hover:bg-[var(--d-page)] disabled:opacity-60"
+              >
+                📷 {x.camera}
+              </button>
+            </div>
+          </div>
+          <input ref={fileRef} type="file" accept="application/pdf,image/jpeg,image/png,.pdf,.jpg,.jpeg,.png" className="sr-only" tabIndex={-1} onChange={(e) => upload(e.target.files?.[0])} />
+          <input ref={camRef} type="file" accept="image/*" capture="environment" className="sr-only" tabIndex={-1} onChange={(e) => upload(e.target.files?.[0])} />
+          <div className="mt-3 flex flex-wrap items-center justify-between gap-2">
+            <p className="text-[13px] text-[var(--d-muted)]">
+              {hi ? "रिपोर्ट नहीं है? " : "No report handy? "}
+              <a href={SAMPLE_PDF} download className="font-semibold text-[var(--d-ink)] underline underline-offset-2">
+                {hi ? "नमूना PDF डाउनलोड करें" : "Download the sample PDF"}
+              </a>
+              {hi ? " (कृत्रिम परीक्षण डेटा) और यहां छोड़ें।" : " (synthetic test data) and drop it here."}
+            </p>
+            {progress !== null && (
+              <p className="text-[13px] font-semibold text-[var(--d-ink)]" role="status">
+                ⏳ {x.sending(progress)}
               </p>
             )}
-          </Card>
+          </div>
+        </Card>
+      )}
 
+      {!jobId &&
+        (ghat ? (
+          <Card>
+            <CardTitle>{hi ? `या हाथ से मान भरें: ${ghatName(ghat, lang) ?? ghat}` : `Or type the values: ${ghatName(ghat, lang) ?? ghat}`}</CardTitle>
+            <ManualForm onSubmit={onManual} busy={busy} initialSlug={ghat} />
+          </Card>
+        ) : (
+          <details open={manual} onToggle={(e) => setManual((e.target as HTMLDetailsElement).open)} className="rounded-2xl border border-[var(--d-border)] bg-[var(--d-card)] p-5">
+            <summary className="cursor-pointer text-[14px] font-semibold text-[var(--d-ink)]">✍ {x.manual}</summary>
+            <div className="mt-4">
+              <ManualForm onSubmit={onManual} busy={busy} />
+            </div>
+          </details>
+        ))}
+
+      <div className="grid items-start gap-4 xl:grid-cols-[280px_minmax(0,1fr)_340px]">
+        {/* Left: pipeline */}
+        <div className="space-y-4">
           <Card>
             <CardTitle>{hi ? "प्रक्रिया" : "Pipeline"}</CardTitle>
             <ol className="relative space-y-4" aria-live="polite">
@@ -578,6 +611,7 @@ function Changes({ job, lang, after }: { job: Job; lang: Lang; after: boolean })
         {after ? x.changed : x.willChange}
       </h2>
       {list.length === 0 && <p className="text-[13px] text-[var(--d-muted)]">{x.noChange}</p>}
+      <p className="text-[13px] leading-relaxed text-[var(--d-ink2)]">{a.summary[lang]}</p>
       <ul className="space-y-3">
         {shown.map((g) => (
           <li key={g.slug} className="rounded-xl border border-[var(--d-hover)] bg-[var(--d-card-alt)] p-3">
@@ -593,6 +627,19 @@ function Changes({ job, lang, after }: { job: Job; lang: Lang; after: boolean })
               <Pill tone={TIER_TONE[g.after.tier]}>{TIER_LABEL[g.after.tier][lang]}</Pill>
             </div>
             <p className="mt-1 text-[13px] text-[var(--d-ink2)]">{x.rank(g.before.rank, g.after.rank)}</p>
+            {g.reasons.filter((r) => r.kind === "breach").length > 0 && (
+              <ul className="mt-2 space-y-1">
+                {g.reasons
+                  .filter((r) => r.kind === "breach")
+                  .slice(0, 3)
+                  .map((r, i) => (
+                    <li key={i} className="text-[12px] text-[var(--d-danger)]">
+                      ⚠ {r.parameter} {r.value} {r.unit} · {lang === "hi" ? "मानक" : "limit"} {r.limit}
+                    </li>
+                  ))}
+              </ul>
+            )}
+            {g.allocation_hint && <p className="mt-2 text-[12px] font-medium text-[var(--d-ink)]">→ {g.allocation_hint.text[lang]}</p>}
           </li>
         ))}
       </ul>

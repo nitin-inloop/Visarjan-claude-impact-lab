@@ -9,6 +9,8 @@ import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { fetchRanking } from "@/lib/api";
 import { fetchAiAlerts, type AiAlert } from "@/lib/ai";
+import { SAMPLE_PDF } from "@/lib/mockSample";
+import { SampleWelcome } from "@/components/SampleWelcome";
 import { useLang } from "@/lib/lang";
 import type { Bilingual, Lang } from "@/lib/types";
 
@@ -24,6 +26,7 @@ const I = {
   ghat: <><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z" /></>,
   whatif: <><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" /></>,
   lang: <><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18" /></>,
+  download: <><path d="M12 4v11M7.5 10.5 12 15l4.5-4.5" /><path d="M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4" /></>,
   help: <><circle cx="12" cy="12" r="9" /><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5V14M12 17.5v.01" /></>,
   sun: <><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></>,
   moon: <path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" />,
@@ -119,6 +122,10 @@ function Sidebar({ path, onNav }: { path: string; onNav: () => void }) {
           </div>
         </div>
         <ThemeRow lang={lang} />
+        <a href={SAMPLE_PDF} download className="flex items-center gap-3 rounded-xl px-3 py-2 text-[14px] text-[var(--d-ink2)] no-underline hover:bg-[var(--d-page)]">
+          <Icon d={I.download} />
+          {lang === "hi" ? "नमूना रिपोर्ट (PDF)" : "Sample report (PDF)"}
+        </a>
         <a href={HELP} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 rounded-xl px-3 py-2 text-[14px] text-[var(--d-ink2)] no-underline hover:bg-[var(--d-page)]">
           <Icon d={I.help} />
           {lang === "hi" ? "सहायता (README)" : "Help (README)"}
@@ -311,6 +318,7 @@ export function Shell({ children }: { children: ReactNode }) {
   const crumb = path.startsWith("/ghat/") ? path.split("/")[2]?.replace(/-/g, " ") : null;
   return (
     <div className="flex min-h-screen w-full bg-[var(--d-page)] text-[var(--d-ink)]">
+      <SampleWelcome />
       <aside className="sticky top-0 hidden h-screen w-60 shrink-0 md:block lg:w-64">
         <Sidebar path={path} onNav={() => undefined} />
       </aside>

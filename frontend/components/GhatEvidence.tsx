@@ -29,8 +29,16 @@ export function GhatEvidence({ slug, initial }: { slug: string; initial: GhatDet
         <p className="text-[12px] font-semibold uppercase tracking-wide text-[var(--d-bar-mid)]">{lang === "hi" ? `क्रम ${g.rank} / 7` : `Number ${g.rank} of 7`}</p>
         <h1 className="text-[26px] font-bold tracking-tight text-[var(--d-ink)]">{g.name[lang]}</h1>
         <p className="text-lg text-muted">{g.water_body_name?.[lang] ?? g.water_body}</p>
-        <div className="mt-3">
+        <div className="mt-3 flex flex-wrap items-center gap-3">
           <StatusPill tier={g.tier} lang={lang} big />
+          <Link
+            href={`/intake?ghat=${encodeURIComponent(slug)}`}
+            className="no-print inline-flex min-h-10 items-center gap-2 rounded-xl bg-[var(--d-ink)] px-4 py-2 text-[14px] font-semibold text-[var(--d-on-inv)] no-underline hover:opacity-90"
+          >
+            {g.tier === "insufficient_data"
+              ? `🧪 ${lang === "hi" ? "इस घाट की जांच करें" : "Test this ghat"} →`
+              : `🔍 ${lang === "hi" ? "स्थिति जांचें" : "Check status"} →`}
+          </Link>
         </div>
         <p className="gw-status-hint mt-2 text-lg font-semibold" style={{ color: STATUS[g.tier].fg }}>
           {STATUS[g.tier].hint[lang]}

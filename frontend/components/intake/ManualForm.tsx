@@ -10,10 +10,10 @@ import { GHATS, btnPrimary, input } from "./shared";
 
 type CellFlag = "" | "BDL" | "not sampled";
 
-export function ManualForm({ onSubmit, busy }: { onSubmit(req: ManualReq): void; busy: boolean }) {
+export function ManualForm({ onSubmit, busy, initialSlug }: { onSubmit(req: ManualReq): void; busy: boolean; initialSlug?: string }) {
   const { lang, t } = useLang();
   const x = ix[lang];
-  const [slug, setSlug] = useState<string>("shahpura");
+  const [slug, setSlug] = useState<string>(initialSlug && GHATS.some((g) => g.slug === initialSlug) ? initialSlug : "shahpura");
   const [newName, setNewName] = useState("");
   const [year, setYear] = useState(2026);
   const [festival, setFestival] = useState<IntakeFestival>("Durga");
@@ -94,26 +94,26 @@ export function ManualForm({ onSubmit, busy }: { onSubmit(req: ManualReq): void;
           </select>
         </label>
       </div>
-      <div className="grid gap-x-4 gap-y-2 sm:grid-cols-2 xl:grid-cols-3">
+      <div className="grid gap-x-6 gap-y-2 md:grid-cols-2">
         {PARAMS_13.map((p) => {
           const f = flags[p] ?? "";
           return (
-            <div key={p} className="flex items-center gap-2 text-sm">
-              <label htmlFor={`mf-${p}`} className="w-36 shrink-0 text-ink">
+            <div key={p} className="flex min-w-0 items-center gap-2 text-sm">
+              <label htmlFor={`mf-${p}`} className="min-w-0 flex-1 truncate text-ink">
                 {paramName(t, p)}
               </label>
               <input
                 id={`mf-${p}`}
                 inputMode="decimal"
-                className={`${input} w-20 tabular`}
+                className={`${input} w-20 shrink-0 tabular`}
                 value={f ? "" : vals[p] ?? ""}
                 disabled={!!f}
                 onChange={(e) => setVals((v) => ({ ...v, [p]: e.target.value }))}
               />
-              <span className="w-12 text-xs text-muted">{PARAM_UNIT[p]}</span>
+              <span className="w-12 shrink-0 text-xs text-muted">{PARAM_UNIT[p]}</span>
               <select
                 aria-label={`${paramName(t, p)}: ${x.bdlToggle}`}
-                className={`${input} text-xs`}
+                className={`${input} w-28 shrink-0 text-xs`}
                 value={f}
                 onChange={(e) => setFlags((v) => ({ ...v, [p]: e.target.value as CellFlag }))}
               >

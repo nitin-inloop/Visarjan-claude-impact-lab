@@ -19,6 +19,7 @@ import type {
 } from "./intakeTypes";
 import { PARAM_UNIT, PARAMS_13 } from "./intakeTypes";
 import type { Bilingual } from "./types";
+import { SAMPLE_PAGES, isSampleFile, sampleAnalysis, sampleIssues, sampleRows, sampleStageText } from "./mockSample";
 
 const STAGE_MS = 800;
 
@@ -211,6 +212,10 @@ function makeAnalysis(jobId: string): Analysis {
 interface MockJob {
   base: Job;
   t0: number;
+  /** per-job stage text and page images (the sample report); default LOGS/SUMMARY/pageSvg */
+  logs?: Record<StageKey, Bilingual[]>;
+  summary?: Record<StageKey, Bilingual>;
+  pages?: string[];
 }
 
 const iso = (ms: number) => new Date(ms).toISOString();
@@ -251,7 +256,7 @@ function progress(m: MockJob, now: number): Job {
     const s0 = m.t0 + i * STAGE_MS;
     const s1 = s0 + STAGE_MS;
     const status = now >= s1 ? "done" : now >= s0 ? "running" : "pending";
-    const logs = LOGS[k];
+    const logs = (m.logs ?? LOGS)[k];
     const shown = status === "done" ? logs.length : status === "running" ? Math.max(1, Math.ceil(((now - s0) / STAGE_MS) * logs.length)) : 0;
     return {
       key: k,
@@ -260,7 +265,7 @@ function progress(m: MockJob, now: number): Job {
       started: status === "pending" ? null : iso(s0),
       finished: status === "done" ? iso(s1) : null,
       log: logs.slice(0, shown).map((text, j) => ({ t: iso(s0 + (j * STAGE_MS) / logs.length), text })),
-      summary: status === "done" ? SUMMARY[k] : null,
+      summary: status === "done" ? (m.summary ?? SUMMARY)[k] : null,
     };
   });
   const done = el >= KEYS.length * STAGE_MS;
@@ -306,6 +311,7 @@ export class MockIntake {
 
   upload(file: File, year?: number, festival?: string): JobIdRes {
     const id = `demo-${++this.n}`;
+    if (isSampleFile(file.name)) return this.uploadSample(id, file);
     const rows = makeRows(id);
     const issues = makeIssues(rows);
     const numeric = rows.filter((r) => r.value !== null).length;
@@ -332,6 +338,39 @@ export class MockIntake {
       report_available: false,
     };
     this.jobs.set(id, { base, t0: Date.now() });
+    return { job_id: id };
+  }
+
+  private uploadSample(id: string, file: File): JobIdRes {
+    const rows = sampleRows(id, file.name);
+    const issues = sampleIssues(rows);
+    const numeric = rows.filter((r) => r.value !== null).length;
+    const ocr = !/\.pdf$/i.test(file.name) || /scanned/i.test(file.name);
+    const pages = [...new Set(rows.map((r) => r.page ?? 1))];
+    const text = sampleStageText(rows, issues, file.name, ocr);
+    const base: Job = {
+      id,
+      created: iso(Date.now()),
+      kind: "upload",
+      source: { file_name: file.name, mime: file.type || null, pages, bytes: file.size, ocr_used: ocr, ocr_engine: ocr ? "PaddleOCR 3.x (demo)" : null },
+      context: { year: 2026, festival: "Durga" },
+      status: "running",
+      stages: [],
+      rows,
+      issues,
+      quality: {
+        rows: rows.length,
+        numeric,
+        flagged: rows.length - numeric,
+        mean_confidence: rows.reduce((a, r) => a + r.confidence, 0) / rows.length,
+        tables_found: text.sites,
+        sites_matched: text.matched,
+        sites_unmatched: text.sites - text.matched,
+      },
+      analysis: sampleAnalysis(id, rows),
+      report_available: false,
+    };
+    this.jobs.set(id, { base, t0: Date.now(), logs: text.logs, summary: text.summary, pages: pages.map((p) => SAMPLE_PAGES[p - 1] ?? SAMPLE_PAGES[0]) });
     return { job_id: id };
   }
 
@@ -385,7 +424,10 @@ export class MockIntake {
   rerun(id: string, rows: Row[]): Job {
     const m = this.jobs.get(id);
     if (!m) throw new Error("404");
-    const fixed = rows.map((r) => ({ ...r, issues: r.issues.filter((i) => !(i === "i-do-range" && r.value !== null && r.value <= 20)) }));
+    const fixed = rows.map((r) => {
+      const ok = r.value !== null && r.value <= 20;
+      return { ...r, needs_review: r.needs_review && !ok, issues: r.issues.filter((i) => !((i === "i-do-range" || i.startsWith("i-range-")) && ok)) };
+    });
     m.base = { ...m.base, rows: fixed, issues: m.base.issues.filter((i) => fixed.some((r) => r.issues.includes(i.id)) || i.row_id === null) };
     m.t0 = Date.now() - 3 * STAGE_MS; // re-run analyse + report only
     return progress(m, Date.now());
@@ -446,7 +488,9 @@ export class MockIntake {
     return { ok: true };
   }
 
-  pageUrl(_id: string, n: number): string {
+  pageUrl(id: string, n: number): string {
+    const m = this.jobs.get(id);
+    if (m?.pages) return m.pages[m.base.source.pages.indexOf(n)] ?? m.pages[0];
     return pageSvg(n);
   }
 }

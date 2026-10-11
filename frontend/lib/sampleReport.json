@@ -1,0 +1,469 @@
+{
+ "_note": "SYNTHETIC TEST DATA. Invented values in an MPPCB-like layout; not real MPPCB measurements.",
+ "context": {
+  "year": 2026,
+  "festival": "Durga",
+  "phase": "pre"
+ },
+ "rows": [
+  {
+   "page": 1,
+   "site_as_printed": "Khatlapura murti visarjan ghat at lower lake, Bhopal",
+   "slug": "khatlapura",
+   "parameter": "pH",
+   "value": 7.42,
+   "flag": null,
+   "value_as_printed": "7.42"
+  },
+  {
+   "page": 1,
+   "site_as_printed": "Khatlapura murti visarjan ghat at lower lake, Bhopal",
+   "slug": "khatlapura",
+   "parameter": "Total solids",
+   "value": 318,
+   "flag": null,
+   "value_as_printed": "318"
+  },
+  {
+   "page": 1,
+   "site_as_printed": "Khatlapura murti visarjan ghat at lower lake, Bhopal",
+   "slug": "khatlapura",
+   "parameter": "Dissolved solids",
+   "value": 282,
+   "flag": null,
+   "value_as_printed": "282"
+  },
+  {
+   "page": 1,
+   "site_as_printed": "Khatlapura murti visarjan ghat at lower lake, Bhopal",
+   "slug": "khatlapura",
+   "parameter": "Suspended solids",
+   "value": 36,
+   "flag": null,
+   "value_as_printed": "36"
+  },
+  {
+   "page": 1,
+   "site_as_printed": "Khatlapura murti visarjan ghat at lower lake, Bhopal",
+   "slug": "khatlapura",
+   "parameter": "Dissolved oxygen",
+   "value": 45,
+   "flag": null,
+   "value_as_printed": "45"
+  },
+  {
+   "page": 1,
+   "site_as_printed": "Khatlapura murti visarjan ghat at lower lake, Bhopal",
+   "slug": "khatlapura",
+   "parameter": "BOD",
+   "value": 5.1,
+   "flag": null,
+   "value_as_printed": "5.1"
+  },
+  {
+   "page": 1,
+   "site_as_printed": "Khatlapura murti visarjan ghat at lower lake, Bhopal",
+   "slug": "khatlapura",
+   "parameter": "COD",
+   "value": 22.4,
+   "flag": null,
+   "value_as_printed": "22.4"
+  },
+  {
+   "page": 1,
+   "site_as_printed": "Khatlapura murti visarjan ghat at lower lake, Bhopal",
+   "slug": "khatlapura",
+   "parameter": "Turbidity",
+   "value": 6.8,
+   "flag": null,
+   "value_as_printed": "6.8"
+  },
+  {
+   "page": 1,
+   "site_as_printed": "Khatlapura murti visarjan ghat at lower lake, Bhopal",
+   "slug": "khatlapura",
+   "parameter": "Conductivity",
+   "value": 452.3,
+   "flag": null,
+   "value_as_printed": "452.3"
+  },
+  {
+   "page": 1,
+   "site_as_printed": "Khatlapura murti visarjan ghat at lower lake, Bhopal",
+   "slug": "khatlapura",
+   "parameter": "Chromium",
+   "value": 0.03,
+   "flag": null,
+   "value_as_printed": "0.03"
+  },
+  {
+   "page": 1,
+   "site_as_printed": "Khatlapura murti visarjan ghat at lower lake, Bhopal",
+   "slug": "khatlapura",
+   "parameter": "Lead",
+   "value": 0.031,
+   "flag": null,
+   "value_as_printed": "0.031"
+  },
+  {
+   "page": 1,
+   "site_as_printed": "Khatlapura murti visarjan ghat at lower lake, Bhopal",
+   "slug": "khatlapura",
+   "parameter": "Zinc",
+   "value": 0.071,
+   "flag": null,
+   "value_as_printed": "0.071"
+  },
+  {
+   "page": 1,
+   "site_as_printed": "Khatlapura murti visarjan ghat at lower lake, Bhopal",
+   "slug": "khatlapura",
+   "parameter": "Copper",
+   "value": 0.122,
+   "flag": null,
+   "value_as_printed": "0.122"
+  },
+  {
+   "page": 1,
+   "site_as_printed": "Prempura Visarjanghat, Bhopal",
+   "slug": "prempura",
+   "parameter": "pH",
+   "value": 7.81,
+   "flag": null,
+   "value_as_printed": "7.81"
+  },
+  {
+   "page": 1,
+   "site_as_printed": "Prempura Visarjanghat, Bhopal",
+   "slug": "prempura",
+   "parameter": "Total solids",
+   "value": 402,
+   "flag": null,
+   "value_as_printed": "402"
+  },
+  {
+   "page": 1,
+   "site_as_printed": "Prempura Visarjanghat, Bhopal",
+   "slug": "prempura",
+   "parameter": "Dissolved solids",
+   "value": 356,
+   "flag": null,
+   "value_as_printed": "356"
+  },
+  {
+   "page": 1,
+   "site_as_printed": "Prempura Visarjanghat, Bhopal",
+   "slug": "prempura",
+   "parameter": "Suspended solids",
+   "value": 46,
+   "flag": null,
+   "value_as_printed": "46"
+  },
+  {
+   "page": 1,
+   "site_as_printed": "Prempura Visarjanghat, Bhopal",
+   "slug": "prempura",
+   "parameter": "Dissolved oxygen",
+   "value": 4.2,
+   "flag": null,
+   "value_as_printed": "4.2"
+  },
+  {
+   "page": 1,
+   "site_as_printed": "Prempura Visarjanghat, Bhopal",
+   "slug": "prempura",
+   "parameter": "BOD",
+   "value": 6.4,
+   "flag": null,
+   "value_as_printed": "6.4"
+  },
+  {
+   "page": 1,
+   "site_as_printed": "Prempura Visarjanghat, Bhopal",
+   "slug": "prempura",
+   "parameter": "COD",
+   "value": 31.2,
+   "flag": null,
+   "value_as_printed": "31.2"
+  },
+  {
+   "page": 1,
+   "site_as_printed": "Prempura Visarjanghat, Bhopal",
+   "slug": "prempura",
+   "parameter": "Turbidity",
+   "value": null,
+   "flag": "not sampled",
+   "value_as_printed": ""
+  },
+  {
+   "page": 1,
+   "site_as_printed": "Prempura Visarjanghat, Bhopal",
+   "slug": "prempura",
+   "parameter": "Conductivity",
+   "value": 511,
+   "flag": null,
+   "value_as_printed": "511"
+  },
+  {
+   "page": 1,
+   "site_as_printed": "Prempura Visarjanghat, Bhopal",
+   "slug": "prempura",
+   "parameter": "Chromium",
+   "value": 0.03,
+   "flag": null,
+   "value_as_printed": "0.03"
+  },
+  {
+   "page": 1,
+   "site_as_printed": "Prempura Visarjanghat, Bhopal",
+   "slug": "prempura",
+   "parameter": "Lead",
+   "value": null,
+   "flag": "BDL",
+   "value_as_printed": "BDL"
+  },
+  {
+   "page": 1,
+   "site_as_printed": "Prempura Visarjanghat, Bhopal",
+   "slug": "prempura",
+   "parameter": "Zinc",
+   "value": 0.064,
+   "flag": null,
+   "value_as_printed": "0.064"
+  },
+  {
+   "page": 1,
+   "site_as_printed": "Prempura Visarjanghat, Bhopal",
+   "slug": "prempura",
+   "parameter": "Copper",
+   "value": 0.097,
+   "flag": null,
+   "value_as_printed": "0.097"
+  },
+  {
+   "page": 2,
+   "site_as_printed": "Sant Hirdaram Visarjankund, Bairagarh, Bhopal",
+   "slug": "bairagarh",
+   "parameter": "pH",
+   "value": null,
+   "flag": "*",
+   "value_as_printed": "*"
+  },
+  {
+   "page": 2,
+   "site_as_printed": "Sant Hirdaram Visarjankund, Bairagarh, Bhopal",
+   "slug": "bairagarh",
+   "parameter": "Total solids",
+   "value": 702,
+   "flag": null,
+   "value_as_printed": "702"
+  },
+  {
+   "page": 2,
+   "site_as_printed": "Sant Hirdaram Visarjankund, Bairagarh, Bhopal",
+   "slug": "bairagarh",
+   "parameter": "Dissolved solids",
+   "value": 655,
+   "flag": null,
+   "value_as_printed": "655"
+  },
+  {
+   "page": 2,
+   "site_as_printed": "Sant Hirdaram Visarjankund, Bairagarh, Bhopal",
+   "slug": "bairagarh",
+   "parameter": "Suspended solids",
+   "value": 47,
+   "flag": null,
+   "value_as_printed": "47"
+  },
+  {
+   "page": 2,
+   "site_as_printed": "Sant Hirdaram Visarjankund, Bairagarh, Bhopal",
+   "slug": "bairagarh",
+   "parameter": "Dissolved oxygen",
+   "value": 2.1,
+   "flag": null,
+   "value_as_printed": "2.1"
+  },
+  {
+   "page": 2,
+   "site_as_printed": "Sant Hirdaram Visarjankund, Bairagarh, Bhopal",
+   "slug": "bairagarh",
+   "parameter": "BOD",
+   "value": 9.5,
+   "flag": null,
+   "value_as_printed": "9.5"
+  },
+  {
+   "page": 2,
+   "site_as_printed": "Sant Hirdaram Visarjankund, Bairagarh, Bhopal",
+   "slug": "bairagarh",
+   "parameter": "COD",
+   "value": 41.6,
+   "flag": null,
+   "value_as_printed": "41.6"
+  },
+  {
+   "page": 2,
+   "site_as_printed": "Sant Hirdaram Visarjankund, Bairagarh, Bhopal",
+   "slug": "bairagarh",
+   "parameter": "Turbidity",
+   "value": 14,
+   "flag": null,
+   "value_as_printed": "14"
+  },
+  {
+   "page": 2,
+   "site_as_printed": "Sant Hirdaram Visarjankund, Bairagarh, Bhopal",
+   "slug": "bairagarh",
+   "parameter": "Chromium",
+   "value": 0.03,
+   "flag": null,
+   "value_as_printed": "0.03"
+  },
+  {
+   "page": 2,
+   "site_as_printed": "Sant Hirdaram Visarjankund, Bairagarh, Bhopal",
+   "slug": "bairagarh",
+   "parameter": "Lead",
+   "value": 0.031,
+   "flag": null,
+   "value_as_printed": "0.031"
+  },
+  {
+   "page": 2,
+   "site_as_printed": "Sant Hirdaram Visarjankund, Bairagarh, Bhopal",
+   "slug": "bairagarh",
+   "parameter": "Zinc",
+   "value": 0.08,
+   "flag": null,
+   "value_as_printed": "0.08"
+  },
+  {
+   "page": 2,
+   "site_as_printed": "Sant Hirdaram Visarjankund, Bairagarh, Bhopal",
+   "slug": "bairagarh",
+   "parameter": "Copper",
+   "value": 0.13,
+   "flag": null,
+   "value_as_printed": "0.13"
+  },
+  {
+   "page": 2,
+   "site_as_printed": "Ahmedpur Visarjan Kund, Bhopal",
+   "slug": null,
+   "parameter": "pH",
+   "value": 8.12,
+   "flag": null,
+   "value_as_printed": "8.12"
+  },
+  {
+   "page": 2,
+   "site_as_printed": "Ahmedpur Visarjan Kund, Bhopal",
+   "slug": null,
+   "parameter": "Total solids",
+   "value": 366,
+   "flag": null,
+   "value_as_printed": "366"
+  },
+  {
+   "page": 2,
+   "site_as_printed": "Ahmedpur Visarjan Kund, Bhopal",
+   "slug": null,
+   "parameter": "Dissolved solids",
+   "value": 322,
+   "flag": null,
+   "value_as_printed": "322"
+  },
+  {
+   "page": 2,
+   "site_as_printed": "Ahmedpur Visarjan Kund, Bhopal",
+   "slug": null,
+   "parameter": "Suspended solids",
+   "value": 44,
+   "flag": null,
+   "value_as_printed": "44"
+  },
+  {
+   "page": 2,
+   "site_as_printed": "Ahmedpur Visarjan Kund, Bhopal",
+   "slug": null,
+   "parameter": "Dissolved oxygen",
+   "value": 5.6,
+   "flag": null,
+   "value_as_printed": "5.6"
+  },
+  {
+   "page": 2,
+   "site_as_printed": "Ahmedpur Visarjan Kund, Bhopal",
+   "slug": null,
+   "parameter": "BOD",
+   "value": 3.8,
+   "flag": null,
+   "value_as_printed": "3.8"
+  },
+  {
+   "page": 2,
+   "site_as_printed": "Ahmedpur Visarjan Kund, Bhopal",
+   "slug": null,
+   "parameter": "COD",
+   "value": 18.4,
+   "flag": null,
+   "value_as_printed": "18.4"
+  },
+  {
+   "page": 2,
+   "site_as_printed": "Ahmedpur Visarjan Kund, Bhopal",
+   "slug": null,
+   "parameter": "Turbidity",
+   "value": 7.2,
+   "flag": null,
+   "value_as_printed": "7.2"
+  },
+  {
+   "page": 2,
+   "site_as_printed": "Ahmedpur Visarjan Kund, Bhopal",
+   "slug": null,
+   "parameter": "Conductivity",
+   "value": 468,
+   "flag": null,
+   "value_as_printed": "468"
+  },
+  {
+   "page": 2,
+   "site_as_printed": "Ahmedpur Visarjan Kund, Bhopal",
+   "slug": null,
+   "parameter": "Chromium",
+   "value": 0.03,
+   "flag": null,
+   "value_as_printed": "0.03"
+  },
+  {
+   "page": 2,
+   "site_as_printed": "Ahmedpur Visarjan Kund, Bhopal",
+   "slug": null,
+   "parameter": "Lead",
+   "value": 0.031,
+   "flag": null,
+   "value_as_printed": "0.031"
+  },
+  {
+   "page": 2,
+   "site_as_printed": "Ahmedpur Visarjan Kund, Bhopal",
+   "slug": null,
+   "parameter": "Zinc",
+   "value": 0.052,
+   "flag": null,
+   "value_as_printed": "0.052"
+  },
+  {
+   "page": 2,
+   "site_as_printed": "Ahmedpur Visarjan Kund, Bhopal",
+   "slug": null,
+   "parameter": "Copper",
+   "value": 0.088,
+   "flag": null,
+   "value_as_printed": "0.088"
+  }
+ ]
+}
