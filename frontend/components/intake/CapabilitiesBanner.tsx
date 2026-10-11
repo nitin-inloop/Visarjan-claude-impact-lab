@@ -11,7 +11,7 @@ export function CapabilitiesBanner({ caps, kind }: { caps: Capabilities | null; 
   if (!caps) return <p className="text-sm text-muted">…</p>;
   return (
     <div className="rounded border border-rule bg-surface px-3 py-2 text-sm space-y-1">
-      <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
+      <div className="flex flex-wrap items-center gap-x-2 gap-y-1">
         <span>
           {x.capText}: <b className="text-low">{x.ready}</b>
         </span>
@@ -22,7 +22,7 @@ export function CapabilitiesBanner({ caps, kind }: { caps: Capabilities | null; 
         </span>
         {!caps.ocr.available && (
           <details className="inline">
-            <summary className="cursor-pointer text-link inline">{x.howEnable}</summary>
+            <summary className="cursor-pointer text-link">{x.howEnable}</summary>
             <span className="block text-muted text-xs mt-1">
               {caps.ocr.how_to_enable[lang]} <code className="text-ink">{caps.ocr.venv}</code>
             </span>
@@ -30,7 +30,7 @@ export function CapabilitiesBanner({ caps, kind }: { caps: Capabilities | null; 
         )}
         <span aria-hidden className="text-muted">·</span>
         <span className="text-muted tabular">≤ {caps.max_upload_mb} MB</span>
-      </p>
+      </div>
       <p className={clsx("text-xs", kind === "mock" ? "text-medium" : "text-muted")}>{kind === "mock" ? x.mockMode : x.realMode}</p>
     </div>
   );

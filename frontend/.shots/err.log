@@ -1,78 +1,10 @@
-[20216:22316:1011/144758.869:INFO:components\enterprise\browser\controller\chrome_browser_cloud_management_controller.cc:241] No machine level policy manager exists.
-[20216:6832:1011/144758.979:ERROR:chrome\browser\extensions\external_registry_loader_win.cc:147] Missing value path for key Software\Google\Chrome\Extensions\dngcpimnedloihjnnfngkgjoidhnaolf.
-[20216:6832:1011/144758.979:ERROR:chrome\browser\extensions\external_registry_loader_win.cc:147] Missing value path for key Software\Google\Chrome\Extensions\fcoeoabgfenejglbffodgkkbkcdhcgfn.
-[20216:22316:1011/144759.178:WARNING:chrome\browser\extensions\external_registry_loader_win.cc:236] Error observing HKLM: Access is denied. (0x5)
-[20216:22316:1011/144800.805:INFO:CONSOLE:720] "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold", source: http://localhost:3001/_next/static/chunks/node_modules_next_dist_05y3oi5z9mc_3._.js (720)
-[20216:22316:1011/144800.893:INFO:CONSOLE:720] "[HMR] connected", source: http://localhost:3001/_next/static/chunks/node_modules_next_dist_05y3oi5z9mc_3._.js (720)
-[20216:22316:1011/144801.060:INFO:CONSOLE:0] "Access to fetch at 'http://localhost:8000/api/intake/capabilities' from origin 'http://localhost:3001' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.", source: http://localhost:3001/intake?demo=1 (0)
-[20216:22316:1011/144801.064:INFO:CONSOLE:0] "Access to fetch at 'http://localhost:8000/api/health' from origin 'http://localhost:3001' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.", source: http://localhost:3001/intake?demo=1 (0)
-[20216:22316:1011/144801.067:INFO:CONSOLE:0] "Access to fetch at 'http://localhost:8000/api/intake/capabilities' from origin 'http://localhost:3001' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.", source: http://localhost:3001/intake?demo=1 (0)
-[20216:22316:1011/144801.067:INFO:CONSOLE:0] "Access to fetch at 'http://localhost:8000/api/health' from origin 'http://localhost:3001' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.", source: http://localhost:3001/intake?demo=1 (0)
-[20216:22316:1011/144801.098:INFO:CONSOLE:996] "In HTML, %s cannot be a descendant of <%s>.
-This will cause a hydration error.%s <summary> p 
-
-  ...
-    <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
-      <LoadingBoundary name="intake/" loading={null}>
-        <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
-          <RedirectBoundary>
-            <RedirectErrorBoundary router={{...}}>
-              <InnerLayoutRouter url="/intake?de..." tree={[...]} params={{}} renderTree={{...}} segmentPath={[...]} ...>
-                <SegmentViewNode type="page" pagePath="(classic)/...">
-                  <SegmentTrieNode>
-                  <IntakePage>
-                    <div className="pt-6">
-                      <IntakePanel>
-                        <div className="space-y-5">
-                          <header className="space-y-2">
-                            <h2>
-                            <p>
-                            <CapabilitiesBanner caps={{text_pdf:true, ...}} kind="mock">
-                              <div className="rounded bo...">
->                               <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                                  <span>
-                                  <span>
-                                  <span>
-                                  <details className="inline">
->                                   <summary className="cursor-pointer text-link inline">
-                                    ...
-                                  ...
-                                ...
-                          ...
-                ...
-              ...
-", source: http://localhost:3001/_next/static/chunks/node_modules_next_dist_05y3oi5z9mc_3._.js (996)
-[20216:22316:1011/144801.098:INFO:CONSOLE:996] "<%s> cannot contain a nested %s.
-See this log for the ancestor stack trace. p <summary>", source: http://localhost:3001/_next/static/chunks/node_modules_next_dist_05y3oi5z9mc_3._.js (996)
-[20216:22316:1011/144801.098:INFO:CONSOLE:996] "In HTML, %s cannot be a descendant of <%s>.
-This will cause a hydration error.%s <details> p 
-
-  ...
-    <ErrorBoundary errorComponent={undefined} errorStyles={undefined} errorScripts={undefined}>
-      <LoadingBoundary name="intake/" loading={null}>
-        <HTTPAccessFallbackBoundary notFound={undefined} forbidden={undefined} unauthorized={undefined}>
-          <RedirectBoundary>
-            <RedirectErrorBoundary router={{...}}>
-              <InnerLayoutRouter url="/intake?de..." tree={[...]} params={{}} renderTree={{...}} segmentPath={[...]} ...>
-                <SegmentViewNode type="page" pagePath="(classic)/...">
-                  <SegmentTrieNode>
-                  <IntakePage>
-                    <div className="pt-6">
-                      <IntakePanel>
-                        <div className="space-y-5">
-                          <header className="space-y-2">
-                            <h2>
-                            <p>
-                            <CapabilitiesBanner caps={{text_pdf:true, ...}} kind="mock">
-                              <div className="rounded bo...">
->                               <p className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                                  <span>
-                                  <span>
-                                  <span>
->                                 <details className="inline">
-                                  ...
-                                ...
-                          ...
-                ...
-              ...
-", source: http://localhost:3001/_next/static/chunks/node_modules_next_dist_05y3oi5z9mc_3._.js (996)
+[7264:6688:1011/144818.203:INFO:components\enterprise\browser\controller\chrome_browser_cloud_management_controller.cc:241] No machine level policy manager exists.
+[7264:21792:1011/144818.283:ERROR:chrome\browser\extensions\external_registry_loader_win.cc:147] Missing value path for key Software\Google\Chrome\Extensions\dngcpimnedloihjnnfngkgjoidhnaolf.
+[7264:21792:1011/144818.283:ERROR:chrome\browser\extensions\external_registry_loader_win.cc:147] Missing value path for key Software\Google\Chrome\Extensions\fcoeoabgfenejglbffodgkkbkcdhcgfn.
+[7264:6688:1011/144818.542:WARNING:chrome\browser\extensions\external_registry_loader_win.cc:236] Error observing HKLM: Access is denied. (0x5)
+[7264:6688:1011/144820.199:INFO:CONSOLE:720] "%cDownload the React DevTools for a better development experience: https://react.dev/link/react-devtools font-weight:bold", source: http://localhost:3001/_next/static/chunks/node_modules_next_dist_05y3oi5z9mc_3._.js (720)
+[7264:6688:1011/144820.254:INFO:CONSOLE:720] "[HMR] connected", source: http://localhost:3001/_next/static/chunks/node_modules_next_dist_05y3oi5z9mc_3._.js (720)
+[7264:6688:1011/144820.469:INFO:CONSOLE:0] "Access to fetch at 'http://localhost:8000/api/intake/capabilities' from origin 'http://localhost:3001' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.", source: http://localhost:3001/intake?demo=1 (0)
+[7264:6688:1011/144820.469:INFO:CONSOLE:0] "Access to fetch at 'http://localhost:8000/api/intake/capabilities' from origin 'http://localhost:3001' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.", source: http://localhost:3001/intake?demo=1 (0)
+[7264:6688:1011/144820.501:INFO:CONSOLE:0] "Access to fetch at 'http://localhost:8000/api/health' from origin 'http://localhost:3001' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.", source: http://localhost:3001/intake?demo=1 (0)
+[7264:6688:1011/144820.503:INFO:CONSOLE:0] "Access to fetch at 'http://localhost:8000/api/health' from origin 'http://localhost:3001' has been blocked by CORS policy: No 'Access-Control-Allow-Origin' header is present on the requested resource.", source: http://localhost:3001/intake?demo=1 (0)
