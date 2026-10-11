@@ -1,8 +1,12 @@
 import { CommandCenter } from "@/components/live/CommandCenter";
 import { readSnapshot } from "@/lib/snapshot";
-import type { Ranking } from "@/lib/types";
+import type { Allocation, Leaderboard, Ranking } from "@/lib/types";
 
 export default async function Home() {
-  const initialRanking = await readSnapshot<Ranking>("ranking.json");
-  return <CommandCenter initialRanking={initialRanking} />;
+  const [initialRanking, initialLb, initialAlloc] = await Promise.all([
+    readSnapshot<Ranking>("ranking.json"),
+    readSnapshot<Leaderboard>("leaderboard.json"),
+    readSnapshot<Allocation>("allocate.json"),
+  ]);
+  return <CommandCenter initialRanking={initialRanking} initialLb={initialLb} initialAlloc={initialAlloc} />;
 }

@@ -4,6 +4,7 @@ from __future__ import annotations
 import json
 import logging
 import math
+import time
 from pathlib import Path
 
 import numpy as np
@@ -53,6 +54,7 @@ class Dispatcher:
         self.log_dir = log_dir
         self.Q, self.q_source = load_q()
         self.n_orders = 0
+        self.run = time.strftime("%Y%m%dT%H%M%S")  # real wall-clock run id for the action log
         self.resources: list[dict] = []
         for kind, n in POOL.items():
             for i in range(1, n + 1):

@@ -69,7 +69,7 @@ export function GhatTile({ g }: { g: GhatLive }) {
   const res = (data?.resources ?? []).filter((r) => g.resources_on_site.includes(r.id));
   const openN = (data?.alerts ?? []).filter((a) => a.ghat === g.slug && a.state === "open").length;
   const etaText =
-    DO !== null && DO < 5 ? t.lv.etaBelow : g.eta.do_5 !== null ? t.lv.eta(g.eta.do_5) : DO !== null ? t.lv.etaSteady : null;
+    DO !== null && DO < 5 ? t.lv.etaBelow : g.eta.do_5 !== null && g.eta.do_5 <= 240 ? t.lv.eta(g.eta.do_5) : DO !== null ? t.lv.etaSteady : null;
   return (
     <button
       type="button"
@@ -137,7 +137,7 @@ export function GhatTile({ g }: { g: GhatLive }) {
           <dd className="tabular text-ink">{fmtNum(g.values.turbidity)}</dd>
         </div>
       </dl>
-      {etaText && <p className={clsx("text-xs", g.eta.do_5 !== null || (DO !== null && DO < 5) ? "text-high" : "text-muted")}>{etaText}</p>}
+      {etaText && <p className={clsx("text-xs", (g.eta.do_5 !== null && g.eta.do_5 <= 240) || (DO !== null && DO < 5) ? "text-high" : "text-muted")}>{etaText}</p>}
       <div className="mt-auto pt-1 border-t border-rule flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted">
         <span className="tabular">
           {g.idols_per_h} {t.lv.idolsH}
@@ -149,7 +149,7 @@ export function GhatTile({ g }: { g: GhatLive }) {
         )}
         {openN > 0 && (
           <span className="ml-auto rounded bg-raised px-1.5 text-ink tabular">
-            {openN} {t.lv.alerts.toLowerCase()}
+            {t.lv.alerts}: {openN}
           </span>
         )}
       </div>

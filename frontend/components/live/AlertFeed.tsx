@@ -66,7 +66,7 @@ export function AlertFeed() {
     .filter((a) => a.state !== "resolved" && (filter === "all" || a.severity === filter))
     .sort((a, b) => Number(a.state === "acked") - Number(b.state === "acked") || SEV_RANK[b.severity] - SEV_RANK[a.severity] || b.t_update - a.t_update);
   return (
-    <div className="rounded-md border border-rule bg-paper/60 h-full flex flex-col min-h-[18rem] lg:max-h-[27rem]">
+    <div className="rounded-md border border-rule bg-paper/60 h-full flex flex-col min-h-[18rem] max-h-[27rem]">
       <div className="flex flex-wrap items-center gap-2 px-3 py-2 border-b border-rule">
         <h2 className="text-sm font-bold text-ink mr-auto">
           {t.lv.alerts} <span className="text-muted font-normal tabular">({t.lv.alertsN((data?.alerts ?? []).filter((a) => a.state === "open").length)})</span>

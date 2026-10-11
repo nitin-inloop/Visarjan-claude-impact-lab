@@ -41,6 +41,14 @@ def simulate_deltas(L: dict[str, float]) -> dict[str, dict]:
     return {s: {k: round(end[s][k] - start[s][k], 3) for k in ("DO", "BOD", "turbidity")} for s in SENSORED}
 
 
+def _mae(rows, k):
+    return round(float(np.mean([abs(r["simulated"][k] - r["observed"][k]) for r in rows])), 3)
+
+
+def _mae0(rows, k):
+    return round(float(np.mean([abs(r["observed"][k]) for r in rows])), 3)
+
+
 def run_calibration() -> dict:
     obs = observed_deltas()
     types = sorted({GHAT_TYPE[s] for s in SENSORED})
@@ -64,6 +72,8 @@ def run_calibration() -> dict:
     return {"available": True, "label": LABEL, "fit_target": "BOD change pre->during at 21:00 (Durga 2025, MPPCB 2025 p. 64/65)",
             "scenario": "ban_enforced (expected arrivals, no noise)",
             "L_idol": fitted, "rows": rows,
-            "mae": {"BOD_fitted": round(float(np.mean(ae_fit)), 3), "BOD_no_change_baseline": round(float(np.mean(ae_base)), 3)},
+            "mae": {"BOD_fitted": round(float(np.mean(ae_fit)), 3), "BOD_no_change_baseline": round(float(np.mean(ae_base)), 3),
+                    "DO_out_of_fit": _mae(rows, "DO"), "DO_no_change_baseline": _mae0(rows, "DO"),
+                    "turbidity_out_of_fit": _mae(rows, "turbidity"), "turbidity_no_change_baseline": _mae0(rows, "turbidity")},
             "do_sign_matches": sign_ok, "n_ghats": len(SENSORED),
             "note": "kund L_idol is not fitted (no sensored kund); it keeps the uncalibrated default."}

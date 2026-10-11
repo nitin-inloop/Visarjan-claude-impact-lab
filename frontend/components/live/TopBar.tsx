@@ -103,7 +103,7 @@ function SimControls() {
       </label>
       <select
         id="cc-scenario"
-        className="rounded border border-rule bg-surface px-2 py-1 text-sm text-ink max-w-[13rem]"
+        className="rounded border border-rule bg-surface px-2 py-1 text-sm text-ink max-w-[16rem]"
         value={data?.scenario.name ?? ""}
         onChange={(e) => ctl("scenario", e.target.value)}
         disabled={!data}

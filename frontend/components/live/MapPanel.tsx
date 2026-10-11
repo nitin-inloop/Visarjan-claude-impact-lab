@@ -19,7 +19,7 @@ const LABEL: Record<string, [number, number, "start" | "end" | "middle"]> = {
   bairagarh: [14, -8, "start"],
   prempura: [0, 26, "middle"],
   "rani-kamlapati": [-14, 22, "end"],
-  khatlapura: [14, -10, "start"],
+  khatlapura: [12, -24, "start"],
   hathaikheda: [0, 28, "middle"],
   shahpura: [-14, 4, "end"],
   malikhedi: [-14, 4, "end"],
@@ -65,7 +65,7 @@ export function MapPanel() {
         </g>
         <g fontSize={11} fill="#7f9bb5" fontStyle="italic">
           <text x={150} y={112} textAnchor="middle">{lang === "hi" ? "बड़ा तालाब" : "Upper Lake"}</text>
-          <text x={300} y={96} textAnchor="middle">{lang === "hi" ? "छोटा तालाब" : "Lower Lake"}</text>
+          <text x={322} y={126} textAnchor="start">{lang === "hi" ? "छोटा तालाब" : "Lower Lake"}</text>
           <text x={535} y={52} textAnchor="middle">{lang === "hi" ? "हथाईखेड़ा जलाशय" : "Hathaikheda reservoir"}</text>
           <text x={420} y={296} textAnchor="middle">{lang === "hi" ? "शाहपुरा झील" : "Shahpura lake"}</text>
         </g>

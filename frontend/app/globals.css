@@ -246,3 +246,14 @@ a {
 @media (prefers-reduced-motion: reduce) {
   .cc-pulse, .cc-enter, .cc-drawer { animation: none; }
 }
+
+@media print {
+  body[data-print="sitrep"] main > *:not(#cc-tabs),
+  body[data-print="sitrep"] footer,
+  body[data-print="sitrep"] #cc-tabs [role="tablist"] {
+    display: none !important;
+  }
+  body[data-print="sitrep"] .cc-grid-bg {
+    background: none;
+  }
+}

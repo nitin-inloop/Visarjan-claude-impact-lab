@@ -78,7 +78,7 @@ export function CommandCenter(props: Props) {
 }
 
 function Shell({ initialRanking, initialLb = null, initialAlloc = null }: Props) {
-  const { lang, t } = useLang();
+  const { lang, t, setLang } = useLang();
   const { subscribeAlerts } = useLiveStore();
   const [selected, setSelected] = useState<string | null>(null);
   const tab = useSyncExternalStore(subHash, readHash, () => "plan" as TabId);
@@ -119,6 +119,17 @@ function Shell({ initialRanking, initialLb = null, initialAlloc = null }: Props)
 
   const select = useCallback((s: string | null) => setSelected(s), []);
   const setTab = useCallback((x: TabId) => writeHash(x), []);
+
+  // ?lang=hi|en and ?ghat=slug deep links (useful for demo links and headless checks).
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search).get("lang");
+    if (q === "hi" || q === "en") setLang(q);
+    const g = new URLSearchParams(window.location.search).get("ghat");
+    const id = g && /^[a-z-]+$/.test(g) ? setTimeout(() => setSelected(g), 0) : null;
+    return () => {
+      if (id) clearTimeout(id);
+    };
+  }, [setLang]);
 
   // Esc closes the drawer.
   useEffect(() => {

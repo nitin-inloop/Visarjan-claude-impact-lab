@@ -87,7 +87,11 @@
   ],
   "mae": {
     "BOD_fitted": 0.383,
-    "BOD_no_change_baseline": 1.68
+    "BOD_no_change_baseline": 1.68,
+    "DO_out_of_fit": 0.906,
+    "DO_no_change_baseline": 0.6,
+    "turbidity_out_of_fit": 12.067,
+    "turbidity_no_change_baseline": 12.6
   },
   "do_sign_matches": 3,
   "n_ghats": 5,

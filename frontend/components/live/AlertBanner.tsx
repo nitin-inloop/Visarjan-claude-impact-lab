@@ -14,7 +14,7 @@ export function AlertBanner() {
   const { select, voiceApi } = useUi();
   const top = (data?.alerts ?? [])
     .filter((a) => a.state === "open" && (a.severity === "critical" || a.severity === "high"))
-    .sort((a, b) => b.t_update - a.t_update || (b.severity === "critical" ? 1 : 0) - (a.severity === "critical" ? 1 : 0))[0];
+    .sort((a, b) => Number(a.baseline) - Number(b.baseline) || b.t_update - a.t_update || (b.severity === "critical" ? 1 : 0) - (a.severity === "critical" ? 1 : 0))[0];
   const critical = top?.severity === "critical";
   return (
     <div aria-live={critical ? "assertive" : "polite"} aria-atomic="true">
@@ -29,7 +29,7 @@ export function AlertBanner() {
           <span className="text-xs font-semibold text-muted">{t.lv.newest}</span>
           <SevChip s={top.severity} />
           <span className="text-xs tabular text-muted">{fmtClock(top.t_update)}</span>
-          <button type="button" className="text-left text-ink font-semibold hover:underline min-w-0 flex-1" onClick={() => select(top.ghat)}>
+          <button type="button" className="text-left text-ink font-semibold hover:underline min-w-0 basis-full sm:basis-0 sm:flex-1 order-last sm:order-none" onClick={() => select(top.ghat)}>
             {top.text[lang]}
           </button>
           <div className="flex gap-1.5">

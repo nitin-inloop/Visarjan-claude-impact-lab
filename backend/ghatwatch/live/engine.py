@@ -173,7 +173,7 @@ class LiveEngine:
                     self.pending_upserts.pop(rid, None)
                     self.pending_resolved.append(rid)
         new = self.dispatch.suggestions(self.derived, {s: self.idols_per_h(s) for s in self.slugs})
-        if [(x["id"], round(x["rank_score"], 1)) for x in new] != [(x["id"], round(x["rank_score"], 1)) for x in self.suggestions]:
+        if [x["id"] for x in new] != [x["id"] for x in self.suggestions]:
             self.suggestions_version += 1
         self.suggestions = new
         self._update_sitrep()

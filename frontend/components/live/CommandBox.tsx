@@ -108,7 +108,7 @@ export function CommandBox() {
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-2 min-w-0 flex-1 sm:flex-none">
+    <div className="flex flex-wrap items-center gap-2 min-w-0 w-full sm:w-auto">
       <form
         className="flex items-center gap-1.5 min-w-0 flex-1 sm:flex-none"
         onSubmit={(e) => {
