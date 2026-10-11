@@ -35,8 +35,12 @@ simulator / field readings → validate + staleness → rolling windows + hyster
 - **One screen**: sim clock and speed, alert feed, seven live ghat tiles, a detail drawer, and tabs for the ranked plan, dispatch, sitrep and models. The phase 1 pages still exist at their old URLs.
 - **Voice**: click "Enable voice" once (Chrome requires a user gesture). Alerts of high severity and above and the sitrep are spoken in the selected language. Hindi speech needs a Hindi voice on the machine (Windows: Settings → Time & language → Language → add Hindi with the speech pack; Chrome also offers an online Hindi voice when connected). Without one the English text is spoken and the UI says so. Commands can be typed in the command box; the microphone button appears when the browser supports speech recognition (Chrome, online).
 - **If the API is down** the screen runs on a built-in demo generator that emits the same message shapes, so the demo never looks dead. The connection pill tells you which source is active.
+- **Demo links**: `http://localhost:3000/?lang=hi` opens in Hindi, `?ghat=shahpura` opens a ghat's drawer, `/#dispatch`, `/#sitrep`, `/#models` open a tab. The demo moment: send a test team to Bairagarh from the Dispatch tab (or type `send test team to bairagarh`) and watch its hidden dissolved oxygen near 0 appear about 27 sim-minutes later.
+- **Hand checks before the demo** (headless verification cannot cover audio): click "Enable voice" and confirm you hear the confirmation; switch to हिन्दी and press Speak on an alert; press "Talk", allow the microphone, say "status Shahpura".
 
-_Phase 2 results (tests, calibration error, alert codes) are filled in at the end of this section after integration._
+**Phase 2 verification (11 Oct 2026):** 17 backend tests pass (9 live + 8 phase 1). Over a WebSocket run at 600× each tick carried every simulated point (about 20 per sensored ghat per 10 sim-minutes, 12–14 KB per tick), Bairagarh and Malikhedi stayed `null` until a test team arrived, and the alert codes seen were `DO_LOW` (up to critical), `DO_ETA_60`, `DO_FALLING_FAST`, `BOD_HIGH`, `IDOL_SURGE`, `SENSOR_STALE`, plus baseline `DO_LOW` and `NO_SENSOR` at t0. Scenarios: `ban_enforced` (default), `ban_not_enforced`, `aerators_prepositioned`, `heavy_rain`.
+
+**Calibration-lite, stated plainly:** the per-idol leachable BOD load was fitted on the 5 sensored ghats for Durga 2025 pre→during. BOD-change error 0.38 mg/l against 1.68 for a no-change baseline. The out-of-fit checks are weak: DO-change error 0.91 against a 0.60 no-change baseline, turbidity 12.1 against 12.6. This is a sanity check on one festival, not validation. Kund parameters remain uncalibrated defaults because no kund has a sensor.
 
 ## How to run (5 steps)
 
@@ -90,7 +94,12 @@ CQL (experimental) policy values in the simulator, higher is better: CQL −13.2
 
 **Works**
 - Deterministic ranking, reasons with page citations, data-gap panel, action chips, bilingual brief, evidence table with PDF deep links, what-if entry (known ghat or new kund), 4-model leaderboard with champion serving, CQL allocation (experimental), action-log export, static fallback when the API is down.
-- Verified: 8 backend invariant tests pass; every API route returns 200; frontend lint and production build pass; all routes render with the live API and with the static snapshot.
+- Live mode: simulator, stream processor, escalating alerts, dispatch with effects fed back into the simulation, live sitrep, WebSocket feed with polling and demo-generator fallbacks, dark single-screen command center in English and Hindi, spoken alerts and sitrep, typed and spoken commands.
+- Verified: 17 backend tests pass (8 phase 1 invariants, 9 live); every API route returns 200; frontend lint and production build pass; all routes render with the live API, with the static snapshot and with the demo generator; screenshots checked at 1440 px and 390 px in both languages.
+
+**Not verified by machine (check by hand in Chrome)**
+- Actual audio output, Hindi voice quality, interruption timing, and the microphone flow. Headless checks covered voice selection and queue logic only.
+- The brief's light print stylesheet after the dark-theme change.
 
 **Doesn't / limits**
 - The reports print no units; units are the standard ones for each test (as in the data pack).
@@ -119,9 +128,10 @@ IS 10500 drinking-water limits are mentioned in `docs/METHOD.md` as reference on
 ```
 track-2-visarjan-ghat-watch/   the data pack, untouched
 backend/                       Python 3.12 · FastAPI · scoring, ML (4 models), CQL, brief
-frontend/                      Next.js 16 · action sheet, evidence, brief, what-if, models
-docs/PLAN.md                   the build plan
-docs/METHOD.md                 scoring rules, class B rationale, ML + CQL caveats
+backend/ghatwatch/live/        real-time pipeline: simulator, processor, alerts, dispatch, sitrep, commands, WebSocket
+frontend/                      Next.js 16 · dark live command center at /, classic pages under (classic)/
+docs/PLAN.md · PLAN-LIVE.md    the phase 1 and phase 2 plans (phase 2 includes the Opus review amendments)
+docs/METHOD.md · METHOD-LIVE.md  scoring rules and class B rationale · every simulator assumption and the calibration result
 ```
 
 ## Method in one paragraph
