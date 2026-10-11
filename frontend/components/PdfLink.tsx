@@ -1,12 +1,34 @@
 "use client";
 
-import { pdfHref } from "@/lib/api";
+import { API_URL, pdfHref } from "@/lib/api";
 import { useLang } from "@/lib/lang";
-import type { Source } from "@/lib/types";
+import { ix } from "@/lib/intakeI18n";
 
-export function PdfLink({ source }: { source: Pick<Source, "pdf" | "page"> & { report?: string } }) {
-  const { t } = useLang();
+interface LinkSource {
+  pdf: string | null;
+  page: number | null;
+  report?: string | null;
+  /** intake job id: officer-added reading, links to the uploaded page image */
+  upload?: string | null;
+}
+
+export function PdfLink({ source }: { source: LinkSource }) {
+  const { t, lang } = useLang();
   if (typeof source.page !== "number") return null;
+  if (source.upload) {
+    return (
+      <a
+        href={`${API_URL}/api/intake/jobs/${encodeURIComponent(source.upload)}/page/${source.page}.png`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="whitespace-nowrap font-semibold tabular underline underline-offset-2"
+        title={ix[lang].uploadedTitle}
+      >
+        {ix[lang].uploadedPage(source.page)} ↗
+      </a>
+    );
+  }
+  if (!source.pdf) return null;
   const report = source.report ?? `MPPCB ${source.pdf}`;
   return (
     <a

@@ -183,3 +183,42 @@ def load_statewide() -> tuple[pd.DataFrame, StatewideStats]:
     df["ro"] = df["regional_office"].map(normalise_ro)
     stats = StatewideStats(n_raw, n_nc, n_dup, counts, len(df))
     return df.reset_index(drop=True), stats
+
+
+# ---------------------------------------------------------------- phase 3: officer-added readings (intake)
+
+USER_COLUMNS = ["year", "festival", "site", "slug", "phase", "parameter", "value", "unit_assumed", "flag",
+                "value_as_printed", "parameter_as_printed", "site_as_printed", "site_match_confidence",
+                "source_page", "job_id", "source_file", "accepted_at", "entered_by", "already_in_pack",
+                "confidence"]
+
+
+def intake_dir() -> Path:
+    """Runtime intake folder (uploads, jobs, accepted rows); GHATWATCH_INTAKE_DIR overrides (tests)."""
+    import os
+    return Path(os.environ.get("GHATWATCH_INTAKE_DIR") or (BACKEND_DIR / "intake_data"))
+
+
+def accepted_csv() -> Path:
+    return intake_dir() / "accepted_readings.csv"
+
+
+def load_user_readings() -> pd.DataFrame:
+    """Officer-accepted intake rows (kept apart from the official pack). Empty-safe; never cached."""
+    p = accepted_csv()
+    if not p.exists() or p.stat().st_size == 0:
+        return pd.DataFrame(columns=USER_COLUMNS)
+    df = pd.read_csv(p, encoding="utf-8", dtype={"job_id": str, "slug": str, "flag": str})
+    for c in USER_COLUMNS:
+        if c not in df.columns:
+            df[c] = None
+    df["value"] = pd.to_numeric(df["value"], errors="coerce")
+    df["flag"] = _none_if_na(df["flag"])
+    df["slug"] = _none_if_na(df["slug"])
+    df["source_page"] = pd.to_numeric(df["source_page"], errors="coerce")
+    df["year"] = pd.to_numeric(df["year"], errors="coerce").astype("Int64")
+    df["already_in_pack"] = df["already_in_pack"].astype(str).str.lower().isin(["true", "1"])
+    bad = df["flag"].map(lambda f: f in NON_NUMERIC_FLAGS).astype(bool)
+    df.loc[bad, "value"] = np.nan
+    df["is_numeric"] = df["value"].notna()
+    return df

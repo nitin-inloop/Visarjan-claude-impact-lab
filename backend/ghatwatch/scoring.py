@@ -69,10 +69,12 @@ class Reading:
     unit: str | None
     page: int | None
     entered: bool = False  # officer-entered (what-if), not from a report
+    upload: str | None = None  # intake job id when the reading came from an accepted upload / manual intake
+    source_file: str | None = None  # uploaded file name (or "manual entry")
 
     @property
     def weight(self) -> float:
-        return W_PARAM[self.parameter] * W_YEAR[self.year] * W_PHASE[self.phase]
+        return W_PARAM[self.parameter] * W_YEAR.get(self.year, 1.0) * W_PHASE[self.phase]
 
     @property
     def exceed(self) -> float:
@@ -262,6 +264,17 @@ def _limit_text(param: str) -> str:
     return class_limits("B")[param].text
 
 
+def upload_source(r: Reading) -> tuple[dict, dict]:
+    """Source block + sentence for a reading from an accepted intake job (PLAN-INTAKE.md §2)."""
+    f = r.source_file or "officer upload"
+    pg_en = f" page {r.page}" if r.page is not None else ""
+    pg_hi = f" पृष्ठ {r.page}" if r.page is not None else ""
+    src = {"report": f"Officer-added: {f}", "pdf": None, "page": r.page, "upload": r.upload}
+    txt = {"en": f"Source: officer-added from {f}{pg_en} (not yet verified by MPPCB).",
+           "hi": f"स्रोत: अधिकारी द्वारा जोड़ा गया, {f}{pg_hi} (MPPCB द्वारा अभी सत्यापित नहीं)।"}
+    return src, txt
+
+
 def breach_reasons(readings: list[Reading], k: int = 3, per_param: int = 2) -> list[dict]:
     """Top-k breach contributions by w*exceed (at most `per_param` per parameter)."""
     cands = sorted([r for r in readings if r.breach and r.contribution > 0],
@@ -271,10 +284,13 @@ def breach_reasons(readings: list[Reading], k: int = 3, per_param: int = 2) -> l
         if used.get(r.parameter, 0) >= per_param:
             continue
         used[r.parameter] = used.get(r.parameter, 0) + 1
-        src = (T.source(r.year, r.page) if not r.entered
-               else {"report": "Officer entry 2026", "pdf": None, "page": None})
-        src_txt = None if not r.entered else {"en": "Source: officer-entered 2026 reading.",
-                                               "hi": "स्रोत: अधिकारी द्वारा दर्ज 2026 रीडिंग।"}
+        if r.upload:
+            src, src_txt = upload_source(r)
+        else:
+            src = (T.source(r.year, r.page) if not r.entered
+                   else {"report": "Officer entry 2026", "pdf": None, "page": None})
+            src_txt = None if not r.entered else {"en": "Source: officer-entered 2026 reading.",
+                                                   "hi": "स्रोत: अधिकारी द्वारा दर्ज 2026 रीडिंग।"}
         out.append({
             "kind": "breach", "parameter": r.parameter, "value": r.value, "unit": r.unit,
             "limit": _limit_text(r.parameter), "year": r.year, "festival": r.festival, "phase": r.phase,
@@ -424,12 +440,16 @@ def assess_ghat(df: pd.DataFrame, slug: str, context_all: dict[str, list[dict]],
                 extra: list[Reading] | None = None, detail: bool = False) -> dict:
     """Full assessment for one ghat; `extra` are officer-entered 2026 readings (what-if)."""
     g = df[df["slug"] == slug]
-    rd = scored_readings(g) + list(extra or [])
+    extra = list(extra or [])
+    rd = scored_readings(g) + extra
     sr = compute_score(rd)
-    n_hist = len([r for r in rd if not r.entered])
-    coverage = n_hist / EXPECTED_READINGS
-    has_durga25 = not g[(g["year"] == 2025) & (g["festival"] == "Durga")].empty
-    tier, rule = decide_tier(sr.score, coverage, has_durga25, rd, has_2026=bool(extra))
+    # accepted uploads of 2023-2025 tables fill historical gaps; denominators stay 2023-2025
+    n_hist = len([r for r in rd if not r.entered or (r.upload and r.year in YEARS)])
+    coverage = min(1.0, n_hist / EXPECTED_READINGS)
+    has_durga25 = (not g[(g["year"] == 2025) & (g["festival"] == "Durga")].empty
+                   or any(r.year == 2025 and r.festival == "Durga" for r in extra))
+    has_2026 = any(r.year >= 2026 and r.festival == "Durga" for r in extra)
+    tier, rule = decide_tier(sr.score, coverage, has_durga25, rd, has_2026=has_2026)
     tr, rates = trend(rd)
     gaps = detect_gaps(df, slug)
     ctx = context_all.get(slug, [])[:2]
@@ -471,20 +491,30 @@ def summary_counts(df: pd.DataFrame) -> dict:
             "not_sampled_rows": int(df["flag"].isin(["not sampled", "*", "**", "_"]).sum())}
 
 
-def rank_all(df: pd.DataFrame | None = None, detail: bool = False) -> list[dict]:
+def rank_all(df: pd.DataFrame | None = None, detail: bool = False,
+             extra_by_slug: dict[str, list[Reading]] | None = None) -> list[dict]:
+    """Rank the 7 ghats; `extra_by_slug` adds accepted officer readings (intake) per ghat."""
     df = load_bhopal() if df is None else df
     ctx = context_candidates(df)
-    ghats = [assess_ghat(df, s.slug, ctx, detail=detail) for s in SITES]
+    extra_by_slug = extra_by_slug or {}
+    ghats = [assess_ghat(df, s.slug, ctx, extra=extra_by_slug.get(s.slug) or None, detail=detail)
+             for s in SITES]
     ghats.sort(key=sort_key)
     for i, gh in enumerate(ghats, 1):
         gh["rank"] = i
     return ghats
 
 
-def ranking_payload(generated_at: str, detail: bool = False) -> dict:
+def ranking_payload(generated_at: str, detail: bool = False,
+                    extra_by_slug: dict[str, list[Reading]] | None = None,
+                    user_data: dict | None = None) -> dict:
+    """v1 ranking; with `extra_by_slug` accepted officer rows are scored and `user_data` describes them."""
     df = load_bhopal()
-    return {"generated_at": generated_at, "standard": STANDARD, "weights": weights_block(),
-            "summary": summary_counts(df), "ghats": rank_all(df, detail=detail)}
+    out = {"generated_at": generated_at, "standard": STANDARD, "weights": weights_block(),
+           "summary": summary_counts(df), "ghats": rank_all(df, detail=detail, extra_by_slug=extra_by_slug)}
+    if user_data is not None:
+        out["user_data"] = user_data
+    return out
 
 
 # ---------------------------------------------------------------- what-if

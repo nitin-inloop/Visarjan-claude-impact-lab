@@ -16,9 +16,12 @@ export type ReadingStatus = "breach" | "ok" | "no_limit" | "missing";
 export type ModelName = "logreg" | "random_forest" | "xgboost" | "lightgbm";
 
 export interface Source {
-  report: string;
-  pdf: string;
-  page: number;
+  report: string | null;
+  /** null for officer-added rows (docs/PLAN-INTAKE.md §2) */
+  pdf: string | null;
+  page: number | null;
+  /** intake job id when the reading was officer-added from an upload */
+  upload?: string | null;
 }
 
 export interface Reason {
@@ -98,6 +101,12 @@ export interface Ranking {
   };
   summary: Summary;
   ghats: GhatRank[];
+  /** docs/PLAN-INTAKE.md §4: present when accepted officer-added readings are included */
+  user_data?: {
+    included: boolean;
+    rows: number;
+    sources: { job_id: string; file_name: string; year: number; festival: string }[];
+  };
 }
 
 export interface Reading {

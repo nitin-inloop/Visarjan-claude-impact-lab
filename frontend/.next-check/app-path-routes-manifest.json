@@ -1,0 +1,11 @@
+{
+  "/(classic)/brief/page": "/brief",
+  "/(classic)/ghat/[slug]/page": "/ghat/[slug]",
+  "/(classic)/intake/page": "/intake",
+  "/(classic)/models/page": "/models",
+  "/(classic)/whatif/page": "/whatif",
+  "/_global-error/page": "/_global-error",
+  "/_not-found/page": "/_not-found",
+  "/favicon.ico/route": "/favicon.ico",
+  "/page": "/"
+}

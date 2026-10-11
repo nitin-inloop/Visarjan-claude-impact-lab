@@ -11,10 +11,11 @@ import type { CalibrationRes, ResourceKind } from "@/lib/liveTypes";
 import type { Allocation, Leaderboard, Ranking } from "@/lib/types";
 import { ActionSheet } from "@/components/ActionSheet";
 import { ModelsView } from "@/components/ModelsView";
+import { IntakePanel } from "@/components/intake/IntakePanel";
 import { useUi, type TabId } from "./CommandCenter";
 import { SimBadge } from "./TopBar";
 
-const TABS: TabId[] = ["plan", "dispatch", "sitrep", "models"];
+const TABS: TabId[] = ["plan", "dispatch", "sitrep", "models", "intake"];
 const small = "rounded border border-rule bg-surface px-2.5 py-1 text-sm font-semibold text-ink hover:border-accent";
 
 export function useDispatch() {
@@ -317,6 +318,11 @@ export function Tabs({ initialRanking, initialLb, initialAlloc }: { initialRanki
           </div>
         )}
         {tab === "dispatch" && <DispatchTab />}
+        {tab === "intake" && (
+          <div className="max-w-6xl">
+            <IntakePanel onOpenPlan={() => setTab("plan")} />
+          </div>
+        )}
         {tab === "sitrep" && <SitrepTab />}
         {tab === "models" && (
           <>

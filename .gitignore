@@ -26,3 +26,7 @@ Thumbs.db
 
 # Live pipeline logs (runtime only)
 backend/live_logs/
+
+# Phase 3 intake runtime (uploads, jobs, OCR environment)
+backend/intake_data/
+backend/.ocr-venv/

@@ -10,12 +10,12 @@ import { TopBar } from "./TopBar";
 import { AlertBanner } from "./AlertBanner";
 import { AlertFeed } from "./AlertFeed";
 import { GhatStrip } from "./GhatTile";
-import { MapPanel } from "./MapPanel";
+import { MapLive } from "./MapLive";
 import { Tabs } from "./Tabs";
 import { Drawer } from "./Drawer";
 
-export type TabId = "plan" | "dispatch" | "sitrep" | "models";
-const TABS: TabId[] = ["plan", "dispatch", "sitrep", "models"];
+export type TabId = "plan" | "dispatch" | "sitrep" | "models" | "intake";
+const TABS: TabId[] = ["plan", "dispatch", "sitrep", "models", "intake"];
 
 interface VoiceApi {
   enable(): void;
@@ -150,7 +150,7 @@ function Shell({ initialRanking, initialLb = null, initialAlloc = null }: Props)
           <AlertBanner />
           <div className="grid gap-4 lg:grid-cols-12">
             <section className="lg:col-span-7 min-w-0" aria-label={t.lv.map}>
-              <MapPanel />
+              <MapLive />
             </section>
             <section className="lg:col-span-5 min-w-0" aria-label={t.lv.alerts}>
               <AlertFeed />

@@ -42,6 +42,15 @@ simulator / field readings → validate + staleness → rolling windows + hyster
 
 **Calibration-lite, stated plainly:** the per-idol leachable BOD load was fitted on the 5 sensored ghats for Durga 2025 pre→during. BOD-change error 0.38 mg/l against 1.68 for a no-change baseline. The out-of-fit checks are weak: DO-change error 0.91 against a 0.60 no-change baseline, turbidity 12.1 against 12.6. This is a sanity check on one festival, not validation. Kund parameters remain uncalibrated defaults because no kund has a sensor.
 
+## Report intake (phase 3): PDF, photo or manual entry → OCR → review → re-rank
+
+New readings reach the ranking three ways: drop an MPPCB PDF (text or scanned), photograph a report table on a phone, or type values by hand. Five processing stages run and show their logs: Extractor (pypdf layout text, or PaddleOCR for scans and photos), Normaliser (parameter and site aliases, BDL / `*` / blank codes, assumed units), Validator (plausibility bounds, duplicates against the pack, completeness, confidence), Analyst (CPCB class B per reading, before → after re-ranking with the new rows, the four-model forecast on the new pre-immersion values with the champion served and all four shown, an allocation hint), Reporter (bilingual intake report). Nothing enters the ranking until the officer reviews the extracted table, with OCR confidence per cell, and presses Accept. Accepted rows are stored apart from the official pack and are labelled "officer-added, not yet verified by MPPCB" wherever they influence a rank.
+
+- **OCR** runs PaddleOCR in an isolated environment, `backend/.ocr-venv`, so the main backend never depends on it. If the environment is missing, text PDFs and manual entry still work and the UI says OCR is not installed. To enable: `python -m venv backend/.ocr-venv && backend/.ocr-venv/Scripts/pip install paddlepaddle paddleocr pypdfium2` (the first OCR run downloads the PP-OCRv5 models).
+- **Map**: the command center now shows OpenStreetMap tiles (CARTO dark style) with the ghats as live markers. Positions are approximate. Offline, the schematic map takes over automatically.
+
+_Phase 3 verification numbers (parser match against the data pack, OCR accuracy on a known page) are filled in below after integration._
+
 ## How to run (5 steps)
 
 ```bash

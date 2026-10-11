@@ -257,3 +257,177 @@ a {
     background: none;
   }
 }
+
+/* Leaflet map (components/live/MapLeaflet.tsx) */
+.gw-map.leaflet-container {
+  background: var(--paper);
+  font-family: var(--font-sans);
+}
+.gw-map .leaflet-control-attribution {
+  background: rgba(10, 15, 26, 0.75);
+  color: var(--muted);
+  font-size: 10px;
+}
+.gw-map .leaflet-control-attribution a {
+  color: var(--link);
+}
+.gw-map .leaflet-bar a {
+  background: var(--surface);
+  color: var(--ink);
+  border-bottom-color: var(--rule);
+}
+.gw-map .leaflet-bar a:hover {
+  background: var(--raised);
+}
+.gw-mk {
+  position: relative;
+}
+.gw-mk:focus-visible {
+  outline: 3px solid var(--accent);
+  outline-offset: 3px;
+  border-radius: 50%;
+}
+.gw-mk .gw-dot {
+  position: absolute;
+  inset: 3px;
+  border-radius: 50%;
+  background: currentColor;
+  border: 2px solid var(--paper);
+  box-shadow: 0 0 0 1px currentColor;
+}
+.gw-mk.gw-nd .gw-dot {
+  background: var(--paper);
+  border: 2px dashed currentColor;
+  box-shadow: none;
+}
+.gw-mk .gw-sel,
+.gw-mk .gw-ngt,
+.gw-mk .gw-pulse {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+}
+.gw-mk .gw-ngt {
+  inset: -4px;
+  border: 1.5px dashed transparent;
+}
+.gw-mk.gw-ban .gw-ngt {
+  border-color: var(--ink);
+  opacity: 0.75;
+}
+.gw-mk .gw-sel {
+  inset: -7px;
+  border: 2px solid transparent;
+}
+.gw-mk.gw-selected .gw-sel {
+  border-color: var(--accent);
+}
+.gw-mk .gw-pulse {
+  inset: 0;
+  border: 2px solid currentColor;
+  opacity: 0;
+}
+.gw-mk.gw-alert .gw-pulse {
+  animation: gw-pulse 1.6s ease-out infinite;
+}
+@keyframes gw-pulse {
+  0% { transform: scale(1); opacity: 0.9; }
+  100% { transform: scale(2.6); opacity: 0; }
+}
+.gw-mk .gw-lbl {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  white-space: nowrap;
+  line-height: 1.15;
+  padding: 2px 5px;
+  border-radius: 3px;
+  background: rgba(10, 15, 26, 0.78);
+  border: 1px solid rgba(148, 163, 184, 0.18);
+}
+.gw-mk .gw-lbl.gw-right {
+  left: 26px;
+}
+.gw-mk .gw-lbl.gw-left {
+  right: 26px;
+  text-align: right;
+}
+.gw-mk .gw-lbl b {
+  display: block;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--ink);
+}
+.gw-mk .gw-lbl i {
+  display: block;
+  font-style: normal;
+  font-size: 11px;
+  color: currentColor;
+  font-variant-numeric: tabular-nums;
+}
+.gw-depot em {
+  position: absolute;
+  left: 50%;
+  top: 14px;
+  transform: translateX(-50%);
+  white-space: nowrap;
+  font-style: normal;
+  font-size: 10px;
+  color: var(--muted);
+  background: rgba(10, 15, 26, 0.7);
+  padding: 0 3px;
+  border-radius: 2px;
+}
+.gw-depot span {
+  display: block;
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid var(--muted);
+  background: rgba(10, 15, 26, 0.8);
+}
+.gw-res {
+  transition: transform 0.9s ease-in-out;
+}
+.leaflet-zoom-anim .gw-res {
+  transition: none;
+}
+.gw-res span {
+  display: grid;
+  place-items: center;
+  width: 14px;
+  height: 14px;
+  border-radius: 3px;
+  font-size: 9px;
+  font-weight: 800;
+  line-height: 1;
+  color: var(--paper);
+  background: var(--accent);
+}
+.gw-res-idle span {
+  background: var(--muted);
+}
+.gw-res-route span {
+  background: var(--paper);
+  color: var(--accent);
+  border: 1.5px dashed var(--accent);
+}
+.gw-res em {
+  position: absolute;
+  left: 16px;
+  top: 0;
+  font-style: normal;
+  font-size: 10px;
+  color: var(--accent);
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.gw-tip.leaflet-tooltip {
+  background: var(--surface);
+  color: var(--ink);
+  border: 1px solid var(--rule);
+  box-shadow: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .gw-mk.gw-alert .gw-pulse { animation: none; opacity: 0.6; }
+  .gw-res { transition: none; }
+}

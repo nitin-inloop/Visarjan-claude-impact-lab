@@ -4,17 +4,19 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import clsx from "clsx";
 import { useLang } from "@/lib/lang";
+import { ix } from "@/lib/intakeI18n";
 import { LangToggle } from "./LangToggle";
 import { SourceBadge } from "./SourceBadge";
 
 export function Header() {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const path = usePathname();
   const nav = [
     { href: "/", label: t.lv.nav },
     { href: "/brief", label: t.openBrief },
     { href: "/whatif", label: t.enterReadings },
     { href: "/models", label: t.models },
+    { href: "/intake", label: ix[lang].nav },
   ];
   return (
     <header className="no-print border-b border-rule bg-paper">

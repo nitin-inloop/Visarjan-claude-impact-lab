@@ -8,7 +8,7 @@ import { useUi } from "./CommandCenter";
 
 const W = 640;
 const H = 360;
-const LON0 = 77.3;
+const LON0 = 77.29;
 const LON1 = 77.53;
 const LAT0 = 23.165;
 const LAT1 = 23.295;
@@ -22,10 +22,10 @@ const LABEL: Record<string, [number, number, "start" | "end" | "middle"]> = {
   khatlapura: [12, -24, "start"],
   hathaikheda: [0, 28, "middle"],
   shahpura: [-14, 4, "end"],
-  malikhedi: [-14, 4, "end"],
+  malikhedi: [14, 4, "start"],
 };
 
-export function MapPanel() {
+export function MapPanel({ note }: { note?: string } = {}) {
   const { t, lang } = useLang();
   const { data } = useLiveStore();
   const { select, selected } = useUi();
@@ -36,6 +36,11 @@ export function MapPanel() {
       <div className="flex items-center gap-3 px-3 py-2 border-b border-rule">
         <h2 className="text-sm font-bold text-ink">{t.lv.map}</h2>
         <span className="text-xs text-muted">{t.lv.approx}</span>
+        {note && (
+          <span className="text-xs text-medium" role="status">
+            {note}
+          </span>
+        )}
         <ul className="ml-auto hidden sm:flex flex-wrap gap-x-3 text-xs text-muted" aria-label="Legend">
           {TIER_ORDER.map((tr) => (
             <li key={tr} className="flex items-center gap-1">

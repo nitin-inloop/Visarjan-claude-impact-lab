@@ -9,6 +9,7 @@ import type { Ranking } from "@/lib/types";
 import { DaysLeft } from "./DaysLeft";
 import { RankCard } from "./RankCard";
 import { LoadState } from "./LoadState";
+import { UserDataBadge } from "./UserDataBadge";
 
 const TIER_ORDER = { insufficient_data: 0, high: 1, medium: 2, low: 3 } as const;
 
@@ -27,6 +28,7 @@ export function ActionSheet({ initial }: { initial: Ranking | null }) {
           <DaysLeft />
         </div>
         <p className="mt-2 text-[0.95rem] text-muted">{t.standardLine}</p>
+        <UserDataBadge ranking={data} />
         <p className="mt-3 text-lg leading-relaxed">
           {t.summaryDo(s.do_below_5, s.do_readings, s.do_zero)}
           <br />

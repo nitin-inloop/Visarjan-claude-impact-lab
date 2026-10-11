@@ -1,0 +1,5 @@
+{
+  "/(classic)/intake/page": "app/(classic)/intake/page.js",
+  "/(classic)/whatif/page": "app/(classic)/whatif/page.js",
+  "/page": "app/page.js"
+}

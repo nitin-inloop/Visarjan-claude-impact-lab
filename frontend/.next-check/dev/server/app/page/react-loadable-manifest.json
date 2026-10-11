@@ -1,0 +1,10 @@
+{
+  "[project]/components/live/MapLeaflet.tsx [app-client] (ecmascript, next/dynamic entry)": {
+    "id": "[project]/components/live/MapLeaflet.tsx [app-client] (ecmascript, next/dynamic entry)",
+    "files": [
+      "static/chunks/node_modules_leaflet_dist_leaflet-src_12ie3ghkoq3o4.js",
+      "static/chunks/components_live_MapLeaflet_tsx_11fl7mc_xmb4i._.js",
+      "static/chunks/node_modules_leaflet_dist_leaflet_css_0zlyuace8hond.css"
+    ]
+  }
+}
