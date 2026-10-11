@@ -203,7 +203,7 @@ def with_user_data(base: dict, include_user: bool = True) -> dict:
         return base | {"user_data": off}
     with _RANK_LOCK:
         hit = _RANK_CACHE.get(stamp)
-        if hit is not None and hit[0] is base.get("generated_at"):
+        if hit is not None and hit[0] == base.get("generated_at"):
             return hit[1]
     extra, ud = user_extra()
     if not ud["included"]:
