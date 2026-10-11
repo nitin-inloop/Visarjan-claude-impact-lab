@@ -1,8 +1,9 @@
 "use client";
 
 // Dashboard shell: white sidebar (logo, workspace card, grouped menus) + top bar (breadcrumb, ghat search,
-// alert bell, officer chip). Sidebar becomes a drawer below lg.
+// alert bell, officer chip). Sidebar becomes a drawer below md. Dark by default; light is opt-in.
 
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState, type ReactNode } from "react";
@@ -22,7 +23,6 @@ const I = {
   brief: <><path d="M7 3h7l5 5v12a1 1 0 0 1-1 1H7a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1z" /><path d="M14 3v5h5M9 13h7M9 17h5" /></>,
   ghat: <><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z" /></>,
   whatif: <><path d="M4 20V10M10 20V4M16 20v-7M22 20H2" /></>,
-  live: <><circle cx="12" cy="12" r="3" /><path d="M5.6 5.6a9 9 0 0 0 0 12.8M18.4 5.6a9 9 0 0 1 0 12.8" /></>,
   lang: <><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18" /></>,
   help: <><circle cx="12" cy="12" r="9" /><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5V14M12 17.5v.01" /></>,
   sun: <><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></>,
@@ -46,7 +46,6 @@ const MAIN: Item[] = [
 const MANAGE: Item[] = [
   { href: "/ghat/bairagarh", label: { en: "Ghat details", hi: "घाट विवरण" }, icon: I.ghat, match: (p) => p.startsWith("/ghat/") },
   { href: "/whatif", label: { en: "What-if", hi: "क्या-अगर" }, icon: I.whatif },
-  { href: "/lab", label: { en: "Live simulation", hi: "लाइव सिमुलेशन" }, icon: I.live },
 ];
 const ALL = [...MAIN, ...MANAGE];
 const HELP = "https://github.com/nitin-inloop/Visarjan-claude-impact-lab#readme";
@@ -86,11 +85,7 @@ function Sidebar({ path, onNav }: { path: string; onNav: () => void }) {
   return (
     <nav className="flex h-full flex-col overflow-y-auto border-r border-[var(--d-border)] bg-[var(--d-card)] px-4 py-5" aria-label="Main">
       <Link href="/" onClick={onNav} className="flex items-center gap-2.5 px-2 no-underline">
-        <svg viewBox="0 0 32 32" className="h-8 w-8" aria-hidden>
-          <rect width="32" height="32" rx="9" fill="var(--d-ink)" />
-          <path d="M16 6s6 6.6 6 11a6 6 0 0 1-12 0c0-4.4 6-11 6-11z" fill="#fff" />
-          <path d="M8 25h16" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" />
-        </svg>
+        <Image src="/logo.png" alt="" width={32} height={32} className="h-8 w-8 rounded-[9px]" priority />
         <span className="text-[19px] font-bold tracking-tight text-[var(--d-ink)]">Ghat Watch</span>
       </Link>
       <div className="mt-5 rounded-2xl border border-[var(--d-border)] p-3">
@@ -204,9 +199,9 @@ function Search({ lang }: { lang: Lang }) {
 type Theme = "light" | "dark";
 const THEME_EVT = "gw-theme";
 function useTheme(): [Theme, (t: Theme) => void] {
-  const [theme, setT] = useState<Theme>("light");
+  const [theme, setT] = useState<Theme>("dark");
   useEffect(() => {
-    const read = () => setT(document.documentElement.dataset.theme === "dark" ? "dark" : "light");
+    const read = () => setT(document.documentElement.dataset.theme === "light" ? "light" : "dark");
     read();
     window.addEventListener(THEME_EVT, read);
     return () => window.removeEventListener(THEME_EVT, read);
@@ -316,11 +311,11 @@ export function Shell({ children }: { children: ReactNode }) {
   const crumb = path.startsWith("/ghat/") ? path.split("/")[2]?.replace(/-/g, " ") : null;
   return (
     <div className="flex min-h-screen w-full bg-[var(--d-page)] text-[var(--d-ink)]">
-      <aside className="sticky top-0 hidden h-screen w-64 shrink-0 lg:block">
+      <aside className="sticky top-0 hidden h-screen w-60 shrink-0 md:block lg:w-64">
         <Sidebar path={path} onNav={() => undefined} />
       </aside>
       {drawer && (
-        <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true">
+        <div className="fixed inset-0 z-50 md:hidden" role="dialog" aria-modal="true">
           <button type="button" className="absolute inset-0 bg-black/30" aria-label="Close menu" onClick={() => setDrawer(false)} />
           <div className="absolute inset-y-0 left-0 w-72 shadow-xl">
             <Sidebar path={path} onNav={() => setDrawer(false)} />
@@ -329,10 +324,10 @@ export function Shell({ children }: { children: ReactNode }) {
       )}
       <div className="flex min-w-0 flex-1 flex-col">
         <header className="sticky top-0 z-40 flex items-center gap-3 border-b border-[var(--d-border)] bg-[var(--d-card)]/95 px-4 py-3 backdrop-blur sm:px-6">
-          <button type="button" className="grid h-9 w-9 place-items-center rounded-xl hover:bg-[var(--d-track)] lg:hidden" onClick={() => setDrawer(true)} aria-label="Open menu">
+          <button type="button" className="grid h-9 w-9 place-items-center rounded-xl hover:bg-[var(--d-track)] md:hidden" onClick={() => setDrawer(true)} aria-label="Open menu">
             <Icon d={I.menu} className="h-5 w-5" />
           </button>
-          <nav aria-label="Breadcrumb" className="hidden items-center gap-2 text-[14px] md:flex">
+          <nav aria-label="Breadcrumb" className="hidden items-center gap-2 text-[14px] lg:flex">
             <Link href="/" className="text-[var(--d-muted)] no-underline hover:text-[var(--d-ink)]">Ghat Watch</Link>
             <span className="text-[var(--d-muted3)]">›</span>
             <span className="font-semibold capitalize text-[var(--d-ink)]">{cur?.label[lang] ?? (lang === "hi" ? "पेज" : "Page")}</span>
@@ -347,7 +342,7 @@ export function Shell({ children }: { children: ReactNode }) {
             <Search lang={lang} />
             <ThemeButton lang={lang} />
             <Bell lang={lang} />
-            <span className="hidden items-center gap-2 rounded-xl border border-[var(--d-border)] px-2.5 py-1.5 text-[13px] font-semibold sm:flex">
+            <span className="hidden items-center gap-2 rounded-xl border border-[var(--d-border)] px-2.5 py-1.5 text-[13px] font-semibold lg:flex">
               <span className="grid h-6 w-6 place-items-center rounded-full bg-[var(--d-ink)] text-[10px] font-bold text-[var(--d-on-inv)]">BMC</span>
               {lang === "hi" ? "BMC अधिकारी" : "BMC Officer"}
             </span>
