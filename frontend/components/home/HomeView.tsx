@@ -44,10 +44,6 @@ export function HomeView({ initial }: { initial: Ranking | null }) {
       </h1>
       {days !== null && <p className="mt-1 text-2xl font-bold text-accent">{daysLeftText(days, lang)}</p>}
 
-      <div className="mt-4">
-        <AiAlerts lang={lang} />
-      </div>
-
       <div className="mt-5 grid gap-3 sm:grid-cols-2">
         <Link
           href="/intake"
@@ -63,6 +59,10 @@ export function HomeView({ initial }: { initial: Ranking | null }) {
           <span aria-hidden className="text-2xl">📄</span>
           {lang === "hi" ? "ब्रीफ भेजें" : "Get brief to forward"}
         </Link>
+      </div>
+
+      <div className="mt-6">
+        <AiAlerts lang={lang} />
       </div>
 
       <section aria-labelledby="list-h" className="mt-8">

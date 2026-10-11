@@ -122,7 +122,7 @@ export function AiAlerts({ lang }: { lang: Lang }) {
     };
   }, [lang]);
   if (!data || !Array.isArray(data.alerts) || data.alerts.length === 0) return null;
-  const shown = all ? data.alerts : data.alerts.slice(0, 5);
+  const shown = all ? data.alerts : data.alerts.slice(0, 3);
   const title = lang === "hi" ? "अलर्ट: क्या करें, कहां, कब तक" : "Alerts: what to do, where, by when";
   return (
     <section className="rounded-xl border-2 border-slate-300 bg-white p-5 text-slate-900" lang={lang}>
