@@ -80,7 +80,7 @@ class Processor:
         v = np.array([p[1] for p in pts], float)
         m5, m30 = v[t > now - 5 * MIN_MS], v[t > now - 30 * MIN_MS]
         if len(m5) == 0:
-            return None
+            m5 = v[-1:]  # dropout gap: fall back to the latest reading within the hour
         slope = None
         if len(m30) >= 5:
             tt = (t[t > now - 30 * MIN_MS] - now) / 3_600_000.0

@@ -11,7 +11,7 @@ export function Header() {
   const { t } = useLang();
   const path = usePathname();
   const nav = [
-    { href: "/", label: t.sheet },
+    { href: "/", label: t.lv.nav },
     { href: "/brief", label: t.openBrief },
     { href: "/whatif", label: t.enterReadings },
     { href: "/models", label: t.models },

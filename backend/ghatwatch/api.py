@@ -6,6 +6,7 @@ ML / CQL endpoints degrade to {"available": false, ...}; they never 500 for a mi
 from __future__ import annotations
 
 import os
+from contextlib import asynccontextmanager
 from typing import Any
 
 from fastapi import FastAPI, HTTPException, Query
@@ -17,10 +18,22 @@ from .artifacts import gaps_payload, now_ist, read_json, split_ranking
 from .brief import build_brief
 from .data import ARTIFACTS_DIR, PDFS, RESOURCES_DIR, SITE_BY_SLUG
 from .scoring import ranking_payload, whatif as score_whatif
+from .live.api import router as live_router
 
-app = FastAPI(title="Ghat Watch API", version="1.0.0")
+
+@asynccontextmanager
+async def lifespan(_app: FastAPI):
+    from .live.engine import get_engine
+    eng = get_engine()
+    eng.ensure_started()
+    yield
+    await eng.stop()
+
+
+app = FastAPI(title="Ghat Watch API", version="1.0.0", lifespan=lifespan)
 _origins = os.environ.get("GHATWATCH_CORS", "http://localhost:3000,http://127.0.0.1:3000").split(",")
 app.add_middleware(CORSMiddleware, allow_origins=_origins, allow_methods=["*"], allow_headers=["*"])
+app.include_router(live_router)
 
 
 def _artifact(rel: str) -> Any | None:

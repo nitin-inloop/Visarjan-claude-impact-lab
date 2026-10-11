@@ -108,8 +108,8 @@ class AlertManager:
                 if baseline:
                     self.base_sev[key] = sev
                 ups.append(a)
-            elif a["severity"] != sev:
-                escalated = SEV_RANK[sev] > SEV_RANK[a["severity"]]
+            elif SEV_RANK[sev] > SEV_RANK[a["severity"]]:  # escalation only while open (no flapping)
+                escalated = True
                 a["severity"], a["t_update"] = sev, t
                 a["values"] = {k: v for k, v in vals.items() if isinstance(v, (int, float))}
                 if a["baseline"] and escalated and SEV_RANK[sev] > SEV_RANK[self.base_sev.get(key, "info")]:

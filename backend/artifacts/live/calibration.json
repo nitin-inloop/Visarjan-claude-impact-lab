@@ -1,0 +1,95 @@
+{
+  "available": true,
+  "label": "fitted on 5 ghats, one festival; a sanity check, not validation",
+  "fit_target": "BOD change pre->during at 21:00 (Durga 2025, MPPCB 2025 p. 64/65)",
+  "scenario": "ban_enforced (expected arrivals, no noise)",
+  "L_idol": {
+    "dam": 25.0,
+    "lake_ghat": 35.0,
+    "shahpura_lake": 87.5
+  },
+  "rows": [
+    {
+      "ghat": "shahpura",
+      "type": "shahpura_lake",
+      "observed": {
+        "DO": 0.3,
+        "BOD": 4.6,
+        "turbidity": -1.2
+      },
+      "simulated": {
+        "DO": -1.087,
+        "BOD": 4.657,
+        "turbidity": 18.284
+      },
+      "do_sign_match": false
+    },
+    {
+      "ghat": "rani-kamlapati",
+      "type": "lake_ghat",
+      "observed": {
+        "DO": -0.1,
+        "BOD": 2.0,
+        "turbidity": -8.0
+      },
+      "simulated": {
+        "DO": -0.197,
+        "BOD": 0.388,
+        "turbidity": 3.809
+      },
+      "do_sign_match": true
+    },
+    {
+      "ghat": "khatlapura",
+      "type": "lake_ghat",
+      "observed": {
+        "DO": -0.9,
+        "BOD": 0.2,
+        "turbidity": 10.3
+      },
+      "simulated": {
+        "DO": -0.197,
+        "BOD": 0.388,
+        "turbidity": 3.809
+      },
+      "do_sign_match": true
+    },
+    {
+      "ghat": "prempura",
+      "type": "lake_ghat",
+      "observed": {
+        "DO": -1.7,
+        "BOD": 0.4,
+        "turbidity": 9.4
+      },
+      "simulated": {
+        "DO": -0.197,
+        "BOD": 0.388,
+        "turbidity": 3.809
+      },
+      "do_sign_match": true
+    },
+    {
+      "ghat": "hathaikheda",
+      "type": "dam",
+      "observed": {
+        "DO": 0.0,
+        "BOD": 1.2,
+        "turbidity": 34.1
+      },
+      "simulated": {
+        "DO": -0.841,
+        "BOD": 1.247,
+        "turbidity": 17.141
+      },
+      "do_sign_match": false
+    }
+  ],
+  "mae": {
+    "BOD_fitted": 0.383,
+    "BOD_no_change_baseline": 1.68
+  },
+  "do_sign_matches": 3,
+  "n_ghats": 5,
+  "note": "kund L_idol is not fitted (no sensored kund); it keeps the uncalibrated default."
+}
