@@ -99,7 +99,7 @@ export default function MapLeaflet({ onTilesFailed }: { onTilesFailed: () => voi
     mapRef.current = map;
     let loaded = false;
     let layers: L.TileLayer[] = [];
-    const useProvider = (i: number) => {
+    const applyProvider = (i: number) => {
       layers.forEach((l) => l.remove());
       layers = [];
       const p = PROVIDERS[i];
@@ -112,13 +112,13 @@ export default function MapLeaflet({ onTilesFailed }: { onTilesFailed: () => voi
         loaded = true;
       });
       base.on("tileerror", () => {
-        if (!loaded) useProvider(i + 1);
+        if (!loaded) applyProvider(i + 1);
       });
       base.addTo(map);
       layers.push(base);
       if (p.overlay) layers.push(L.tileLayer(p.overlay, { maxZoom: p.maxZoom }).addTo(map));
     };
-    useProvider(0);
+    applyProvider(0);
     map.fitBounds(L.latLngBounds(Object.values(GHAT_GEO).map(ll)), { padding: [36, 36], maxZoom: 13 });
     // Re-enable wheel zoom after the user clicks into the map (avoids hijacking page scroll).
     map.once("focus", () => map.scrollWheelZoom.enable());

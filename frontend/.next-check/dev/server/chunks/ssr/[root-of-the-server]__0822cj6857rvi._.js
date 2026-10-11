@@ -4020,7 +4020,7 @@ function ReviewTable({ job, rows, onChange, pageUrl, readOnly = false }) {
                                                 children: [
                                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("th", {
                                                         scope: "row",
-                                                        className: "text-left px-2 py-1 font-normal sticky left-0 bg-surface align-top",
+                                                        className: "text-left px-2 py-0.5 font-normal sticky left-0 bg-surface align-middle leading-tight",
                                                         children: [
                                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
                                                                 className: "text-ink",
@@ -4058,83 +4058,81 @@ function ReviewTable({ job, rows, onChange, pageUrl, readOnly = false }) {
                                                         const edited = !!o && (o.value !== r.value || o.flag !== r.flag);
                                                         const rIssues = r.issues.map((id)=>issueById.get(id)).filter((i)=>!!i);
                                                         return /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("td", {
-                                                            className: "px-2 py-1 align-top",
-                                                            children: [
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                    className: "flex items-center gap-1",
-                                                                    children: [
-                                                                        /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
-                                                                            className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$clsx$2f$dist$2f$clsx$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$intake$2f$shared$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["input"], "w-24 tabular border", (0, __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$intake$2f$shared$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["confClass"])(r.confidence), edited && "outline outline-1 outline-accent"),
-                                                                            value: drafts[r.row_id] ?? display(r),
-                                                                            readOnly: readOnly,
-                                                                            "aria-label": `${s.site} ${(0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$i18n$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["paramName"])(t, p)} ${t.phase[ph]}`,
-                                                                            onChange: (e)=>editCell(r, e.target.value)
-                                                                        }, void 0, false, {
-                                                                            fileName: "[project]/components/intake/ReviewTable.tsx",
-                                                                            lineNumber: 163,
-                                                                            columnNumber: 31
-                                                                        }, this),
-                                                                        rIssues.map((i)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                                title: i.text[lang],
-                                                                                className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$clsx$2f$dist$2f$clsx$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"])("text-[10px] font-bold rounded border px-1 leading-4", LEVEL_CHIP[i.level]),
-                                                                                children: [
-                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                                        "aria-hidden": true,
-                                                                                        children: LEVEL_ICON[i.level]
-                                                                                    }, void 0, false, {
-                                                                                        fileName: "[project]/components/intake/ReviewTable.tsx",
-                                                                                        lineNumber: 172,
-                                                                                        columnNumber: 35
-                                                                                    }, this),
-                                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                                        className: "sr-only",
-                                                                                        children: [
-                                                                                            x.level[i.level],
-                                                                                            ": ",
-                                                                                            i.text[lang]
-                                                                                        ]
-                                                                                    }, void 0, true, {
-                                                                                        fileName: "[project]/components/intake/ReviewTable.tsx",
-                                                                                        lineNumber: 173,
-                                                                                        columnNumber: 35
-                                                                                    }, this)
-                                                                                ]
-                                                                            }, i.id, true, {
-                                                                                fileName: "[project]/components/intake/ReviewTable.tsx",
-                                                                                lineNumber: 171,
-                                                                                columnNumber: 33
-                                                                            }, this))
-                                                                    ]
-                                                                }, void 0, true, {
-                                                                    fileName: "[project]/components/intake/ReviewTable.tsx",
-                                                                    lineNumber: 162,
-                                                                    columnNumber: 29
-                                                                }, this),
-                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
-                                                                    className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$clsx$2f$dist$2f$clsx$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"])("text-[11px] tabular", (0, __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$intake$2f$shared$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["confText"])(r.confidence)),
-                                                                    children: [
-                                                                        Math.round(r.confidence * 100),
-                                                                        "%",
-                                                                        r.value_as_printed && r.value_as_printed !== display(r) ? ` · “${r.value_as_printed}”` : "",
-                                                                        edited && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
-                                                                            className: "text-accent",
+                                                            className: "px-2 py-0.5 align-middle",
+                                                            children: /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
+                                                                className: "flex items-center gap-1.5",
+                                                                children: [
+                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("input", {
+                                                                        className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$clsx$2f$dist$2f$clsx$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$intake$2f$shared$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["cellInput"], "w-20 tabular", (0, __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$intake$2f$shared$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["confClass"])(r.confidence), edited && "outline outline-1 outline-accent"),
+                                                                        value: drafts[r.row_id] ?? display(r),
+                                                                        readOnly: readOnly,
+                                                                        "aria-label": `${s.site} ${(0, __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$i18n$2e$ts__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["paramName"])(t, p)} ${t.phase[ph]}`,
+                                                                        onChange: (e)=>editCell(r, e.target.value)
+                                                                    }, void 0, false, {
+                                                                        fileName: "[project]/components/intake/ReviewTable.tsx",
+                                                                        lineNumber: 163,
+                                                                        columnNumber: 31
+                                                                    }, this),
+                                                                    rIssues.map((i)=>/*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                            title: i.text[lang],
+                                                                            className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$clsx$2f$dist$2f$clsx$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"])("text-[10px] font-bold rounded border px-1 leading-4", LEVEL_CHIP[i.level]),
                                                                             children: [
-                                                                                " · ",
-                                                                                x.edited
+                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                                    "aria-hidden": true,
+                                                                                    children: LEVEL_ICON[i.level]
+                                                                                }, void 0, false, {
+                                                                                    fileName: "[project]/components/intake/ReviewTable.tsx",
+                                                                                    lineNumber: 172,
+                                                                                    columnNumber: 35
+                                                                                }, this),
+                                                                                /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                                    className: "sr-only",
+                                                                                    children: [
+                                                                                        x.level[i.level],
+                                                                                        ": ",
+                                                                                        i.text[lang]
+                                                                                    ]
+                                                                                }, void 0, true, {
+                                                                                    fileName: "[project]/components/intake/ReviewTable.tsx",
+                                                                                    lineNumber: 173,
+                                                                                    columnNumber: 35
+                                                                                }, this)
                                                                             ]
-                                                                        }, void 0, true, {
+                                                                        }, i.id, true, {
                                                                             fileName: "[project]/components/intake/ReviewTable.tsx",
-                                                                            lineNumber: 181,
-                                                                            columnNumber: 42
-                                                                        }, this)
-                                                                    ]
-                                                                }, void 0, true, {
-                                                                    fileName: "[project]/components/intake/ReviewTable.tsx",
-                                                                    lineNumber: 179,
-                                                                    columnNumber: 29
-                                                                }, this)
-                                                            ]
-                                                        }, ph, true, {
+                                                                            lineNumber: 171,
+                                                                            columnNumber: 33
+                                                                        }, this)),
+                                                                    /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                        className: (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$clsx$2f$dist$2f$clsx$2e$mjs__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["default"])("text-[11px] tabular whitespace-nowrap", (0, __TURBOPACK__imported__module__$5b$project$5d2f$components$2f$intake$2f$shared$2e$tsx__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["confText"])(r.confidence)),
+                                                                        children: [
+                                                                            Math.round(r.confidence * 100),
+                                                                            "%",
+                                                                            r.value_as_printed && r.value_as_printed !== display(r) ? ` · “${r.value_as_printed}”` : "",
+                                                                            edited && /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("span", {
+                                                                                className: "text-accent",
+                                                                                children: [
+                                                                                    " · ",
+                                                                                    x.edited
+                                                                                ]
+                                                                            }, void 0, true, {
+                                                                                fileName: "[project]/components/intake/ReviewTable.tsx",
+                                                                                lineNumber: 180,
+                                                                                columnNumber: 44
+                                                                            }, this)
+                                                                        ]
+                                                                    }, void 0, true, {
+                                                                        fileName: "[project]/components/intake/ReviewTable.tsx",
+                                                                        lineNumber: 178,
+                                                                        columnNumber: 31
+                                                                    }, this)
+                                                                ]
+                                                            }, void 0, true, {
+                                                                fileName: "[project]/components/intake/ReviewTable.tsx",
+                                                                lineNumber: 162,
+                                                                columnNumber: 29
+                                                            }, this)
+                                                        }, ph, false, {
                                                             fileName: "[project]/components/intake/ReviewTable.tsx",
                                                             lineNumber: 161,
                                                             columnNumber: 27
@@ -4834,6 +4832,8 @@ __turbopack_context__.s([
     ()=>btn,
     "btnPrimary",
     ()=>btnPrimary,
+    "cellInput",
+    ()=>cellInput,
     "confClass",
     ()=>confClass,
     "confText",
@@ -4904,10 +4904,11 @@ const btn = "rounded border border-rule bg-surface px-3 py-1.5 text-sm font-semi
 const btnPrimary = "rounded bg-accent text-paper px-4 py-1.5 text-sm font-semibold hover:opacity-90 disabled:opacity-50 disabled:cursor-not-allowed";
 const input = "rounded border border-rule bg-paper px-2 py-1 text-sm text-ink focus:border-accent";
 function confClass(c) {
-    if (c >= 0.9) return "border-rule";
+    if (c >= 0.9) return "border-rule bg-paper";
     if (c >= 0.7) return "border-medium bg-medium-bg";
     return "border-critical bg-high-bg";
 }
+const cellInput = "rounded border px-2 py-0.5 text-sm text-ink focus:border-accent";
 function confText(c) {
     if (c >= 0.9) return "text-muted";
     if (c >= 0.7) return "text-medium";
@@ -4935,7 +4936,7 @@ function Lightbox({ src, alt, onClose }) {
                 children: "✕"
             }, void 0, false, {
                 fileName: "[project]/components/intake/shared.tsx",
-                lineNumber: 41,
+                lineNumber: 43,
                 columnNumber: 7
             }, this),
             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$server$2f$route$2d$modules$2f$app$2d$page$2f$vendored$2f$ssr$2f$react$2d$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$ssr$5d$__$28$ecmascript$29$__["jsxDEV"])("img", {
@@ -4944,13 +4945,13 @@ function Lightbox({ src, alt, onClose }) {
                 className: "mx-auto max-w-full h-auto bg-white"
             }, void 0, false, {
                 fileName: "[project]/components/intake/shared.tsx",
-                lineNumber: 45,
+                lineNumber: 47,
                 columnNumber: 7
             }, this)
         ]
     }, void 0, true, {
         fileName: "[project]/components/intake/shared.tsx",
-        lineNumber: 40,
+        lineNumber: 42,
         columnNumber: 5
     }, this);
 }

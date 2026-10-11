@@ -29,8 +29,19 @@ var _s = __turbopack_context__.k.signature();
 ;
 ;
 ;
-const TILE_URL = "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
-const ATTRIBUTION = "© OpenStreetMap contributors © CARTO";
+const PROVIDERS = [
+    {
+        url: "https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png",
+        attribution: "© Stadia Maps © OpenMapTiles © OpenStreetMap contributors",
+        maxZoom: 19
+    },
+    {
+        url: "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Base/MapServer/tile/{z}/{y}/{x}",
+        overlay: "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Dark_Gray_Reference/MapServer/tile/{z}/{y}/{x}",
+        attribution: "Tiles © Esri — Esri, HERE, Garmin, © OpenStreetMap contributors",
+        maxZoom: 16
+    }
+];
 /** label on the left for markers whose right side is crowded */ const LABEL_LEFT = new Set([
     "rani-kamlapati",
     "bairagarh",
@@ -119,23 +130,41 @@ function MapLeaflet({ onTilesFailed }) {
             });
             mapRef.current = map;
             let loaded = false;
-            const tiles = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$leaflet$2f$dist$2f$leaflet$2d$src$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].tileLayer(TILE_URL, {
-                subdomains: "abcd",
-                maxZoom: 19,
-                attribution: ATTRIBUTION,
-                detectRetina: false
-            });
-            tiles.on("tileload", {
-                "MapLeaflet.useEffect": ()=>{
-                    loaded = true;
+            let layers = [];
+            const applyProvider = {
+                "MapLeaflet.useEffect.applyProvider": (i)=>{
+                    layers.forEach({
+                        "MapLeaflet.useEffect.applyProvider": (l)=>l.remove()
+                    }["MapLeaflet.useEffect.applyProvider"]);
+                    layers = [];
+                    const p = PROVIDERS[i];
+                    if (!p) {
+                        failRef.current();
+                        return;
+                    }
+                    const base = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$leaflet$2f$dist$2f$leaflet$2d$src$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].tileLayer(p.url, {
+                        subdomains: p.subdomains ?? "abc",
+                        maxZoom: p.maxZoom,
+                        attribution: p.attribution
+                    });
+                    base.on("tileload", {
+                        "MapLeaflet.useEffect.applyProvider": ()=>{
+                            loaded = true;
+                        }
+                    }["MapLeaflet.useEffect.applyProvider"]);
+                    base.on("tileerror", {
+                        "MapLeaflet.useEffect.applyProvider": ()=>{
+                            if (!loaded) applyProvider(i + 1);
+                        }
+                    }["MapLeaflet.useEffect.applyProvider"]);
+                    base.addTo(map);
+                    layers.push(base);
+                    if (p.overlay) layers.push(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$leaflet$2f$dist$2f$leaflet$2d$src$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].tileLayer(p.overlay, {
+                        maxZoom: p.maxZoom
+                    }).addTo(map));
                 }
-            }["MapLeaflet.useEffect"]);
-            tiles.on("tileerror", {
-                "MapLeaflet.useEffect": ()=>{
-                    if (!loaded) failRef.current();
-                }
-            }["MapLeaflet.useEffect"]);
-            tiles.addTo(map);
+            }["MapLeaflet.useEffect.applyProvider"];
+            applyProvider(0);
             map.fitBounds(__TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$leaflet$2f$dist$2f$leaflet$2d$src$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].latLngBounds(Object.values(__TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$ghatGeo$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["GHAT_GEO"]).map(ll)), {
                 padding: [
                     36,
@@ -158,7 +187,7 @@ function MapLeaflet({ onTilesFailed }) {
                         6,
                         6
                     ],
-                    html: "<span></span>"
+                    html: "<span></span><em></em>"
                 }),
                 keyboard: false,
                 zIndexOffset: -100
@@ -201,6 +230,13 @@ function MapLeaflet({ onTilesFailed }) {
     (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
         "MapLeaflet.useEffect": ()=>{
             depotRef.current?.setTooltipContent(t.lv.depot);
+            const dl = depotRef.current?.getElement()?.querySelector("em");
+            if (dl) {
+                const idle = data ? data.resources.filter({
+                    "MapLeaflet.useEffect": (r)=>r.status === "idle" && r.at === "depot"
+                }["MapLeaflet.useEffect"]).length : 0;
+                dl.textContent = `${t.lv.depot}${idle ? ` · ${idle} ${t.lv.resStatus.idle}` : ""}`;
+            }
             if (!data) return;
             for (const [slug, m] of ghatMarkers.current){
                 const g = data.ghats[slug];
@@ -243,6 +279,7 @@ function MapLeaflet({ onTilesFailed }) {
             const seen = new Set();
             const slotCount = new Map();
             for (const r of data.resources){
+                if (r.status === "idle" && r.at === "depot") continue; // counted on the depot label
                 const place = r.status === "en_route" && r.target ? r.target : r.at;
                 const geo = place === "depot" ? __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$ghatGeo$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DEPOT"] : __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$ghatGeo$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["GHAT_GEO"][place];
                 if (!geo) continue;
@@ -254,7 +291,9 @@ function MapLeaflet({ onTilesFailed }) {
                 const tip = `${r.name[lang]} · ${t.lv.resStatus[r.status]}${r.status === "en_route" && r.eta_min !== null ? ` · ${t.lv.etaCol} ${t.lv.min(Math.round(r.eta_min))}` : ""}`;
                 const cur = resMarkers.current.get(r.id);
                 if (!cur) {
-                    const m = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$leaflet$2f$dist$2f$leaflet$2d$src$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].marker(ll(geo), {
+                    // New movers start at the depot and glide to their place (CSS transition on transform).
+                    const startAt = r.at === "depot" && place !== "depot" ? __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$ghatGeo$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["DEPOT"] : geo;
+                    const m = __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$leaflet$2f$dist$2f$leaflet$2d$src$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["default"].marker(ll(startAt), {
                         icon: resIcon(r, idx, eta),
                         keyboard: false,
                         interactive: true,
@@ -265,6 +304,11 @@ function MapLeaflet({ onTilesFailed }) {
                         className: "gw-tip"
                     });
                     m.addTo(map);
+                    if (startAt !== geo) requestAnimationFrame({
+                        "MapLeaflet.useEffect": ()=>requestAnimationFrame({
+                                "MapLeaflet.useEffect": ()=>m.setLatLng(ll(geo))
+                            }["MapLeaflet.useEffect"])
+                    }["MapLeaflet.useEffect"]);
                     resMarkers.current.set(r.id, {
                         m,
                         key
@@ -297,7 +341,7 @@ function MapLeaflet({ onTilesFailed }) {
         "aria-label": t.lv.approx
     }, void 0, false, {
         fileName: "[project]/components/live/MapLeaflet.tsx",
-        lineNumber: 184,
+        lineNumber: 228,
         columnNumber: 10
     }, this);
 }

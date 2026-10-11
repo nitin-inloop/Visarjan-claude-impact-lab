@@ -7,7 +7,7 @@ import { paramName } from "@/lib/i18n";
 import { ix } from "@/lib/intakeI18n";
 import { PARAMS_13, type IssueLevel, type Job, type JobIssue, type Row } from "@/lib/intakeTypes";
 import type { Phase } from "@/lib/types";
-import { GHATS, Lightbox, confClass, confText, ghatName, input } from "./shared";
+import { GHATS, Lightbox, cellInput, confClass, confText, ghatName, input } from "./shared";
 
 const PHASES: Phase[] = ["pre", "during", "after"];
 const LEVEL_CHIP: Record<IssueLevel, string> = {
@@ -147,7 +147,7 @@ export function ReviewTable({ job, rows, onChange, pageUrl, readOnly = false }: 
                   const any = s.phases.map((ph) => s.cell.get(`${p}|${ph}`)).find((r) => r);
                   return (
                     <tr key={p} className="border-t border-rule">
-                      <th scope="row" className="text-left px-2 py-1 font-normal sticky left-0 bg-surface align-top">
+                      <th scope="row" className="text-left px-2 py-0.5 font-normal sticky left-0 bg-surface align-middle leading-tight">
                         <span className="text-ink">{paramName(t, p)}</span>
                         {any && any.parameter_as_printed !== p && <span className="block text-[11px] text-muted">{any.parameter_as_printed}</span>}
                       </th>
@@ -158,10 +158,10 @@ export function ReviewTable({ job, rows, onChange, pageUrl, readOnly = false }: 
                         const edited = !!o && (o.value !== r.value || o.flag !== r.flag);
                         const rIssues = r.issues.map((id) => issueById.get(id)).filter((i): i is JobIssue => !!i);
                         return (
-                          <td key={ph} className="px-2 py-1 align-top">
-                            <div className="flex items-center gap-1">
+                          <td key={ph} className="px-2 py-0.5 align-middle">
+                            <div className="flex items-center gap-1.5">
                               <input
-                                className={clsx(input, "w-24 tabular border", confClass(r.confidence), edited && "outline outline-1 outline-accent")}
+                                className={clsx(cellInput, "w-20 tabular", confClass(r.confidence), edited && "outline outline-1 outline-accent")}
                                 value={drafts[r.row_id] ?? display(r)}
                                 readOnly={readOnly}
                                 aria-label={`${s.site} ${paramName(t, p)} ${t.phase[ph]}`}
@@ -175,10 +175,10 @@ export function ReviewTable({ job, rows, onChange, pageUrl, readOnly = false }: 
                                   </span>
                                 </span>
                               ))}
-                            </div>
-                            <div className={clsx("text-[11px] tabular", confText(r.confidence))}>
+                              <span className={clsx("text-[11px] tabular whitespace-nowrap", confText(r.confidence))}>
                               {Math.round(r.confidence * 100)}%{r.value_as_printed && r.value_as_printed !== display(r) ? ` · “${r.value_as_printed}”` : ""}
-                              {edited && <span className="text-accent"> · {x.edited}</span>}
+                                {edited && <span className="text-accent"> · {x.edited}</span>}
+                              </span>
                             </div>
                           </td>
                         );

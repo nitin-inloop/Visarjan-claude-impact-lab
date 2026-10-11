@@ -20,10 +20,12 @@ export const input = "rounded border border-rule bg-paper px-2 py-1 text-sm text
 
 /** colour class for an extraction confidence (≥ 0.9 plain, 0.7–0.9 amber, < 0.7 red) */
 export function confClass(c: number): string {
-  if (c >= 0.9) return "border-rule";
+  if (c >= 0.9) return "border-rule bg-paper";
   if (c >= 0.7) return "border-medium bg-medium-bg";
   return "border-critical bg-high-bg";
 }
+/** input without border/background colour, for cells coloured by confClass */
+export const cellInput = "rounded border px-2 py-0.5 text-sm text-ink focus:border-accent";
 export function confText(c: number): string {
   if (c >= 0.9) return "text-muted";
   if (c >= 0.7) return "text-medium";
