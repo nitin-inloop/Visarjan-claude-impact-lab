@@ -24,7 +24,19 @@ interface TileProvider {
   maxZoom: number;
   overlay?: string;
 }
+// Optional Mapbox dark style when NEXT_PUBLIC_MAPBOX_TOKEN is set (frontend/.env.local, gitignored);
+// it is tried first, then the keyless providers below.
+const MAPBOX_TOKEN = process.env.NEXT_PUBLIC_MAPBOX_TOKEN ?? "";
 const PROVIDERS: TileProvider[] = [
+  ...(MAPBOX_TOKEN
+    ? [
+        {
+          url: `https://api.mapbox.com/styles/v1/mapbox/dark-v11/tiles/256/{z}/{x}/{y}?access_token=${MAPBOX_TOKEN}`,
+          attribution: "© Mapbox © OpenStreetMap contributors",
+          maxZoom: 19,
+        },
+      ]
+    : []),
   {
     url: "https://tiles.stadiamaps.com/tiles/alidade_smooth_dark/{z}/{x}/{y}{r}.png",
     attribution: "© Stadia Maps © OpenMapTiles © OpenStreetMap contributors",

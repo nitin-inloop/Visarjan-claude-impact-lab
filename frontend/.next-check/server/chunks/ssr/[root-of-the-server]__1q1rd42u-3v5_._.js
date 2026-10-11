@@ -1,3 +1,0 @@
-module.exports=[50227,(a,b,c)=>{b.exports=a.x("node:path",()=>require("node:path"))},18500,10770,a=>{"use strict";var b=a.i(72131);a.s(["f",0,function(a,c,d=[]){let[e,f]=(0,b.useState)({data:c,source:c?"static":null,error:!1});return(0,b.useEffect)(()=>{let b=!0;return a().then(a=>b&&f({data:a.data,source:a.source,error:!1})).catch(()=>b&&f(a=>({...a,error:!a.data}))),()=>{b=!1}},d),e}],18500);var c=a.i(87924),d=a.i(71914);a.s(["f",0,function({error:a}){let{t:b}=(0,d.f)();return(0,c.jsx)("p",{className:a?"py-10 text-high font-semibold":"py-10 text-muted",children:a?b.loadError:b.loading})}],10770)}];
-
-//# sourceMappingURL=%5Broot-of-the-server%5D__1q1rd42u-3v5_._.js.map

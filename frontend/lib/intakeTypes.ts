@@ -52,7 +52,7 @@ export interface Row {
   value: number | null;
   flag: string | null;
   value_as_printed: string;
-  unit_assumed: string;
+  unit_assumed: string | null;
   confidence: number;
   issues: string[];
   already_in_pack: boolean;

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useLang } from "@/lib/lang";
 import { ix } from "@/lib/intakeI18n";
 import type { Ranking } from "@/lib/types";
@@ -14,10 +15,19 @@ export function UserDataBadge({ ranking }: { ranking: Ranking | null }) {
     <p className="mt-3 inline-flex flex-wrap items-center gap-x-2 gap-y-1 rounded border border-medium bg-medium-bg px-2.5 py-1 text-sm text-medium" role="note">
       <span aria-hidden>◆</span>
       <span className="font-semibold">{x.badge(u.rows)}</span>
-      {/* plain anchor: a same-page hash change must fire hashchange so the command center switches tab */}
-      <a href="/#intake" className="text-link underline underline-offset-2">
+      <Link
+        href="/#intake"
+        className="text-link underline underline-offset-2"
+        onClick={(e) => {
+          // On the command center a native hash change is needed so the tab switches (hashchange).
+          if (window.location.pathname === "/") {
+            e.preventDefault();
+            window.location.hash = "intake";
+          }
+        }}
+      >
         {x.badgeLink}
-      </a>
+      </Link>
     </p>
   );
 }
