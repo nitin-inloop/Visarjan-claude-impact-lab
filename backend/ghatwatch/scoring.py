@@ -280,6 +280,10 @@ def breach_reasons(readings: list[Reading], k: int = 3, per_param: int = 2) -> l
     cands = sorted([r for r in readings if r.breach and r.contribution > 0],
                    key=lambda r: (-r.contribution, -r.year, r.festival != "Durga"))
     out, used = [], {}
+    # an officer-added (intake) breach is always surfaced: it is new evidence the officer must see cited
+    ups = [r for r in cands if r.upload]
+    if ups and not any(r.upload for r in cands[:k]):
+        cands = [ups[0]] + [r for r in cands if r is not ups[0]]
     for r in cands:
         if used.get(r.parameter, 0) >= per_param:
             continue

@@ -138,6 +138,8 @@ def _process(store: Store, job: dict, raw: list[dict], tables_found: int, rerun:
         job["status"] = "needs_review" if job["status"] in ("running", "failed", "rejected") else job["status"]
     md = build_report(job)
     write_report(store, job["id"], md)
+    _log(store, job, "report", f"Report written: {md['en'].count(chr(10))} lines (en), {md['hi'].count(chr(10))} lines (hi).",
+         f"रिपोर्ट लिखी गई: {md['en'].count(chr(10))} पंक्तियां (अंग्रेज़ी), {md['hi'].count(chr(10))} पंक्तियां (हिंदी)।")
     with store.lock:
         job["report_available"] = True
     _end(store, job, "report", "done", "Bilingual intake report ready (markdown, en + hi).",

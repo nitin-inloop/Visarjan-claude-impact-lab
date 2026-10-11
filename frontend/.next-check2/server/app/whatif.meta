@@ -1,0 +1,39 @@
+{
+  "headers": {
+    "x-nextjs-stale-time": "300",
+    "x-nextjs-prerender": "1",
+    "x-next-cache-tags": "_N_T_/layout,_N_T_/(classic)/layout,_N_T_/(classic)/whatif/layout,_N_T_/(classic)/whatif/page,_N_T_/whatif"
+  },
+  "segmentPaths": [
+    "/_tree",
+    "/_full",
+    "/!KGNsYXNzaWMp/whatif/__PAGE__"
+  ],
+  "prefetchHints": {
+    "hints": 64,
+    "slots": {
+      "children": {
+        "hints": 96,
+        "slots": {
+          "children": {
+            "hints": 96,
+            "slots": {
+              "children": {
+                "hints": 160,
+                "slots": null
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "routeCache": {
+    "key": "/route-cache/APP_PAGE/5df86d709b4910cac4dee90bc9b9bd2b26409c67dc1a6b613e979e497806cff5/$/whatif",
+    "owner": {
+      "kind": "APP_PAGE",
+      "sourceRoute": "/(classic)/whatif/page"
+    },
+    "isFallback": false
+  }
+}

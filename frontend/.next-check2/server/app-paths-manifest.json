@@ -1,0 +1,11 @@
+{
+  "/(classic)/brief/page": "app/(classic)/brief/page.js",
+  "/(classic)/ghat/[slug]/page": "app/(classic)/ghat/[slug]/page.js",
+  "/(classic)/intake/page": "app/(classic)/intake/page.js",
+  "/(classic)/models/page": "app/(classic)/models/page.js",
+  "/(classic)/whatif/page": "app/(classic)/whatif/page.js",
+  "/_global-error/page": "app/_global-error/page.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/favicon.ico/route": "app/favicon.ico/route.js",
+  "/page": "app/page.js"
+}

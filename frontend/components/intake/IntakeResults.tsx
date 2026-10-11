@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import Link from "next/link";
 import clsx from "clsx";
 import { useLang } from "@/lib/lang";
 import { ix } from "@/lib/intakeI18n";
@@ -134,9 +133,9 @@ export function IntakeResults({ job, client, onOpenPlan }: { job: Job; client: I
             {x.toPlan} →
           </button>
         ) : (
-          <Link href="/#plan" className={clsx(btn, "no-underline")}>
+          <a href="/#plan" className={clsx(btn, "no-underline")}>
             {x.toPlan} →
-          </Link>
+          </a>
         )}
       </div>
       {dlErr && <p className="text-xs text-medium">{x.failed}</p>}

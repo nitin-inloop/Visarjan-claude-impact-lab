@@ -1,0 +1,3 @@
+{
+  "/(classic)/ghat/[slug]/page": "app/(classic)/ghat/[slug]/page.js"
+}
