@@ -12,11 +12,11 @@ import { ListenButton } from "@/components/voice/ListenButton";
 import { aiBadge, fetchAiAlerts, fetchJobAnalysis, type AiAlert, type AiAlerts as AlertsPayload, type AiAnswer, type AlertSeverity } from "@/lib/ai";
 
 const SEV: Record<AlertSeverity, { icon: string; word: { en: string; hi: string }; cls: string }> = {
-  critical: { icon: "⛔", word: { en: "Urgent", hi: "तुरंत" }, cls: "border-l-[#DC2626]" },
+  critical: { icon: "⛔", word: { en: "Urgent", hi: "तुरंत" }, cls: "border-l-[var(--d-danger)]" },
   high: { icon: "▲", word: { en: "High", hi: "उच्च" }, cls: "border-l-[#EA580C]" },
   medium: { icon: "?", word: { en: "Test needed", hi: "जांच ज़रूरी" }, cls: "border-l-[#D97706]" },
   review: { icon: "✎", word: { en: "Check value", hi: "मान जांचें" }, cls: "border-l-[#0369A1]" },
-  info: { icon: "ℹ", word: { en: "Note", hi: "सूचना" }, cls: "border-l-[#6B6B75]" },
+  info: { icon: "ℹ", word: { en: "Note", hi: "सूचना" }, cls: "border-l-[var(--d-muted)]" },
 };
 
 function Badge({ meta, lang }: { meta: AiAnswer | AlertsPayload; lang: Lang }) {
@@ -24,7 +24,7 @@ function Badge({ meta, lang }: { meta: AiAnswer | AlertsPayload; lang: Lang }) {
     <span
       className={
         "inline-flex items-center gap-1.5 rounded-lg border px-2 py-0.5 text-[12px] font-medium " +
-        (meta.ai_written ? "border-[#DDD6FE] bg-[#F5F3FF] text-[#5B21B6]" : "border-[#E6E6E9] bg-[#F6F6F7] text-[#52525B]")
+        (meta.ai_written ? "border-[var(--d-violet-border)] bg-[var(--d-violet-bg)] text-[var(--d-violet-ink)]" : "border-[var(--d-border)] bg-[var(--d-page)] text-[var(--d-ink3)]")
       }
     >
       <span aria-hidden>{meta.ai_written ? "✦" : "≡"}</span>
@@ -69,9 +69,9 @@ export function AiAnalysis({ jobId, lang }: { jobId: string; lang: Lang }) {
   const who = data.ai_written ? WHO[data.provider] ?? "AI" : lang === "hi" ? "मानक" : "Standard";
   const title = lang === "hi" ? `${who} उत्तर: इस रिपोर्ट का सार` : `${who} answer: what this report means`;
   return (
-    <section className="rounded-2xl border border-[#E6E6E9] bg-white p-5 text-[14px] leading-relaxed text-[#111113]" lang={lang}>
+    <section className="rounded-2xl border border-[var(--d-border)] bg-[var(--d-card)] p-5 text-[14px] leading-relaxed text-[var(--d-ink)]" lang={lang}>
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-[13px] font-semibold uppercase tracking-wide text-[#3A3A40]">{title}</h3>
+        <h3 className="text-[13px] font-semibold uppercase tracking-wide text-[var(--d-ink2)]">{title}</h3>
         <Badge meta={data} lang={lang} />
       </div>
       <div className="mb-3">
@@ -80,7 +80,7 @@ export function AiAnalysis({ jobId, lang }: { jobId: string; lang: Lang }) {
       <ul className="space-y-2">
         {sentences(data.text[lang]).map((s, i) => (
           <li key={i} className="flex gap-3">
-            <span aria-hidden className="mt-0.5 text-[10px] text-[#8A8A93]">
+            <span aria-hidden className="mt-0.5 text-[10px] text-[var(--d-bar-mid)]">
               ●
             </span>
             <span>{s}</span>
@@ -99,18 +99,18 @@ function AlertRow({ a, lang }: { a: AiAlert; lang: Lang }) {
       : `${a.source.report ?? ""} page ${a.source.page}`
     : a.source.report ?? "";
   return (
-    <li className={"rounded-xl border border-[#EFEFF1] border-l-4 bg-white p-3 " + s.cls}>
+    <li className={"rounded-xl border border-[var(--d-hover)] border-l-4 bg-[var(--d-card)] p-3 " + s.cls}>
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1">
-        <span className="inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wide text-[#3A3A40]">
+        <span className="inline-flex items-center gap-1 text-[11px] font-semibold uppercase tracking-wide text-[var(--d-ink2)]">
           <span aria-hidden>{s.icon}</span>
           {s.word[lang]}
         </span>
-        <span className="text-[14px] font-semibold text-[#111113]">{a.ghat.name[lang]}</span>
-        <span className="ml-auto rounded-md bg-[#F4F4F5] px-1.5 py-0.5 text-[12px] font-medium text-[#3F3F46]">⏱ {a.deadline.text[lang]}</span>
+        <span className="text-[14px] font-semibold text-[var(--d-ink)]">{a.ghat.name[lang]}</span>
+        <span className="ml-auto rounded-md bg-[var(--d-subtle2)] px-1.5 py-0.5 text-[12px] font-medium text-[var(--d-ink4)]">⏱ {a.deadline.text[lang]}</span>
       </div>
-      <p className="mt-1.5 text-[13px] text-[#3A3A40]">{a.message[lang]}</p>
-      <p className="mt-1 text-[13px] font-semibold text-[#111113]">→ {a.action.text[lang]}</p>
-      {page.trim() && <p className="mt-1 text-[12px] text-[#6B6B75]">{lang === "hi" ? "स्रोत: " : "Source: "}{page}</p>}
+      <p className="mt-1.5 text-[13px] text-[var(--d-ink2)]">{a.message[lang]}</p>
+      <p className="mt-1 text-[13px] font-semibold text-[var(--d-ink)]">→ {a.action.text[lang]}</p>
+      {page.trim() && <p className="mt-1 text-[12px] text-[var(--d-muted)]">{lang === "hi" ? "स्रोत: " : "Source: "}{page}</p>}
       <div className="mt-2">
         <ListenButton text={alertSpeech(a, lang)} lang={lang} size="sm" />
       </div>
@@ -134,9 +134,9 @@ export function AiAlerts({ lang }: { lang: Lang }) {
   const shown = all ? data.alerts : data.alerts.slice(0, 3);
   const title = lang === "hi" ? "अलर्ट: क्या करें, कहां, कब तक" : "Alerts: what to do, where, by when";
   return (
-    <section className="rounded-2xl border border-[#E6E6E9] bg-white p-5 text-[#111113]" lang={lang}>
+    <section className="rounded-2xl border border-[var(--d-border)] bg-[var(--d-card)] p-5 text-[var(--d-ink)]" lang={lang}>
       <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-        <h3 className="text-[13px] font-semibold uppercase tracking-wide text-[#3A3A40]">{title}</h3>
+        <h3 className="text-[13px] font-semibold uppercase tracking-wide text-[var(--d-ink2)]">{title}</h3>
         <Badge meta={data} lang={lang} />
       </div>
       <div className="mb-3">
@@ -151,7 +151,7 @@ export function AiAlerts({ lang }: { lang: Lang }) {
         <button
           type="button"
           onClick={() => setAll(!all)}
-          className="mt-3 w-full rounded-xl bg-[#F6F6F7] px-3 py-2 text-[13px] font-semibold text-[#111113] hover:bg-[#EFEFF1]"
+          className="mt-3 w-full rounded-xl bg-[var(--d-page)] px-3 py-2 text-[13px] font-semibold text-[var(--d-ink)] hover:bg-[var(--d-hover)]"
         >
           {all
             ? lang === "hi" ? "कम दिखाएं" : "Show fewer"

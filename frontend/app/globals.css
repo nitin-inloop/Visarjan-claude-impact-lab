@@ -500,3 +500,89 @@ a {
     font-size: 11.5px;
   }
 }
+
+/* Dashboard palette (Shell / ui.tsx). Light default; dark via <html data-theme="dark">. */
+:root {
+  --d-ink: #111113;
+  --d-muted: #6B6B75;
+  --d-ink2: #3A3A40;
+  --d-border: #E6E6E9;
+  --d-page: #F6F6F7;
+  --d-bar-mid: #8A8A93;
+  --d-hover: #EFEFF1;
+  --d-bar-dark: #2B2B30;
+  --d-track: #F1F1F3;
+  --d-subtle: #F0F0F2;
+  --d-warn-ink: #B45309;
+  --d-muted2: #A1A1AA;
+  --d-muted3: #9A9AA3;
+  --d-subtle2: #F4F4F5;
+  --d-danger: #DC2626;
+  --d-ink3: #52525B;
+  --d-card-alt: #FAFAFB;
+  --d-bar-light: #C9C9CF;
+  --d-watch-bg: #FFFBEB;
+  --d-danger-bg: #FEF2F2;
+  --d-danger-border: #FECACA;
+  --d-danger-ink: #B91C1C;
+  --d-ink4: #3F3F46;
+  --d-watch-border: #FDE68A;
+  --d-subtle3: #F3F3F5;
+  --d-subtle4: #F8F8F9;
+  --d-ok-bg: #F0FDF4;
+  --d-ok-border: #BBF7D0;
+  --d-ok: #16A34A;
+  --d-ok-ink: #15803D;
+  --d-border2: #E4E4E7;
+  --d-slate-bg: #F1F5F9;
+  --d-slate-border: #CBD5E1;
+  --d-slate-ink: #334155;
+  --d-violet-bg: #F5F3FF;
+  --d-violet-border: #DDD6FE;
+  --d-violet-ink: #5B21B6;
+  --d-card: #FFFFFF;
+  --d-on-inv: #FFFFFF;
+}
+:root[data-theme="dark"] {
+  --d-ink: #F4F4F5;
+  --d-muted: #A1A1AA;
+  --d-ink2: #D4D4D8;
+  --d-border: #26262B;
+  --d-page: #0B0B0D;
+  --d-bar-mid: #71717A;
+  --d-hover: #222226;
+  --d-bar-dark: #E4E4E7;
+  --d-track: #1F1F23;
+  --d-subtle: #1C1C20;
+  --d-warn-ink: #FBBF24;
+  --d-muted2: #71717A;
+  --d-muted3: #71717A;
+  --d-subtle2: #1C1C20;
+  --d-danger: #F87171;
+  --d-ink3: #A1A1AA;
+  --d-card-alt: #18181B;
+  --d-bar-light: #3F3F46;
+  --d-watch-bg: #2A2110;
+  --d-danger-bg: #2A1414;
+  --d-danger-border: #7F1D1D;
+  --d-danger-ink: #FCA5A5;
+  --d-ink4: #D4D4D8;
+  --d-watch-border: #78350F;
+  --d-subtle3: #1C1C20;
+  --d-subtle4: #18181B;
+  --d-ok-bg: #0F2219;
+  --d-ok-border: #14532D;
+  --d-ok: #4ADE80;
+  --d-ok-ink: #86EFAC;
+  --d-border2: #2E2E33;
+  --d-slate-bg: #1E293B;
+  --d-slate-border: #334155;
+  --d-slate-ink: #CBD5E1;
+  --d-violet-bg: #1E1B2E;
+  --d-violet-border: #4C1D95;
+  --d-violet-ink: #C4B5FD;
+  --d-card: #141417;
+  --d-on-inv: #111113;
+}
+:root[data-theme="dark"] body { background: var(--d-page); color: var(--d-ink); }
+:root[data-theme="dark"] .gw-status-hint { filter: brightness(2.2); }

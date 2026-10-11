@@ -281,11 +281,11 @@ export function SimpleIntake() {
     return Number.isFinite(ms) && ms >= 0 ? (ms < 1000 ? `${ms} ms` : `${(ms / 1000).toFixed(1)} s`) : null;
   };
   const DOT: Record<string, string> = {
-    done: "bg-[#111113] text-white",
-    running: "bg-white border-2 border-[#111113] animate-pulse",
-    failed: "bg-[#DC2626] text-white",
-    skipped: "bg-white border border-dashed border-[#A1A1AA]",
-    pending: "bg-white border border-[#C9C9CF]",
+    done: "bg-[var(--d-ink)] text-[var(--d-on-inv)]",
+    running: "bg-[var(--d-card)] border-2 border-[var(--d-ink)] animate-pulse",
+    failed: "bg-[var(--d-danger)] text-white",
+    skipped: "bg-[var(--d-card)] border border-dashed border-[var(--d-muted2)]",
+    pending: "bg-[var(--d-card)] border border-[var(--d-bar-light)]",
   };
   const STEP_NAMES = hi
     ? ["टेक्स्ट/OCR निकालना", "सामान्य करना", "जांचना", "विश्लेषण", "रिपोर्ट"]
@@ -295,16 +295,16 @@ export function SimpleIntake() {
     <div className="mx-auto max-w-[1400px] space-y-6">
       <header className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-[26px] font-bold tracking-tight text-[#111113]">{x.title}</h1>
-          <p className="mt-1 max-w-2xl text-[14px] text-[#6B6B75]">{x.sub}</p>
+          <h1 className="text-[26px] font-bold tracking-tight text-[var(--d-ink)]">{x.title}</h1>
+          <p className="mt-1 max-w-2xl text-[14px] text-[var(--d-muted)]">{x.sub}</p>
         </div>
         {jobId && (
           <div className="flex flex-wrap items-center gap-2">
-            <span className="rounded-xl border border-[#E6E6E9] bg-white px-3 py-2 text-[13px] text-[#3A3A40]">
-              {x.file}: <b className="text-[#111113]">{job?.source.file_name ?? "…"}</b>
-              {job?.source.ocr_used && <span className="ml-2 text-[#6B6B75]">· OCR {job.source.ocr_engine ?? ""}</span>}
+            <span className="rounded-xl border border-[var(--d-border)] bg-[var(--d-card)] px-3 py-2 text-[13px] text-[var(--d-ink2)]">
+              {x.file}: <b className="text-[var(--d-ink)]">{job?.source.file_name ?? "…"}</b>
+              {job?.source.ocr_used && <span className="ml-2 text-[var(--d-muted)]">· OCR {job.source.ocr_engine ?? ""}</span>}
             </span>
-            <button type="button" onClick={reset} className="rounded-xl border border-[#E6E6E9] bg-white px-3 py-2 text-[13px] font-medium text-[#111113] hover:bg-[#F6F6F7]">
+            <button type="button" onClick={reset} className="rounded-xl border border-[var(--d-border)] bg-[var(--d-card)] px-3 py-2 text-[13px] font-medium text-[var(--d-ink)] hover:bg-[var(--d-page)]">
               ⬆ {x.another}
             </button>
           </div>
@@ -332,38 +332,38 @@ export function SimpleIntake() {
                     setDrag(false);
                     upload(e.dataTransfer.files?.[0]);
                   }}
-                  className={`flex w-full flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed px-4 py-8 text-center disabled:opacity-60 ${drag ? "border-[#111113] bg-[#F1F1F3]" : "border-[#C9C9CF] bg-[#FAFAFB] hover:bg-[#F6F6F7]"}`}
+                  className={`flex w-full flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed px-4 py-8 text-center disabled:opacity-60 ${drag ? "border-[var(--d-ink)] bg-[var(--d-track)]" : "border-[var(--d-bar-light)] bg-[var(--d-card-alt)] hover:bg-[var(--d-page)]"}`}
                 >
-                  <svg viewBox="0 0 24 24" className="h-8 w-8 text-[#3A3A40]" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden>
+                  <svg viewBox="0 0 24 24" className="h-8 w-8 text-[var(--d-ink2)]" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" aria-hidden>
                     <path d="M12 15V4M7.5 8.5 12 4l4.5 4.5M4 15v4a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-4" />
                   </svg>
-                  <span className="text-[14px] font-semibold text-[#111113]">{x.upload}</span>
-                  <span className="text-[12px] text-[#6B6B75]">{hi ? "यहां खींचकर छोड़ें · PDF, JPG, PNG" : "Drag and drop here · PDF, JPG, PNG"}</span>
+                  <span className="text-[14px] font-semibold text-[var(--d-ink)]">{x.upload}</span>
+                  <span className="text-[12px] text-[var(--d-muted)]">{hi ? "यहां खींचकर छोड़ें · PDF, JPG, PNG" : "Drag and drop here · PDF, JPG, PNG"}</span>
                 </button>
                 <button
                   type="button"
                   disabled={busy || !client}
                   onClick={() => camRef.current?.click()}
-                  className="w-full rounded-xl border border-[#E6E6E9] bg-white px-3 py-2 text-[13px] font-medium text-[#111113] hover:bg-[#F6F6F7] disabled:opacity-60"
+                  className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-card)] px-3 py-2 text-[13px] font-medium text-[var(--d-ink)] hover:bg-[var(--d-page)] disabled:opacity-60"
                 >
                   📷 {x.camera}
                 </button>
                 <input ref={fileRef} type="file" accept="application/pdf,image/jpeg,image/png,.pdf,.jpg,.jpeg,.png" className="sr-only" tabIndex={-1} onChange={(e) => upload(e.target.files?.[0])} />
                 <input ref={camRef} type="file" accept="image/*" capture="environment" className="sr-only" tabIndex={-1} onChange={(e) => upload(e.target.files?.[0])} />
                 {progress !== null && (
-                  <p className="text-[13px] font-semibold text-[#111113]" role="status">
+                  <p className="text-[13px] font-semibold text-[var(--d-ink)]" role="status">
                     ⏳ {x.sending(progress)}
                   </p>
                 )}
-                <details open={manual} onToggle={(e) => setManual((e.target as HTMLDetailsElement).open)} className="rounded-xl border border-[#E6E6E9] p-3">
-                  <summary className="cursor-pointer text-[13px] font-semibold text-[#111113]">✍ {x.manual}</summary>
+                <details open={manual} onToggle={(e) => setManual((e.target as HTMLDetailsElement).open)} className="rounded-xl border border-[var(--d-border)] p-3">
+                  <summary className="cursor-pointer text-[13px] font-semibold text-[var(--d-ink)]">✍ {x.manual}</summary>
                   <div className="mt-3">
                     <ManualForm onSubmit={onManual} busy={busy} />
                   </div>
                 </details>
               </div>
             ) : (
-              <p className="text-[13px] text-[#3A3A40]">
+              <p className="text-[13px] text-[var(--d-ink2)]">
                 {x.file}: <b>{job?.source.file_name ?? "…"}</b>
               </p>
             )}
@@ -374,23 +374,23 @@ export function SimpleIntake() {
             <ol className="relative space-y-4" aria-live="polite">
               {(job?.stages.length ? job.stages : STEP_NAMES.map((n, i) => ({ key: String(i), title: { en: n, hi: n }, status: "pending", started: null, finished: null, summary: null }))).map((s, i, arr) => (
                 <li key={s.key} className="relative flex gap-3">
-                  {i < arr.length - 1 && <span aria-hidden className="absolute left-[11px] top-6 h-[calc(100%+4px)] w-px bg-[#E6E6E9]" />}
+                  {i < arr.length - 1 && <span aria-hidden className="absolute left-[11px] top-6 h-[calc(100%+4px)] w-px bg-[var(--d-border)]" />}
                   <span className={`relative z-10 grid h-6 w-6 shrink-0 place-items-center rounded-full text-[11px] ${DOT[s.status] ?? DOT.pending}`}>
                     {s.status === "done" ? "✓" : s.status === "failed" ? "✕" : ""}
                   </span>
                   <div className="min-w-0 flex-1">
                     <div className="flex items-baseline justify-between gap-2">
-                      <p className="text-[13px] font-semibold text-[#111113]">{STEP_NAMES[i] ?? s.title[lang]}</p>
-                      <span className="text-[12px] tabular-nums text-[#6B6B75]">{dur(s as Stage) ?? ""}</span>
+                      <p className="text-[13px] font-semibold text-[var(--d-ink)]">{STEP_NAMES[i] ?? s.title[lang]}</p>
+                      <span className="text-[12px] tabular-nums text-[var(--d-muted)]">{dur(s as Stage) ?? ""}</span>
                     </div>
-                    <p className="text-[12px] capitalize text-[#6B6B75]">{s.status}</p>
-                    {s.summary && <p className="mt-0.5 line-clamp-3 text-[12px] text-[#3A3A40]" title={s.summary[lang]}>{s.summary[lang]}</p>}
+                    <p className="text-[12px] capitalize text-[var(--d-muted)]">{s.status}</p>
+                    {s.summary && <p className="mt-0.5 line-clamp-3 text-[12px] text-[var(--d-ink2)]" title={s.summary[lang]}>{s.summary[lang]}</p>}
                   </div>
                 </li>
               ))}
             </ol>
-            {job?.status === "failed" && <p className="mt-3 text-[13px] text-[#DC2626]">{x.failed}</p>}
-            {job && stepOf(job) < 4 && <p className="mt-3 text-[12px] text-[#6B6B75]">{x.steps[Math.min(stepOf(job), 3)]}</p>}
+            {job?.status === "failed" && <p className="mt-3 text-[13px] text-[var(--d-danger)]">{x.failed}</p>}
+            {job && stepOf(job) < 4 && <p className="mt-3 text-[12px] text-[var(--d-muted)]">{x.steps[Math.min(stepOf(job), 3)]}</p>}
           </Card>
         </div>
 
@@ -398,19 +398,19 @@ export function SimpleIntake() {
         <div className="min-w-0 space-y-4">
           <Card className="overflow-hidden p-0">
             <div className="px-5 pt-5">
-              <CardTitle right={rows.length > 0 ? <span className="text-[12px] text-[#6B6B75]">{x.found(rows.length, nCheck)}</span> : undefined}>
+              <CardTitle right={rows.length > 0 ? <span className="text-[12px] text-[var(--d-muted)]">{x.found(rows.length, nCheck)}</span> : undefined}>
                 {hi ? "निकाली गई तालिका (OCR)" : "Extracted table (OCR)"}
               </CardTitle>
             </div>
             {rows.length === 0 ? (
-              <p className="px-5 pb-8 pt-2 text-[13px] text-[#6B6B75]">
+              <p className="px-5 pb-8 pt-2 text-[13px] text-[var(--d-muted)]">
                 {job ? (hi ? "पढ़ रहे हैं…" : "Reading the report…") : hi ? "रिपोर्ट डालें, निकाली गई संख्याएं यहां दिखेंगी।" : "Upload a report; the extracted numbers appear here."}
               </p>
             ) : (
               <div className="max-h-[520px] overflow-auto">
                 <table className="w-full min-w-[460px] text-left text-[13px]">
-                  <thead className="sticky top-0 bg-white">
-                    <tr className="border-y border-[#EFEFF1] text-[11px] uppercase tracking-wider text-[#8A8A93]">
+                  <thead className="sticky top-0 bg-[var(--d-card)]">
+                    <tr className="border-y border-[var(--d-hover)] text-[11px] uppercase tracking-wider text-[var(--d-bar-mid)]">
                       <th className="py-2 pl-5 pr-2 font-medium">{hi ? "घाट" : "Ghat"}</th>
                       <th className="px-2 font-medium">{hi ? "मापदंड" : "Parameter"}</th>
                       <th className="px-2 font-medium">{hi ? "छपा मान" : "Value as printed"}</th>
@@ -422,11 +422,11 @@ export function SimpleIntake() {
                     {rows.map((r) => {
                       const warn = r.needs_review || r.confidence < 0.8 || siteUnclear(r);
                       return (
-                        <tr key={r.row_id} className={`border-b border-[#F3F3F5] ${warn ? "bg-[#FFFBEB]" : ""}`}>
-                          <td className="py-2 pl-5 pr-2 text-[#111113]">{ghatName(r.slug, lang) ?? r.site_as_printed}</td>
-                          <td className="px-2 text-[#3A3A40]">{r.parameter}</td>
-                          <td className="px-2 tabular-nums font-medium text-[#111113]">{r.value_as_printed || (hi ? "जांच नहीं हुई" : "Not tested")}</td>
-                          <td className="px-2 text-[#3A3A40]">
+                        <tr key={r.row_id} className={`border-b border-[var(--d-subtle3)] ${warn ? "bg-[var(--d-watch-bg)]" : ""}`}>
+                          <td className="py-2 pl-5 pr-2 text-[var(--d-ink)]">{ghatName(r.slug, lang) ?? r.site_as_printed}</td>
+                          <td className="px-2 text-[var(--d-ink2)]">{r.parameter}</td>
+                          <td className="px-2 tabular-nums font-medium text-[var(--d-ink)]">{r.value_as_printed || (hi ? "जांच नहीं हुई" : "Not tested")}</td>
+                          <td className="px-2 text-[var(--d-ink2)]">
                             {r.page !== null && client ? (
                               <a href={client.pageUrl(job!.id, r.page)} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2">
                                 p. {r.page} ↗
@@ -437,13 +437,13 @@ export function SimpleIntake() {
                           </td>
                           <td className="px-2 pr-5 text-[12px]">
                             {r.needs_review ? (
-                              <span className="font-semibold text-[#B45309]">{hi ? "जांच ज़रूरी" : "needs review"}</span>
+                              <span className="font-semibold text-[var(--d-warn-ink)]">{hi ? "जांच ज़रूरी" : "needs review"}</span>
                             ) : siteUnclear(r) ? (
-                              <span className="text-[#B45309]">{hi ? "घाट अस्पष्ट" : "site unclear"}</span>
+                              <span className="text-[var(--d-warn-ink)]">{hi ? "घाट अस्पष्ट" : "site unclear"}</span>
                             ) : r.confidence < 0.8 ? (
-                              <span className="text-[#B45309]">{x.lowConf}</span>
+                              <span className="text-[var(--d-warn-ink)]">{x.lowConf}</span>
                             ) : (
-                              <span className="text-[#6B6B75]">{r.flag ?? "—"}</span>
+                              <span className="text-[var(--d-muted)]">{r.flag ?? "—"}</span>
                             )}
                           </td>
                         </tr>
@@ -460,9 +460,9 @@ export function SimpleIntake() {
               <CardTitle>{nCheck > 0 ? `⚠ ${x.attention}` : x.looksOk}</CardTitle>
               <div className="space-y-3">
                 {unclearSites.map((u) => (
-                  <div key={u.site} className="rounded-xl border border-dashed border-[#A1A1AA] bg-[#FAFAFB] p-3 text-[13px]">
+                  <div key={u.site} className="rounded-xl border border-dashed border-[var(--d-muted2)] bg-[var(--d-card-alt)] p-3 text-[13px]">
                     <p className="font-semibold">? {u.site}</p>
-                    <p className="text-[#3A3A40]">{x.siteUnclear(u.n)}</p>
+                    <p className="text-[var(--d-ink2)]">{x.siteUnclear(u.n)}</p>
                   </div>
                 ))}
                 {flagged.length > 0 && (
@@ -473,8 +473,8 @@ export function SimpleIntake() {
                       const pname = k === "DO" ? x.oxygen : k === "BOD" ? x.bod : r.parameter;
                       const why = [...(r.needs_review ? [x.needsCheck] : []), ...(r.confidence < 0.8 ? [x.lowConf] : []), ...issueText(r)];
                       return (
-                        <li key={r.row_id} className="rounded-xl border border-[#FDE68A] bg-[#FFFBEB] p-3">
-                          <p className="text-[13px] font-semibold text-[#111113]">
+                        <li key={r.row_id} className="rounded-xl border border-[var(--d-watch-border)] bg-[var(--d-watch-bg)] p-3">
+                          <p className="text-[13px] font-semibold text-[var(--d-ink)]">
                             {site} · {pname}
                           </p>
                           <label className="mt-2 flex flex-wrap items-center gap-2 text-[13px]">
@@ -488,21 +488,21 @@ export function SimpleIntake() {
                               onChange={(e) =>
                                 editRows(rows.map((y) => (y.row_id === r.row_id ? { ...y, value: e.target.value === "" ? null : Number(e.target.value) } : y)))
                               }
-                              className="h-9 w-28 rounded-lg border border-[#C9C9CF] bg-white px-2 text-[14px]"
+                              className="h-9 w-28 rounded-lg border border-[var(--d-bar-light)] bg-[var(--d-card)] px-2 text-[14px]"
                             />
                             {r.value_as_printed && (
-                              <span className="text-[#6B6B75]">
+                              <span className="text-[var(--d-muted)]">
                                 {x.printed}: “{r.value_as_printed}”
                               </span>
                             )}
                           </label>
-                          <p className="mt-1 text-[12px] text-[#3A3A40]">{why.join(" · ")}</p>
+                          <p className="mt-1 text-[12px] text-[var(--d-ink2)]">{why.join(" · ")}</p>
                         </li>
                       );
                     })}
                   </ul>
                 )}
-                <details className="rounded-xl border border-[#E6E6E9] p-3">
+                <details className="rounded-xl border border-[var(--d-border)] p-3">
                   <summary className="cursor-pointer text-[13px] font-semibold">{x.allRows(rows.length)}</summary>
                   <div className="mt-3 overflow-x-auto">
                     <ReviewTable job={job} rows={rows} onChange={editRows} pageUrl={(n) => (client ? client.pageUrl(job.id, n) : "")} readOnly={!reviewable} />
@@ -520,7 +520,7 @@ export function SimpleIntake() {
           ) : (
             <Card>
               <CardTitle>{hi ? "Claude का उत्तर" : "Claude answer"}</CardTitle>
-              <p className="text-[13px] text-[#6B6B75]">{hi ? "रिपोर्ट पढ़ने के बाद सार यहां दिखेगा।" : "The plain-language answer appears here after the report is read."}</p>
+              <p className="text-[13px] text-[var(--d-muted)]">{hi ? "रिपोर्ट पढ़ने के बाद सार यहां दिखेगा।" : "The plain-language answer appears here after the report is read."}</p>
             </Card>
           )}
           {job?.analysis && <Changes job={job} lang={lang} after={job.status === "accepted"} />}
@@ -528,28 +528,28 @@ export function SimpleIntake() {
           {job && reviewable && (
             <Card className="space-y-2">
               {edited && (
-                <button type="button" disabled={busy} onClick={rerun} className="w-full rounded-xl border border-[#E6E6E9] bg-white px-3 py-2.5 text-[14px] font-semibold text-[#111113] hover:bg-[#F6F6F7] disabled:opacity-60">
+                <button type="button" disabled={busy} onClick={rerun} className="w-full rounded-xl border border-[var(--d-border)] bg-[var(--d-card)] px-3 py-2.5 text-[14px] font-semibold text-[var(--d-ink)] hover:bg-[var(--d-page)] disabled:opacity-60">
                   🔄 {x.checkAgain}
                 </button>
               )}
-              <button type="button" disabled={busy} onClick={accept} className="w-full rounded-xl bg-[#111113] px-3 py-2.5 text-[14px] font-semibold text-white hover:bg-[#2B2B30] disabled:opacity-60">
+              <button type="button" disabled={busy} onClick={accept} className="w-full rounded-xl bg-[var(--d-ink)] px-3 py-2.5 text-[14px] font-semibold text-[var(--d-on-inv)] hover:bg-[var(--d-bar-dark)] disabled:opacity-60">
                 ✔ {x.accept}
               </button>
-              <button type="button" disabled={busy} onClick={reject} className="w-full rounded-xl border border-[#FECACA] bg-white px-3 py-2.5 text-[14px] font-semibold text-[#B91C1C] hover:bg-[#FEF2F2] disabled:opacity-60">
+              <button type="button" disabled={busy} onClick={reject} className="w-full rounded-xl border border-[var(--d-danger-border)] bg-[var(--d-card)] px-3 py-2.5 text-[14px] font-semibold text-[var(--d-danger-ink)] hover:bg-[var(--d-danger-bg)] disabled:opacity-60">
                 ✖ {x.reject}
               </button>
-              {busy && <p className="text-[13px] text-[#6B6B75]">{x.working}</p>}
+              {busy && <p className="text-[13px] text-[var(--d-muted)]">{x.working}</p>}
             </Card>
           )}
 
           {msg && (
-            <p className={`rounded-xl border px-3 py-2 text-[14px] font-semibold ${msg.ok ? "border-[#E6E6E9] bg-white text-[#111113]" : "border-[#FECACA] bg-[#FEF2F2] text-[#B91C1C]"}`} role="status">
+            <p className={`rounded-xl border px-3 py-2 text-[14px] font-semibold ${msg.ok ? "border-[var(--d-border)] bg-[var(--d-card)] text-[var(--d-ink)]" : "border-[var(--d-danger-border)] bg-[var(--d-danger-bg)] text-[var(--d-danger-ink)]"}`} role="status">
               {msg.ok ? "✅ " : "❌ "}
               {msg.text}
             </p>
           )}
           {jobId && (
-            <Link href="/" className="block rounded-xl border border-[#E6E6E9] bg-white px-3 py-2.5 text-center text-[14px] font-medium text-[#111113] no-underline hover:bg-[#F6F6F7]">
+            <Link href="/" className="block rounded-xl border border-[var(--d-border)] bg-[var(--d-card)] px-3 py-2.5 text-center text-[14px] font-medium text-[var(--d-ink)] no-underline hover:bg-[var(--d-page)]">
               {x.back}
             </Link>
           )}
@@ -573,16 +573,16 @@ function Changes({ job, lang, after }: { job: Job; lang: Lang; after: boolean })
   const list = a.ghats.filter((g) => g.changed || g.before.tier !== g.after.tier || g.before.rank !== g.after.rank);
   const shown = list.length > 0 ? list : a.ghats;
   return (
-    <section aria-labelledby="ch-h" className="space-y-3 rounded-2xl border border-[#E6E6E9] bg-white p-5">
-      <h2 id="ch-h" className="text-[13px] font-semibold uppercase tracking-wide text-[#3A3A40]">
+    <section aria-labelledby="ch-h" className="space-y-3 rounded-2xl border border-[var(--d-border)] bg-[var(--d-card)] p-5">
+      <h2 id="ch-h" className="text-[13px] font-semibold uppercase tracking-wide text-[var(--d-ink2)]">
         {after ? x.changed : x.willChange}
       </h2>
-      {list.length === 0 && <p className="text-[13px] text-[#6B6B75]">{x.noChange}</p>}
+      {list.length === 0 && <p className="text-[13px] text-[var(--d-muted)]">{x.noChange}</p>}
       <ul className="space-y-3">
         {shown.map((g) => (
-          <li key={g.slug} className="rounded-xl border border-[#EFEFF1] bg-[#FAFAFB] p-3">
+          <li key={g.slug} className="rounded-xl border border-[var(--d-hover)] bg-[var(--d-card-alt)] p-3">
             <p className="text-[14px] font-semibold">
-              <Link href={`/ghat/${g.slug}`} className="text-[#111113]">
+              <Link href={`/ghat/${g.slug}`} className="text-[var(--d-ink)]">
                 {g.name[lang]}
               </Link>
             </p>
@@ -592,7 +592,7 @@ function Changes({ job, lang, after }: { job: Job; lang: Lang; after: boolean })
               <span className="sr-only">{lang === "hi" ? "बदलकर" : "becomes"}</span>
               <Pill tone={TIER_TONE[g.after.tier]}>{TIER_LABEL[g.after.tier][lang]}</Pill>
             </div>
-            <p className="mt-1 text-[13px] text-[#3A3A40]">{x.rank(g.before.rank, g.after.rank)}</p>
+            <p className="mt-1 text-[13px] text-[var(--d-ink2)]">{x.rank(g.before.rank, g.after.rank)}</p>
           </li>
         ))}
       </ul>

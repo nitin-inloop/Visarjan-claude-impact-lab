@@ -25,6 +25,8 @@ const I = {
   live: <><circle cx="12" cy="12" r="3" /><path d="M5.6 5.6a9 9 0 0 0 0 12.8M18.4 5.6a9 9 0 0 1 0 12.8" /></>,
   lang: <><circle cx="12" cy="12" r="9" /><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18" /></>,
   help: <><circle cx="12" cy="12" r="9" /><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.6.3-1 .8-1 1.5V14M12 17.5v.01" /></>,
+  sun: <><circle cx="12" cy="12" r="4" /><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" /></>,
+  moon: <path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z" />,
   bell: <><path d="M6 16V11a6 6 0 1 1 12 0v5l1.5 2h-15z" /><path d="M10 20a2 2 0 0 0 4 0" /></>,
   search: <><circle cx="11" cy="11" r="7" /><path d="m20 20-4-4" /></>,
   menu: <path d="M4 6h16M4 12h16M4 18h16" />,
@@ -56,7 +58,7 @@ function isActive(it: Item, p: string) {
 function NavGroup({ title, items, path, lang, onNav }: { title: string; items: Item[]; path: string; lang: Lang; onNav: () => void }) {
   return (
     <div className="mt-6">
-      <p className="px-3 text-[11px] font-semibold uppercase tracking-wider text-[#8A8A93]">{title}</p>
+      <p className="px-3 text-[11px] font-semibold uppercase tracking-wider text-[var(--d-bar-mid)]">{title}</p>
       <ul className="mt-2 space-y-0.5">
         {items.map((it) => {
           const on = isActive(it, path);
@@ -66,7 +68,7 @@ function NavGroup({ title, items, path, lang, onNav }: { title: string; items: I
                 href={it.href}
                 onClick={onNav}
                 aria-current={on ? "page" : undefined}
-                className={`flex items-center gap-3 rounded-xl px-3 py-2 text-[14px] no-underline ${on ? "bg-[#F1F1F3] font-semibold text-[#111113]" : "text-[#3A3A40] hover:bg-[#F6F6F7]"}`}
+                className={`flex items-center gap-3 rounded-xl px-3 py-2 text-[14px] no-underline ${on ? "bg-[var(--d-track)] font-semibold text-[var(--d-ink)]" : "text-[var(--d-ink2)] hover:bg-[var(--d-page)]"}`}
               >
                 <Icon d={it.icon} />
                 {it.label[lang]}
@@ -82,31 +84,31 @@ function NavGroup({ title, items, path, lang, onNav }: { title: string; items: I
 function Sidebar({ path, onNav }: { path: string; onNav: () => void }) {
   const { lang, setLang } = useLang();
   return (
-    <nav className="flex h-full flex-col overflow-y-auto border-r border-[#E6E6E9] bg-white px-4 py-5" aria-label="Main">
+    <nav className="flex h-full flex-col overflow-y-auto border-r border-[var(--d-border)] bg-[var(--d-card)] px-4 py-5" aria-label="Main">
       <Link href="/" onClick={onNav} className="flex items-center gap-2.5 px-2 no-underline">
         <svg viewBox="0 0 32 32" className="h-8 w-8" aria-hidden>
-          <rect width="32" height="32" rx="9" fill="#111113" />
+          <rect width="32" height="32" rx="9" fill="var(--d-ink)" />
           <path d="M16 6s6 6.6 6 11a6 6 0 0 1-12 0c0-4.4 6-11 6-11z" fill="#fff" />
           <path d="M8 25h16" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" />
         </svg>
-        <span className="text-[19px] font-bold tracking-tight text-[#111113]">Ghat Watch</span>
+        <span className="text-[19px] font-bold tracking-tight text-[var(--d-ink)]">Ghat Watch</span>
       </Link>
-      <div className="mt-5 rounded-2xl border border-[#E6E6E9] p-3">
-        <p className="text-[11px] text-[#6B6B75]">{lang === "hi" ? "कार्यक्षेत्र" : "Workspace"}</p>
-        <p className="mt-0.5 text-[13px] font-semibold leading-snug text-[#111113]">
+      <div className="mt-5 rounded-2xl border border-[var(--d-border)] p-3">
+        <p className="text-[11px] text-[var(--d-muted)]">{lang === "hi" ? "कार्यक्षेत्र" : "Workspace"}</p>
+        <p className="mt-0.5 text-[13px] font-semibold leading-snug text-[var(--d-ink)]">
           {lang === "hi" ? "भोपाल नगर निगम" : "Bhopal Municipal Corporation"}
         </p>
-        <p className="text-[12px] text-[#6B6B75]">{lang === "hi" ? "दुर्गा विसर्जन 2026" : "Durga Visarjan 2026"}</p>
+        <p className="text-[12px] text-[var(--d-muted)]">{lang === "hi" ? "दुर्गा विसर्जन 2026" : "Durga Visarjan 2026"}</p>
       </div>
       <NavGroup title={lang === "hi" ? "मुख्य मेनू" : "Main menu"} items={MAIN} path={path} lang={lang} onNav={onNav} />
-      <div className="mx-3 mt-4 border-t border-[#EFEFF1]" />
+      <div className="mx-3 mt-4 border-t border-[var(--d-hover)]" />
       <NavGroup title={lang === "hi" ? "प्रबंधन" : "Manage"} items={MANAGE} path={path} lang={lang} onNav={onNav} />
-      <div className="mx-3 mt-4 border-t border-[#EFEFF1]" />
+      <div className="mx-3 mt-4 border-t border-[var(--d-hover)]" />
       <div className="mt-6">
-        <p className="px-3 text-[11px] font-semibold uppercase tracking-wider text-[#8A8A93]">{lang === "hi" ? "सेटिंग्स" : "Settings"}</p>
-        <div className="mt-2 flex items-center gap-3 px-3 py-2 text-[14px] text-[#3A3A40]">
+        <p className="px-3 text-[11px] font-semibold uppercase tracking-wider text-[var(--d-bar-mid)]">{lang === "hi" ? "सेटिंग्स" : "Settings"}</p>
+        <div className="mt-2 flex items-center gap-3 px-3 py-2 text-[14px] text-[var(--d-ink2)]">
           <Icon d={I.lang} />
-          <div className="flex rounded-lg border border-[#E6E6E9] p-0.5 text-[13px]" role="group" aria-label="Language">
+          <div className="flex rounded-lg border border-[var(--d-border)] p-0.5 text-[13px]" role="group" aria-label="Language">
             {(["hi", "en"] as const).map((l) => (
               <button
                 key={l}
@@ -114,19 +116,20 @@ function Sidebar({ path, onNav }: { path: string; onNav: () => void }) {
                 lang={l}
                 onClick={() => setLang(l)}
                 aria-pressed={lang === l}
-                className={`rounded-md px-2.5 py-1 ${lang === l ? "bg-[#111113] font-semibold text-white" : "text-[#3A3A40] hover:bg-[#F6F6F7]"}`}
+                className={`rounded-md px-2.5 py-1 ${lang === l ? "bg-[var(--d-ink)] font-semibold text-[var(--d-on-inv)]" : "text-[var(--d-ink2)] hover:bg-[var(--d-page)]"}`}
               >
                 {l === "hi" ? "हिंदी" : "English"}
               </button>
             ))}
           </div>
         </div>
-        <a href={HELP} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 rounded-xl px-3 py-2 text-[14px] text-[#3A3A40] no-underline hover:bg-[#F6F6F7]">
+        <ThemeRow lang={lang} />
+        <a href={HELP} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 rounded-xl px-3 py-2 text-[14px] text-[var(--d-ink2)] no-underline hover:bg-[var(--d-page)]">
           <Icon d={I.help} />
           {lang === "hi" ? "सहायता (README)" : "Help (README)"}
         </a>
       </div>
-      <p className="mt-auto px-3 pt-6 text-[11px] leading-snug text-[#8A8A93]">
+      <p className="mt-auto px-3 pt-6 text-[11px] leading-snug text-[var(--d-bar-mid)]">
         {lang === "hi" ? "डेटा: MPPCB रिपोर्ट 2023–2025 · CPCB श्रेणी B" : "Data: MPPCB reports 2023–2025 · CPCB class B"}
       </p>
     </nav>
@@ -168,7 +171,7 @@ function Search({ lang }: { lang: Lang }) {
   };
   return (
     <div className="relative w-full max-w-sm">
-      <label className="flex items-center gap-2 rounded-xl border border-[#E6E6E9] bg-white px-3 py-2 text-[14px] text-[#6B6B75]">
+      <label className="flex items-center gap-2 rounded-xl border border-[var(--d-border)] bg-[var(--d-card)] px-3 py-2 text-[14px] text-[var(--d-muted)]">
         <Icon d={I.search} className="h-4 w-4" />
         <input
           ref={ref}
@@ -178,22 +181,81 @@ function Search({ lang }: { lang: Lang }) {
           onBlur={() => setTimeout(() => setOpen(false), 150)}
           onKeyDown={(e) => e.key === "Enter" && hits[0] && go(hits[0].slug)}
           placeholder={lang === "hi" ? "घाट खोजें…" : "Search a ghat…"}
-          className="min-w-0 flex-1 bg-transparent text-[#111113] outline-none placeholder:text-[#9A9AA3]"
+          className="min-w-0 flex-1 bg-transparent text-[var(--d-ink)] outline-none placeholder:text-[var(--d-muted3)]"
           aria-label={lang === "hi" ? "घाट खोजें" : "Search a ghat"}
         />
-        <kbd className="hidden rounded-md border border-[#E6E6E9] px-1.5 text-[11px] text-[#6B6B75] sm:inline">⌘ K</kbd>
+        <kbd className="hidden rounded-md border border-[var(--d-border)] px-1.5 text-[11px] text-[var(--d-muted)] sm:inline">⌘ K</kbd>
       </label>
       {open && hits.length > 0 && (
-        <ul className="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden rounded-xl border border-[#E6E6E9] bg-white py-1 shadow-lg">
+        <ul className="absolute left-0 right-0 top-full z-50 mt-1 overflow-hidden rounded-xl border border-[var(--d-border)] bg-[var(--d-card)] py-1 shadow-lg">
           {hits.map((h) => (
             <li key={h.slug}>
-              <button type="button" onMouseDown={() => go(h.slug)} className="block w-full px-3 py-2 text-left text-[14px] text-[#111113] hover:bg-[#F6F6F7]">
+              <button type="button" onMouseDown={() => go(h.slug)} className="block w-full px-3 py-2 text-left text-[14px] text-[var(--d-ink)] hover:bg-[var(--d-page)]">
                 {h.name[lang]}
               </button>
             </li>
           ))}
         </ul>
       )}
+    </div>
+  );
+}
+
+type Theme = "light" | "dark";
+const THEME_EVT = "gw-theme";
+function useTheme(): [Theme, (t: Theme) => void] {
+  const [theme, setT] = useState<Theme>("light");
+  useEffect(() => {
+    const read = () => setT(document.documentElement.dataset.theme === "dark" ? "dark" : "light");
+    read();
+    window.addEventListener(THEME_EVT, read);
+    return () => window.removeEventListener(THEME_EVT, read);
+  }, []);
+  const set = (t: Theme) => {
+    document.documentElement.dataset.theme = t;
+    try {
+      localStorage.setItem("theme", t);
+    } catch {}
+    window.dispatchEvent(new Event(THEME_EVT));
+  };
+  return [theme, set];
+}
+
+function ThemeButton({ lang }: { lang: Lang }) {
+  const [theme, setTheme] = useTheme();
+  const dark = theme === "dark";
+  return (
+    <button
+      type="button"
+      onClick={() => setTheme(dark ? "light" : "dark")}
+      className="grid h-9 w-9 place-items-center rounded-xl text-[var(--d-ink2)] hover:bg-[var(--d-track)]"
+      aria-label={dark ? (lang === "hi" ? "हल्की थीम" : "Switch to light theme") : lang === "hi" ? "गहरी थीम" : "Switch to dark theme"}
+      title={dark ? "Light" : "Dark"}
+    >
+      <Icon d={dark ? I.sun : I.moon} className="h-5 w-5" />
+    </button>
+  );
+}
+
+function ThemeRow({ lang }: { lang: Lang }) {
+  const [theme, setTheme] = useTheme();
+  return (
+    <div className="flex items-center gap-3 px-3 py-2 text-[14px] text-[var(--d-ink2)]">
+      <Icon d={theme === "dark" ? I.moon : I.sun} />
+      <span className="sr-only">{lang === "hi" ? "थीम" : "Theme"}</span>
+      <div className="flex rounded-lg border border-[var(--d-border)] p-0.5 text-[13px]" role="group" aria-label="Theme">
+        {(["light", "dark"] as const).map((t) => (
+          <button
+            key={t}
+            type="button"
+            onClick={() => setTheme(t)}
+            aria-pressed={theme === t}
+            className={`rounded-md px-2.5 py-1 ${theme === t ? "bg-[var(--d-ink)] font-semibold text-[var(--d-on-inv)]" : "text-[var(--d-ink2)] hover:bg-[var(--d-page)]"}`}
+          >
+            {t === "light" ? (lang === "hi" ? "हल्की" : "Light") : lang === "hi" ? "गहरी" : "Dark"}
+          </button>
+        ))}
+      </div>
     </div>
   );
 }
@@ -214,27 +276,27 @@ function Bell({ lang }: { lang: Lang }) {
       <button
         type="button"
         onClick={() => setOpen(!open)}
-        className="relative grid h-9 w-9 place-items-center rounded-xl text-[#3A3A40] hover:bg-[#F1F1F3]"
+        className="relative grid h-9 w-9 place-items-center rounded-xl text-[var(--d-ink2)] hover:bg-[var(--d-track)]"
         aria-label={lang === "hi" ? `${n} अलर्ट` : `${n} alerts`}
         aria-expanded={open}
       >
         <Icon d={I.bell} className="h-5 w-5" />
-        {n > 0 && <span className="absolute -right-0.5 -top-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-[#DC2626] px-1 text-[10px] font-bold text-white">{n}</span>}
+        {n > 0 && <span className="absolute -right-0.5 -top-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-[var(--d-danger)] px-1 text-[10px] font-bold text-white">{n}</span>}
       </button>
       {open && (
-        <div className="absolute right-0 top-full z-50 mt-2 w-[min(22rem,90vw)] rounded-2xl border border-[#E6E6E9] bg-white p-2 shadow-lg">
-          <p className="px-2 py-1 text-[11px] font-semibold uppercase tracking-wider text-[#8A8A93]">{lang === "hi" ? "अलर्ट" : "Alerts"}</p>
+        <div className="absolute right-0 top-full z-50 mt-2 w-[min(22rem,90vw)] rounded-2xl border border-[var(--d-border)] bg-[var(--d-card)] p-2 shadow-lg">
+          <p className="px-2 py-1 text-[11px] font-semibold uppercase tracking-wider text-[var(--d-bar-mid)]">{lang === "hi" ? "अलर्ट" : "Alerts"}</p>
           {alerts === null ? (
-            <p className="px-2 py-2 text-[13px] text-[#6B6B75]">{lang === "hi" ? "सर्वर से अलर्ट नहीं मिले।" : "Alerts unavailable (server off)."}</p>
+            <p className="px-2 py-2 text-[13px] text-[var(--d-muted)]">{lang === "hi" ? "सर्वर से अलर्ट नहीं मिले।" : "Alerts unavailable (server off)."}</p>
           ) : (
             <ul className="max-h-80 overflow-y-auto">
               {alerts.map((a) => (
                 <li key={a.id}>
-                  <Link href={`/ghat/${a.ghat.slug}`} onClick={() => setOpen(false)} className="block rounded-xl px-2 py-2 text-[13px] no-underline hover:bg-[#F6F6F7]">
-                    <span className="font-semibold text-[#111113]">{a.ghat.name[lang]}</span>
-                    <span className={`ml-2 text-[11px] font-semibold uppercase ${a.severity === "critical" || a.severity === "high" ? "text-[#DC2626]" : "text-[#B45309]"}`}>{a.severity}</span>
-                    <span className="block text-[#3A3A40]">{a.message[lang]}</span>
-                    <span className="block text-[#6B6B75]">→ {a.action.text[lang]} · {a.deadline.text[lang]}</span>
+                  <Link href={`/ghat/${a.ghat.slug}`} onClick={() => setOpen(false)} className="block rounded-xl px-2 py-2 text-[13px] no-underline hover:bg-[var(--d-page)]">
+                    <span className="font-semibold text-[var(--d-ink)]">{a.ghat.name[lang]}</span>
+                    <span className={`ml-2 text-[11px] font-semibold uppercase ${a.severity === "critical" || a.severity === "high" ? "text-[var(--d-danger)]" : "text-[var(--d-warn-ink)]"}`}>{a.severity}</span>
+                    <span className="block text-[var(--d-ink2)]">{a.message[lang]}</span>
+                    <span className="block text-[var(--d-muted)]">→ {a.action.text[lang]} · {a.deadline.text[lang]}</span>
                   </Link>
                 </li>
               ))}
@@ -253,7 +315,7 @@ export function Shell({ children }: { children: ReactNode }) {
   const cur = ALL.find((it) => isActive(it, path));
   const crumb = path.startsWith("/ghat/") ? path.split("/")[2]?.replace(/-/g, " ") : null;
   return (
-    <div className="flex min-h-screen w-full bg-[#F6F6F7] text-[#111113]">
+    <div className="flex min-h-screen w-full bg-[var(--d-page)] text-[var(--d-ink)]">
       <aside className="sticky top-0 hidden h-screen w-64 shrink-0 lg:block">
         <Sidebar path={path} onNav={() => undefined} />
       </aside>
@@ -266,26 +328,27 @@ export function Shell({ children }: { children: ReactNode }) {
         </div>
       )}
       <div className="flex min-w-0 flex-1 flex-col">
-        <header className="sticky top-0 z-40 flex items-center gap-3 border-b border-[#E6E6E9] bg-white/95 px-4 py-3 backdrop-blur sm:px-6">
-          <button type="button" className="grid h-9 w-9 place-items-center rounded-xl hover:bg-[#F1F1F3] lg:hidden" onClick={() => setDrawer(true)} aria-label="Open menu">
+        <header className="sticky top-0 z-40 flex items-center gap-3 border-b border-[var(--d-border)] bg-[var(--d-card)]/95 px-4 py-3 backdrop-blur sm:px-6">
+          <button type="button" className="grid h-9 w-9 place-items-center rounded-xl hover:bg-[var(--d-track)] lg:hidden" onClick={() => setDrawer(true)} aria-label="Open menu">
             <Icon d={I.menu} className="h-5 w-5" />
           </button>
           <nav aria-label="Breadcrumb" className="hidden items-center gap-2 text-[14px] md:flex">
-            <Link href="/" className="text-[#6B6B75] no-underline hover:text-[#111113]">Ghat Watch</Link>
-            <span className="text-[#9A9AA3]">›</span>
-            <span className="font-semibold capitalize text-[#111113]">{cur?.label[lang] ?? (lang === "hi" ? "पेज" : "Page")}</span>
+            <Link href="/" className="text-[var(--d-muted)] no-underline hover:text-[var(--d-ink)]">Ghat Watch</Link>
+            <span className="text-[var(--d-muted3)]">›</span>
+            <span className="font-semibold capitalize text-[var(--d-ink)]">{cur?.label[lang] ?? (lang === "hi" ? "पेज" : "Page")}</span>
             {crumb && (
               <>
-                <span className="text-[#9A9AA3]">›</span>
-                <span className="font-semibold capitalize text-[#111113]">{crumb}</span>
+                <span className="text-[var(--d-muted3)]">›</span>
+                <span className="font-semibold capitalize text-[var(--d-ink)]">{crumb}</span>
               </>
             )}
           </nav>
           <div className="ml-auto flex flex-1 items-center justify-end gap-2 sm:gap-3">
             <Search lang={lang} />
+            <ThemeButton lang={lang} />
             <Bell lang={lang} />
-            <span className="hidden items-center gap-2 rounded-xl border border-[#E6E6E9] px-2.5 py-1.5 text-[13px] font-semibold sm:flex">
-              <span className="grid h-6 w-6 place-items-center rounded-full bg-[#111113] text-[10px] font-bold text-white">BMC</span>
+            <span className="hidden items-center gap-2 rounded-xl border border-[var(--d-border)] px-2.5 py-1.5 text-[13px] font-semibold sm:flex">
+              <span className="grid h-6 w-6 place-items-center rounded-full bg-[var(--d-ink)] text-[10px] font-bold text-[var(--d-on-inv)]">BMC</span>
               {lang === "hi" ? "BMC अधिकारी" : "BMC Officer"}
             </span>
           </div>

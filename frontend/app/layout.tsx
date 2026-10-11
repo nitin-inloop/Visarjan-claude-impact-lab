@@ -30,7 +30,14 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="en" className={`${inter.variable} ${deva.variable} antialiased`}>
+    <html lang="en" className={`${inter.variable} ${deva.variable} antialiased`} suppressHydrationWarning>
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `try{if(localStorage.getItem("theme")==="dark"&&!location.pathname.startsWith("/lab"))document.documentElement.dataset.theme="dark"}catch(e){}`,
+          }}
+        />
+      </head>
       <body className="min-h-screen flex flex-col">{children}</body>
     </html>
   );

@@ -21,14 +21,14 @@ export function Schematic({ ghats, lang, onOpen }: { ghats: GhatRank[]; lang: La
   const hath = px({ lat: 23.272, lon: 77.495 });
   return (
     <svg viewBox={`0 0 ${W} ${H}`} preserveAspectRatio="xMidYMid meet" className="h-full w-full" role="group" aria-label={hi ? "घाटों का सादा नक्शा" : "Simple map of the ghats"}>
-      <rect width={W} height={H} fill="#F6F6F7" />
+      <rect width={W} height={H} fill="var(--d-page)" />
       <g fill="#DCE4EA" stroke="#B8C4CE" strokeWidth={1}>
         <ellipse cx={(upper[0].x + upper[1].x) / 2} cy={(upper[0].y + upper[1].y) / 2} rx={(upper[1].x - upper[0].x) / 2} ry={(upper[1].y - upper[0].y) / 2} />
         <ellipse cx={(lower[0].x + lower[1].x) / 2} cy={(lower[0].y + lower[1].y) / 2} rx={(lower[1].x - lower[0].x) / 2 + 4} ry={(lower[1].y - lower[0].y) / 2 + 4} />
         <ellipse cx={shah.x} cy={shah.y} rx={9} ry={13} />
         <ellipse cx={hath.x} cy={hath.y} rx={22} ry={11} />
       </g>
-      <g fontSize={12} fill="#6B6B75" fontStyle="italic">
+      <g fontSize={12} fill="var(--d-muted)" fontStyle="italic">
         <text x={(upper[0].x + upper[1].x) / 2 - 10} y={(upper[0].y + upper[1].y) / 2 + 30} textAnchor="middle">
           {hi ? "बड़ा तालाब" : "Upper Lake"}
         </text>
@@ -65,7 +65,7 @@ export function Schematic({ ghats, lang, onOpen }: { ghats: GhatRank[]; lang: La
             <text x={x} y={y + 4.5} fontSize={12} fontWeight={700} fill={m.text} textAnchor="middle">
               {g.rank}
             </text>
-            <text x={x + dx} y={y + dy} fontSize={12} fontWeight={600} fill="#111113" textAnchor={anchor as "start"} paintOrder="stroke" stroke="#F6F6F7" strokeWidth={3}>
+            <text x={x + dx} y={y + dy} fontSize={12} fontWeight={600} fill="var(--d-ink)" textAnchor={anchor as "start"} paintOrder="stroke" stroke="var(--d-page)" strokeWidth={3}>
               {shortGhat(g.name[lang])}
             </text>
           </g>

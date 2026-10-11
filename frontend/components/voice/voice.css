@@ -149,3 +149,15 @@
     transform: scaleY(0.6);
   }
 }
+
+/* Dark dashboard theme */
+:root[data-theme="dark"] .gwv-btn {
+  --vb-ink: #BFDBFE;
+  --vb-bg: #172234;
+  --vb-bd: #2F4A6E;
+  box-shadow: none;
+}
+:root[data-theme="dark"] .gwv-btn:not(.gwv-on):hover {
+  background: #1E2D44;
+  border-color: #3E6191;
+}

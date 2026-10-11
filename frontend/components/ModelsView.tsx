@@ -80,13 +80,13 @@ export function ModelsView({
   return (
     <div className="space-y-5 pb-10 pt-6">
       <header>
-        <h1 className="text-[26px] font-bold leading-tight text-[#111113]">{hi ? "एमएल अंतर्दृष्टि" : "ML Insights"}</h1>
-        <p className="mt-1 text-sm text-[#6B6B75]">
+        <h1 className="text-[26px] font-bold leading-tight text-[var(--d-ink)]">{hi ? "एमएल अंतर्दृष्टि" : "ML Insights"}</h1>
+        <p className="mt-1 text-sm text-[var(--d-muted)]">
           {hi
             ? `विसर्जन के दौरान/बाद में सीमा उल्लंघन का पूर्वानुमान · ${L.n_train} मध्य प्रदेश स्थल-त्योहार रिकॉर्ड (2023–25) पर प्रशिक्षित`
             : `Forecast of limit breach during/after immersion · trained on ${L.n_train} MP site-festival records (2023–25)`}
         </p>
-        <p className="mt-2 inline-flex items-center gap-2 rounded-md border border-dashed border-[#A1A1AA] px-2 py-1 text-xs font-semibold text-[#52525B]">
+        <p className="mt-2 inline-flex items-center gap-2 rounded-md border border-dashed border-[var(--d-muted2)] px-2 py-1 text-xs font-semibold text-[var(--d-ink3)]">
           {hi ? "मॉडल अनुमान, मापन नहीं · रैंकिंग में उपयोग नहीं" : "Model estimate, not a measurement · not used in the ranking"}
         </p>
       </header>
@@ -125,7 +125,7 @@ export function ModelsView({
           <div className="-mx-5 overflow-x-auto px-5">
             <table className="w-full min-w-[480px] text-sm">
               <thead>
-                <tr className="border-b border-[#E6E6E9] text-left text-[11px] font-semibold uppercase tracking-wide text-[#6B6B75]">
+                <tr className="border-b border-[var(--d-border)] text-left text-[11px] font-semibold uppercase tracking-wide text-[var(--d-muted)]">
                   <th className="py-2 pr-3">{hi ? "मॉडल" : "Model"}</th>
                   <th className="py-2 pr-3">CV AUC</th>
                   <th className="py-2 pr-3">{hi ? "2025 AUC" : "2025 AUC"}</th>
@@ -135,9 +135,9 @@ export function ModelsView({
               </thead>
               <tbody>
                 {rows.map((r) => (
-                  <tr key={r.model} className="border-b border-[#F0F0F2] last:border-0">
+                  <tr key={r.model} className="border-b border-[var(--d-subtle)] last:border-0">
                     <td className="py-3 pr-3">
-                      <span className="font-semibold text-[#111113]">{modelName(r.model, lang)}</span>{" "}
+                      <span className="font-semibold text-[var(--d-ink)]">{modelName(r.model, lang)}</span>{" "}
                       {r.model === champ && <Pill tone="neutral">{hi ? "चैंपियन" : "Champion"}</Pill>}
                     </td>
                     <MetricCell v={r.auc_groupkfold} strong={r.model === champ} />
@@ -149,7 +149,7 @@ export function ModelsView({
               </tbody>
             </table>
           </div>
-          <p className="mt-3 text-xs text-[#6B6B75]">
+          <p className="mt-3 text-xs text-[var(--d-muted)]">
             {hi ? "चयन नियम: " : "Selection rule: "}
             {L.selection_rule} {hi ? "Brier: कम बेहतर है।" : "Brier: lower is better."}
           </p>
@@ -157,14 +157,14 @@ export function ModelsView({
 
         <Card className="xl:col-span-2">
           <CardTitle info={method ? (METHOD[method]?.[lang] ?? method) : undefined}>{hi ? "पूर्वानुमान किससे चलता है" : "What drives the forecast"}</CardTitle>
-          <div role="tablist" className="mb-4 inline-flex flex-wrap rounded-lg border border-[#E6E6E9] bg-[#F6F6F7] p-0.5 text-xs">
+          <div role="tablist" className="mb-4 inline-flex flex-wrap rounded-lg border border-[var(--d-border)] bg-[var(--d-page)] p-0.5 text-xs">
             {MODELS.filter((m) => L.importances[m]).map((m) => (
               <button
                 key={m}
                 role="tab"
                 aria-selected={m === model}
                 onClick={() => setTab(m)}
-                className={`rounded-md px-2.5 py-1.5 font-semibold ${m === model ? "bg-white text-[#111113] shadow-sm" : "text-[#6B6B75] hover:text-[#111113]"}`}
+                className={`rounded-md px-2.5 py-1.5 font-semibold ${m === model ? "bg-[var(--d-card)] text-[var(--d-ink)] shadow-sm" : "text-[var(--d-muted)] hover:text-[var(--d-ink)]"}`}
               >
                 {modelName(m, lang)}
               </button>
@@ -173,17 +173,17 @@ export function ModelsView({
           <ul className="space-y-2">
             {imps.map((i) => (
               <li key={i.feature} className="grid grid-cols-[minmax(0,11rem)_1fr_3.2rem] items-center gap-2 text-[13px]">
-                <span className="truncate text-[#3A3A40]" title={i.feature}>
+                <span className="truncate text-[var(--d-ink2)]" title={i.feature}>
                   {featureLabel(i.feature, lang)}
                 </span>
-                <span className="h-2.5 rounded-sm bg-[#F0F0F2]">
-                  <span className="block h-full rounded-sm bg-[#2B2B30]" style={{ width: `${(Math.abs(i.importance) / maxImp) * 100}%` }} />
+                <span className="h-2.5 rounded-sm bg-[var(--d-subtle)]">
+                  <span className="block h-full rounded-sm bg-[var(--d-bar-dark)]" style={{ width: `${(Math.abs(i.importance) / maxImp) * 100}%` }} />
                 </span>
-                <span className="text-right tabular-nums text-[#6B6B75]">{Math.abs(i.importance) < 0.01 ? i.importance.toExponential(1) : i.importance.toFixed(3)}</span>
+                <span className="text-right tabular-nums text-[var(--d-muted)]">{Math.abs(i.importance) < 0.01 ? i.importance.toExponential(1) : i.importance.toFixed(3)}</span>
               </li>
             ))}
           </ul>
-          <p className="mt-3 text-xs text-[#6B6B75]">
+          <p className="mt-3 text-xs text-[var(--d-muted)]">
             {hi
               ? "बार इस मॉडल के अंदर का महत्व दिखाते हैं। मॉडलों के बीच संख्याएं तुलनीय नहीं हैं।"
               : "Bars show importance within this model; numbers are not comparable across models."}
@@ -196,10 +196,10 @@ export function ModelsView({
         <CardTitle
           info={hi ? "गहरी पट्टी = चैंपियन का अनुमान; बिंदु = चारों मॉडल" : "Dark bar = champion estimate; dots = each of the 4 models"}
           right={
-            <ul className="hidden flex-wrap items-center gap-3 text-xs text-[#6B6B75] sm:flex">
+            <ul className="hidden flex-wrap items-center gap-3 text-xs text-[var(--d-muted)] sm:flex">
               {MODELS.map((m) => (
                 <li key={m} className="flex items-center gap-1.5">
-                  <span className="h-2.5 w-2.5 rounded-full border border-white ring-1 ring-[#9A9AA3]" style={{ background: MODEL_SHADE[m] }} />
+                  <span className="h-2.5 w-2.5 rounded-full border border-white ring-1 ring-[var(--d-muted3)]" style={{ background: MODEL_SHADE[m] }} />
                   {modelName(m, lang)}
                 </li>
               ))}
@@ -208,8 +208,8 @@ export function ModelsView({
         >
           {hi ? "घाट-वार पूर्वानुमान" : "Per-ghat forecast"}
         </CardTitle>
-        {ghats.length === 0 && <p className="text-sm text-[#6B6B75]">{hi ? "रैंकिंग डेटा उपलब्ध नहीं।" : "Ranking data not available."}</p>}
-        <ul className="divide-y divide-[#F0F0F2]">
+        {ghats.length === 0 && <p className="text-sm text-[var(--d-muted)]">{hi ? "रैंकिंग डेटा उपलब्ध नहीं।" : "Ranking data not available."}</p>}
+        <ul className="divide-y divide-[var(--d-subtle)]">
           {ghats.map((g) => {
             const f = g.forecast;
             const ok = f?.available && typeof f.p_breach === "number";
@@ -217,9 +217,9 @@ export function ModelsView({
             return (
               <li key={g.slug} className="grid grid-cols-1 gap-2 py-3 md:grid-cols-[15rem_1fr_4rem] md:items-center md:gap-4">
                 <div className="min-w-0">
-                  <p className="flex items-center gap-2 text-sm font-semibold text-[#111113]">
-                    <span className="tabular-nums text-[#6B6B75]">{g.rank}.</span>
-                    <Link href={`/ghat/${g.slug}`} className="truncate text-[#111113] hover:underline">
+                  <p className="flex items-center gap-2 text-sm font-semibold text-[var(--d-ink)]">
+                    <span className="tabular-nums text-[var(--d-muted)]">{g.rank}.</span>
+                    <Link href={`/ghat/${g.slug}`} className="truncate text-[var(--d-ink)] hover:underline">
                       {g.name[lang]}
                     </Link>
                   </p>
@@ -230,22 +230,22 @@ export function ModelsView({
                 {ok ? (
                   <div className="min-w-0">
                     <AgreementBar p={f.p_breach as number} models={f.models ?? {}} lang={lang} />
-                    <p className="mt-1.5 text-xs text-[#6B6B75]">
+                    <p className="mt-1.5 text-xs text-[var(--d-muted)]">
                       {basisText(g)}
                       {reason && <> · {reason}</>}
                     </p>
                   </div>
                 ) : (
-                  <p className="rounded-md border border-dashed border-[#A1A1AA] px-2 py-1.5 text-xs text-[#52525B]">
+                  <p className="rounded-md border border-dashed border-[var(--d-muted2)] px-2 py-1.5 text-xs text-[var(--d-ink3)]">
                     {hi ? "पूर्वानुमान नहीं: विसर्जन-पूर्व रीडिंग नहीं है।" : "No forecast: no pre-immersion reading to base it on."}
                   </p>
                 )}
-                <p className="text-right text-xl font-bold tabular-nums text-[#111113]">{ok ? pct(f.p_breach as number) : "—"}</p>
+                <p className="text-right text-xl font-bold tabular-nums text-[var(--d-ink)]">{ok ? pct(f.p_breach as number) : "—"}</p>
               </li>
             );
           })}
         </ul>
-        <p className="mt-2 text-xs text-[#6B6B75]">
+        <p className="mt-2 text-xs text-[var(--d-muted)]">
           {hi
             ? "p(उल्लंघन) = मॉडल का अनुमान कि विसर्जन के दौरान या एक सप्ताह बाद सीमा टूटेगी। यह मापन नहीं है।"
             : "p(breach) = the model's estimate that a limit is broken during or one week after immersion. It is not a measurement."}
@@ -254,7 +254,7 @@ export function ModelsView({
 
       <Card>
         <CardTitle>{hi ? "इसे कैसे पढ़ें" : "How to read this"}</CardTitle>
-        <ul className="list-disc space-y-2 pl-5 text-sm leading-relaxed text-[#3A3A40]">
+        <ul className="list-disc space-y-2 pl-5 text-sm leading-relaxed text-[var(--d-ink2)]">
           {pMin !== null && pMax !== null && (
             <li>
               {hi
@@ -285,7 +285,7 @@ export function ModelsView({
                 : `${pct(L.positive_rate)} of the ${L.n_train} training records breached, so the base rate is already high.`}
             </li>
           )}
-          {L.caveat && <li className="font-semibold text-[#111113]">{L.caveat[lang]}</li>}
+          {L.caveat && <li className="font-semibold text-[var(--d-ink)]">{L.caveat[lang]}</li>}
         </ul>
       </Card>
     </div>
@@ -297,9 +297,9 @@ function MetricCell({ v, strong, max = 1 }: { v: number | undefined; strong: boo
   return (
     <td className="py-3 pr-3">
       <div className="flex items-center gap-2">
-        <span className={`w-11 tabular-nums ${strong ? "font-bold text-[#111113]" : "text-[#3A3A40]"}`}>{f3(v)}</span>
-        <span className="hidden h-1.5 w-12 rounded-sm bg-[#F0F0F2] sm:block">
-          <span className={`block h-full rounded-sm ${strong ? "bg-[#2B2B30]" : "bg-[#8A8A93]"}`} style={{ width: `${w}%` }} />
+        <span className={`w-11 tabular-nums ${strong ? "font-bold text-[var(--d-ink)]" : "text-[var(--d-ink2)]"}`}>{f3(v)}</span>
+        <span className="hidden h-1.5 w-12 rounded-sm bg-[var(--d-subtle)] sm:block">
+          <span className={`block h-full rounded-sm ${strong ? "bg-[var(--d-bar-dark)]" : "bg-[var(--d-bar-mid)]"}`} style={{ width: `${w}%` }} />
         </span>
       </div>
     </td>
@@ -309,17 +309,17 @@ function MetricCell({ v, strong, max = 1 }: { v: number | undefined; strong: boo
 function AgreementBar({ p, models, lang }: { p: number; models: Record<string, number>; lang: Lang }) {
   return (
     <div className="relative h-5" role="img" aria-label={`${modelName("random_forest", lang)} ${pct(p)}; ${Object.entries(models).map(([m, v]) => `${modelName(m, lang)} ${pct(v)}`).join(", ")}`}>
-      <div className="absolute inset-x-0 top-1/2 h-2.5 -translate-y-1/2 rounded-sm bg-[#F0F0F2]">
-        <div className="h-full rounded-sm bg-[#2B2B30]" style={{ width: `${p * 100}%` }} />
+      <div className="absolute inset-x-0 top-1/2 h-2.5 -translate-y-1/2 rounded-sm bg-[var(--d-subtle)]">
+        <div className="h-full rounded-sm bg-[var(--d-bar-dark)]" style={{ width: `${p * 100}%` }} />
       </div>
       {[0.25, 0.5, 0.75].map((t) => (
-        <span key={t} className="absolute top-0 h-5 w-px bg-[#E6E6E9]" style={{ left: `${t * 100}%` }} aria-hidden />
+        <span key={t} className="absolute top-0 h-5 w-px bg-[var(--d-border)]" style={{ left: `${t * 100}%` }} aria-hidden />
       ))}
       {MODELS.filter((m) => typeof models[m] === "number").map((m) => (
         <span
           key={m}
           title={`${modelName(m, lang)}: ${pct(models[m])}`}
-          className="absolute top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white ring-1 ring-[#9A9AA3]"
+          className="absolute top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white ring-1 ring-[var(--d-muted3)]"
           style={{ left: `${models[m] * 100}%`, background: MODEL_SHADE[m] }}
         />
       ))}

@@ -13,7 +13,7 @@ import { Schematic } from "./Schematic";
 
 const GhatMapLeaflet = dynamic(() => import("./GhatMapLeaflet"), {
   ssr: false,
-  loading: () => <div className="grid h-full w-full place-items-center text-sm text-[#6B6B75]">…</div>,
+  loading: () => <div className="grid h-full w-full place-items-center text-sm text-[var(--d-muted)]">…</div>,
 });
 
 function subOnline(cb: () => void) {
@@ -46,42 +46,42 @@ export function GhatMap({ ghats, lang, height = 420, focus }: { ghats: GhatRank[
 
   return (
     <div className="w-full">
-      <div className="relative overflow-hidden rounded-xl border border-[#E6E6E9] bg-[#F6F6F7]" style={{ height }}>
+      <div className="relative overflow-hidden rounded-xl border border-[var(--d-border)] bg-[var(--d-page)]" style={{ height }}>
         {real ? (
           <GhatMapLeaflet ghats={ghats} lang={lang} layer={layer} height={height} focus={focus} onOpen={open} onFail={onFail} />
         ) : (
           <Schematic ghats={ghats} lang={lang} onOpen={open} />
         )}
         <div className="pointer-events-none absolute right-3 top-3 z-[500] flex flex-col items-end gap-1.5">
-          <div role="radiogroup" aria-label={hi ? "नक्शे की परत" : "Map layer"} className="pointer-events-auto inline-flex rounded-lg border border-[#E6E6E9] bg-white p-0.5 text-xs shadow-sm">
+          <div role="radiogroup" aria-label={hi ? "नक्शे की परत" : "Map layer"} className="pointer-events-auto inline-flex rounded-lg border border-[var(--d-border)] bg-[var(--d-card)] p-0.5 text-xs shadow-sm">
             {(["map", "satellite"] as Layer[]).map((l) => (
               <button
                 key={l}
                 role="radio"
                 aria-checked={layer === l}
                 onClick={() => setLayer(l)}
-                className={`rounded-md px-3 py-1.5 font-semibold ${layer === l ? "bg-[#111113] text-white" : "text-[#3A3A40] hover:bg-[#F4F4F5]"}`}
+                className={`rounded-md px-3 py-1.5 font-semibold ${layer === l ? "bg-[var(--d-ink)] text-[var(--d-on-inv)]" : "text-[var(--d-ink2)] hover:bg-[var(--d-subtle2)]"}`}
               >
                 {l === "map" ? (hi ? "नक्शा" : "Map") : hi ? "सैटेलाइट" : "Satellite"}
               </button>
             ))}
           </div>
-          <span className="rounded bg-white/90 px-1.5 py-0.5 text-[10px] font-medium text-[#6B6B75]">{source}</span>
+          <span className="rounded bg-[var(--d-card)]/90 px-1.5 py-0.5 text-[10px] font-medium text-[var(--d-muted)]">{source}</span>
         </div>
         {!real && (
-          <p className="absolute bottom-2 left-3 z-[500] rounded bg-white/90 px-2 py-1 text-xs text-[#52525B]">
+          <p className="absolute bottom-2 left-3 z-[500] rounded bg-[var(--d-card)]/90 px-2 py-1 text-xs text-[var(--d-ink3)]">
             {hi ? "इंटरनेट नक्शा नहीं खुला, इसलिए सादा चित्र दिखाया है।" : "Map tiles did not load, so a simple drawing is shown."}
           </p>
         )}
       </div>
-      <div className="mt-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5 text-xs text-[#6B6B75]">
+      <div className="mt-2 flex flex-wrap items-center justify-between gap-x-4 gap-y-1.5 text-xs text-[var(--d-muted)]">
         <ul className="flex flex-wrap items-center gap-x-4 gap-y-1.5" aria-label={hi ? "रंगों का मतलब" : "What the colours mean"}>
           {LEGEND_TIERS.map((t) => {
             const m = MARK[t];
             return (
               <li key={t} className="flex items-center gap-1.5">
                 <span aria-hidden className="inline-block h-3 w-3 rounded-full" style={{ background: m.fill, border: m.dashed ? `1.5px dashed ${m.border}` : undefined }} />
-                <span className="font-medium text-[#3A3A40]">{m.word[lang]}</span>
+                <span className="font-medium text-[var(--d-ink2)]">{m.word[lang]}</span>
               </li>
             );
           })}

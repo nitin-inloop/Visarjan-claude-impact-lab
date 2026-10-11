@@ -4,7 +4,7 @@
 // Mapbox (streets / satellite-streets) when NEXT_PUBLIC_MAPBOX_TOKEN is set, else OpenStreetMap / Esri World Imagery.
 // The token is read from the environment only; never hard-coded.
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { GHAT_GEO } from "@/lib/ghatGeo";
@@ -16,9 +16,22 @@ const MB_ATTR = '© <a href="https://www.mapbox.com/about/maps/" target="_blank"
 const OSM_ATTR = '© <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a> contributors';
 const ESRI_ATTR = "Imagery © Esri, Maxar, Earthstar Geographics, and the GIS User Community · Labels © Esri";
 
-function makeLayers(kind: Layer): L.TileLayer[] {
+function useDarkTheme(): boolean {
+  const [dark, setDark] = useState(false);
+  useEffect(() => {
+    const el = document.documentElement;
+    const read = () => setDark(el.dataset.theme === "dark");
+    read();
+    const mo = new MutationObserver(read);
+    mo.observe(el, { attributes: true, attributeFilter: ["data-theme"] });
+    return () => mo.disconnect();
+  }, []);
+  return dark;
+}
+
+function makeLayers(kind: Layer, dark = false): L.TileLayer[] {
   if (HAS_MAPBOX) {
-    const style = kind === "map" ? "streets-v12" : "satellite-streets-v12";
+    const style = kind === "map" ? (dark ? "dark-v11" : "streets-v12") : "satellite-streets-v12";
     return [
       L.tileLayer(`https://api.mapbox.com/styles/v1/mapbox/${style}/tiles/256/{z}/{x}/{y}?access_token=${encodeURIComponent(TOKEN.trim())}`, {
         attribution: MB_ATTR,
@@ -27,6 +40,8 @@ function makeLayers(kind: Layer): L.TileLayer[] {
       }),
     ];
   }
+  // No Mapbox token: CARTO dark now needs a key, so dark mode reuses OSM tiles with an inverting CSS filter (gm-dark).
+  if (kind === "map" && dark) return [L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: OSM_ATTR, maxZoom: 19, className: "gm-dark-tiles" })];
   if (kind === "map") return [L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { attribution: OSM_ATTR, maxZoom: 19 })];
   return [
     L.tileLayer("https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}", { attribution: ESRI_ATTR, maxZoom: 19 }),
@@ -88,6 +103,7 @@ export default function GhatMapLeaflet({
   const markers = useRef<L.LayerGroup | null>(null);
   const byslug = useRef<Record<string, L.Marker>>({});
   const tiles = useRef<L.TileLayer[]>([]);
+  const dark = useDarkTheme();
   const openRef = useRef(onOpen);
   const failRef = useRef(onFail);
   useEffect(() => {
@@ -125,7 +141,7 @@ export default function GhatMapLeaflet({
     const m = map.current;
     if (!m) return;
     tiles.current.forEach((t) => t.remove());
-    const ls = makeLayers(layer);
+    const ls = makeLayers(layer, dark);
     tiles.current = ls;
     let loaded = false;
     let errors = 0;
@@ -143,7 +159,7 @@ export default function GhatMapLeaflet({
       if (!loaded) failRef.current();
     }, 9000);
     return () => clearTimeout(watchdog);
-  }, [layer]);
+  }, [layer, dark]);
 
   // markers
   useEffect(() => {
@@ -188,7 +204,7 @@ export default function GhatMapLeaflet({
 
   return (
     <>
-      <style>{`.gm-nolabels .gm-lbl{display:none}.gm-mk{position:relative}.gm-map.leaflet-container{font:inherit;background:#EEF0F2}.gm-map .leaflet-control-attribution{font-size:10px}`}</style>
+      <style>{`.gm-nolabels .gm-lbl{display:none}.gm-mk{position:relative}.gm-map.leaflet-container{font:inherit;background:#EEF0F2}:root[data-theme="dark"] .gm-map.leaflet-container{background:#1A1A1E}.gm-dark-tiles{filter:invert(1) hue-rotate(180deg) brightness(0.85) contrast(0.9) saturate(0.6)}.gm-map .leaflet-control-attribution{font-size:10px}`}</style>
       <div ref={el} className="gm-map w-full" style={{ height }} />
     </>
   );

@@ -30,8 +30,8 @@ export function MapView({ initial }: { initial: Ranking | null }) {
   return (
     <div className="space-y-5 pb-10 pt-6">
       <header>
-        <h1 className="text-[26px] font-bold leading-tight text-[#111113]">{hi ? "नक्शा" : "Map"}</h1>
-        <p className="mt-1 text-sm text-[#6B6B75]">
+        <h1 className="text-[26px] font-bold leading-tight text-[var(--d-ink)]">{hi ? "नक्शा" : "Map"}</h1>
+        <p className="mt-1 text-sm text-[var(--d-muted)]">
           {hi
             ? `भोपाल के ${ghats.length} विसर्जन घाट, प्राथमिकता क्रम और स्थिति के साथ · जगहें अनुमानित हैं`
             : `${ghats.length} Bhopal immersion ghats with priority rank and status · places are approximate`}
@@ -43,7 +43,7 @@ export function MapView({ initial }: { initial: Ranking | null }) {
         </Card>
         <Card className="xl:max-h-[720px] xl:overflow-y-auto">
           <CardTitle>{hi ? "घाट" : "Ghats"}</CardTitle>
-          <ul className="divide-y divide-[#F0F0F2]">
+          <ul className="divide-y divide-[var(--d-subtle)]">
             {ghats.map((g) => {
               const m = MARK[g.tier];
               const k = keyReading(g, lang);
@@ -53,7 +53,7 @@ export function MapView({ initial }: { initial: Ranking | null }) {
                   <button
                     onClick={() => setFocus(g.slug)}
                     aria-pressed={active}
-                    className={`flex w-full items-start gap-3 rounded-lg px-2 py-2.5 text-left ${active ? "bg-[#F4F4F5]" : "hover:bg-[#F8F8F9]"}`}
+                    className={`flex w-full items-start gap-3 rounded-lg px-2 py-2.5 text-left ${active ? "bg-[var(--d-subtle2)]" : "hover:bg-[var(--d-subtle4)]"}`}
                   >
                     <span
                       aria-hidden
@@ -63,15 +63,15 @@ export function MapView({ initial }: { initial: Ranking | null }) {
                       {g.rank}
                     </span>
                     <span className="min-w-0">
-                      <span className="block text-sm font-semibold text-[#111113]">{shortGhat(g.name[lang])}</span>
-                      <span className="block text-xs font-medium text-[#3A3A40]">{m.word[lang]}</span>
-                      <span className="mt-0.5 block text-xs text-[#6B6B75]">
+                      <span className="block text-sm font-semibold text-[var(--d-ink)]">{shortGhat(g.name[lang])}</span>
+                      <span className="block text-xs font-medium text-[var(--d-ink2)]">{m.word[lang]}</span>
+                      <span className="mt-0.5 block text-xs text-[var(--d-muted)]">
                         {k.line}
                         {k.source && <> · {k.source}</>}
                       </span>
                     </span>
                   </button>
-                  <Link href={`/ghat/${g.slug}`} className="mb-2 ml-11 inline-block text-xs font-semibold text-[#111113] hover:underline">
+                  <Link href={`/ghat/${g.slug}`} className="mb-2 ml-11 inline-block text-xs font-semibold text-[var(--d-ink)] hover:underline">
                     {hi ? "विवरण →" : "Details →"}
                   </Link>
                 </li>

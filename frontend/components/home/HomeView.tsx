@@ -103,14 +103,14 @@ function BreachChart({ details, param, lang }: { details: GhatDetail[]; param: P
     <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" role="img" aria-label={lang === "hi" ? "हर त्योहार चरण में सीमा उल्लंघन" : "Limit breaches at each festival phase"}>
       <defs>
         <pattern id="hatch" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
-          <rect width="5" height="5" fill="#F1F1F3" />
-          <line x1="0" y1="0" x2="0" y2="5" stroke="#C9C9CF" strokeWidth="2" />
+          <rect width="5" height="5" fill="var(--d-track)" />
+          <line x1="0" y1="0" x2="0" y2="5" stroke="var(--d-bar-light)" strokeWidth="2" />
         </pattern>
       </defs>
       {[0, 2, 4, 6, 7].map((v) => (
         <g key={v}>
-          <line x1={L} x2={W} y1={H - B - y(v)} y2={H - B - y(v)} stroke="#EFEFF1" />
-          <text x={L - 8} y={H - B - y(v) + 4} textAnchor="end" fontSize="11" fill="#8A8A93">{v}</text>
+          <line x1={L} x2={W} y1={H - B - y(v)} y2={H - B - y(v)} stroke="var(--d-hover)" />
+          <text x={L - 8} y={H - B - y(v) + 4} textAnchor="end" fontSize="11" fill="var(--d-bar-mid)">{v}</text>
         </g>
       ))}
       {data.map((d, i) => {
@@ -118,8 +118,8 @@ function BreachChart({ details, param, lang }: { details: GhatDetail[]; param: P
         const w = cw * 0.56;
         let base = H - B;
         const segs = [
-          { v: d.breach, fill: "#2B2B30", name: lang === "hi" ? "उल्लंघन" : "breach" },
-          { v: d.ok, fill: "#8A8A93", name: lang === "hi" ? "सीमा में" : "within limit" },
+          { v: d.breach, fill: "var(--d-bar-dark)", name: lang === "hi" ? "उल्लंघन" : "breach" },
+          { v: d.ok, fill: "var(--d-bar-mid)", name: lang === "hi" ? "सीमा में" : "within limit" },
           { v: d.missing, fill: "url(#hatch)", name: lang === "hi" ? "जांच नहीं" : "not tested" },
         ];
         return (
@@ -131,15 +131,15 @@ function BreachChart({ details, param, lang }: { details: GhatDetail[]; param: P
               base -= h;
               return <rect key={j} x={x} y={base} width={w} height={Math.max(0, h - 1)} rx={2} fill={s.fill} />;
             })}
-            <text x={x + w / 2} y={H - B + 14} textAnchor="middle" fontSize="10" fill="#8A8A93">
+            <text x={x + w / 2} y={H - B + 14} textAnchor="middle" fontSize="10" fill="var(--d-bar-mid)">
               {(lang === "hi" ? { pre: "पहले", during: "दौरान", after: "बाद" } : { pre: "pre", during: "dur", after: "aft" })[d.label.split(" ")[2] as "pre" | "during" | "after"]}
             </text>
             {i % 3 === 0 && (
-              <text x={L + (i + 1.5) * cw} y={H - B + 32} textAnchor="middle" fontSize="11" fontWeight="600" fill="#3A3A40">
+              <text x={L + (i + 1.5) * cw} y={H - B + 32} textAnchor="middle" fontSize="11" fontWeight="600" fill="var(--d-ink2)">
                 {`${d.label.split(" ")[0] === "Ganesh" ? (lang === "hi" ? "गणेश" : "Ganesh") : lang === "hi" ? "दुर्गा" : "Durga"} ${d.label.split(" ")[1]}`}
               </text>
             )}
-            {i % 3 === 0 && i > 0 && <line x1={L + i * cw} x2={L + i * cw} y1={T} y2={H - B + 36} stroke="#EFEFF1" />}
+            {i % 3 === 0 && i > 0 && <line x1={L + i * cw} x2={L + i * cw} y1={T} y2={H - B + 36} stroke="var(--d-hover)" />}
           </g>
         );
       })}
@@ -149,12 +149,12 @@ function BreachChart({ details, param, lang }: { details: GhatDetail[]; param: P
 
 function Legend({ lang }: { lang: Lang }) {
   const items = [
-    { c: "bg-[#2B2B30]", t: lang === "hi" ? "उल्लंघन" : "Breach" },
-    { c: "bg-[#8A8A93]", t: lang === "hi" ? "सीमा में" : "Within limit" },
-    { c: "border border-dashed border-[#A1A1AA] bg-[#F1F1F3]", t: lang === "hi" ? "जांच नहीं हुई" : "Not tested" },
+    { c: "bg-[var(--d-bar-dark)]", t: lang === "hi" ? "उल्लंघन" : "Breach" },
+    { c: "bg-[var(--d-bar-mid)]", t: lang === "hi" ? "सीमा में" : "Within limit" },
+    { c: "border border-dashed border-[var(--d-muted2)] bg-[var(--d-track)]", t: lang === "hi" ? "जांच नहीं हुई" : "Not tested" },
   ];
   return (
-    <div className="flex flex-wrap items-center gap-4 text-[13px] text-[#3A3A40]">
+    <div className="flex flex-wrap items-center gap-4 text-[13px] text-[var(--d-ink2)]">
       {items.map((i) => (
         <span key={i.t} className="inline-flex items-center gap-1.5">
           <span className={`h-2.5 w-2.5 rounded-full ${i.c}`} />
@@ -216,13 +216,13 @@ export function HomeView({ initial }: { initial: Ranking | null }) {
     <div className="mx-auto max-w-[1400px] space-y-6">
       <div className="flex flex-wrap items-end justify-between gap-4">
         <div>
-          <h1 className="text-[26px] font-bold tracking-tight text-[#111113]">{hi ? "दुर्गा विसर्जन की तैयारी" : "Durga Visarjan readiness"}</h1>
-          <p className="mt-1 text-[14px] text-[#6B6B75]">
+          <h1 className="text-[26px] font-bold tracking-tight text-[var(--d-ink)]">{hi ? "दुर्गा विसर्जन की तैयारी" : "Durga Visarjan readiness"}</h1>
+          <p className="mt-1 text-[14px] text-[var(--d-muted)]">
             {hi ? "स्वागत है, अधिकारी · डेटा: MPPCB रिपोर्ट 2023–2025" : "Welcome back, Officer · data: MPPCB reports 2023–2025"}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
-          <span className="rounded-xl border border-[#E6E6E9] bg-white px-3 py-2 text-[14px] font-medium text-[#111113]" suppressHydrationWarning>
+          <span className="rounded-xl border border-[var(--d-border)] bg-[var(--d-card)] px-3 py-2 text-[14px] font-medium text-[var(--d-ink)]" suppressHydrationWarning>
             {hi ? "20 अक्टूबर 2026" : "20 Oct 2026"}
             {days !== null && ` · ${days} ${hi ? "दिन बाकी" : "days left"}`}
           </span>
@@ -230,19 +230,19 @@ export function HomeView({ initial }: { initial: Ranking | null }) {
             type="button"
             onClick={() => exportCsv(ghats)}
             disabled={!ghats.length}
-            className="inline-flex items-center gap-2 rounded-xl border border-[#E6E6E9] bg-white px-3 py-2 text-[14px] font-medium text-[#111113] hover:bg-[#F6F6F7]"
+            className="inline-flex items-center gap-2 rounded-xl border border-[var(--d-border)] bg-[var(--d-card)] px-3 py-2 text-[14px] font-medium text-[var(--d-ink)] hover:bg-[var(--d-page)]"
           >
             <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" aria-hidden><path d="M12 4v11M7.5 10.5 12 15l4.5-4.5M4 19h16" /></svg>
             {hi ? "CSV निर्यात" : "Export CSV"}
           </button>
-          <Link href="/brief" className="inline-flex items-center gap-2 rounded-xl bg-[#111113] px-3 py-2 text-[14px] font-medium text-white no-underline hover:bg-[#2B2B30]">
+          <Link href="/brief" className="inline-flex items-center gap-2 rounded-xl bg-[var(--d-ink)] px-3 py-2 text-[14px] font-medium text-[var(--d-on-inv)] no-underline hover:bg-[var(--d-bar-dark)]">
             {hi ? "ब्रीफ डाउनलोड करें" : "Download brief"}
           </Link>
         </div>
       </div>
 
       {src === "static" && (
-        <p className="text-[13px] text-[#6B6B75]" role="status">{hi ? "सर्वर बंद है। सहेजी हुई सूची दिखा रहे हैं।" : "Server is off. Showing the saved list."}</p>
+        <p className="text-[13px] text-[var(--d-muted)]" role="status">{hi ? "सर्वर बंद है। सहेजी हुई सूची दिखा रहे हैं।" : "Server is off. Showing the saved list."}</p>
       )}
       <UserDataBadge ranking={ranking} />
 
@@ -280,7 +280,7 @@ export function HomeView({ initial }: { initial: Ranking | null }) {
         />
       </div>
       {s && (
-        <p className="-mt-3 text-[12px] text-[#6B6B75]">
+        <p className="-mt-3 text-[12px] text-[var(--d-muted)]">
           {hi
             ? "CPCB श्रेणी B: DO ≥ 5 mg/l, BOD ≤ 3 mg/l, pH 6.5–8.5। छोटे बार: हर त्योहार-वर्ष के उल्लंघन। हर संख्या का स्रोत नीचे तालिका में पृष्ठ लिंक है।"
             : "CPCB class B: DO ≥ 5 mg/l, BOD ≤ 3 mg/l, pH 6.5–8.5. Mini bars: breaches per festival-year. Every reading links to its report page in the table below."}
@@ -289,10 +289,45 @@ export function HomeView({ initial }: { initial: Ranking | null }) {
 
       <div className="grid gap-4 xl:grid-cols-3">
         <Card className="xl:col-span-2">
+          <CardTitle right={<Link href="/map" className="text-[13px] font-medium text-[var(--d-ink2)] no-underline hover:underline">{hi ? "पूरा नक्शा ›" : "Full map ›"}</Link>}>
+            {hi ? "घाट नक्शा" : "Ghat map"}
+          </CardTitle>
+          {ghats.length > 0 && <GhatMap ghats={ghats} lang={lang} height={440} />}
+        </Card>
+
+        <Card>
+          <CardTitle info={hi ? "मॉडल अनुमान, मापन नहीं" : "Model estimate, not a measurement"}>{hi ? "उल्लंघन पूर्वानुमान" : "Breach forecast"}</CardTitle>
+          <p className="text-[13px] text-[var(--d-muted)]">{hi ? "चैंपियन मॉडल p(उल्लंघन)" : "Champion model p(breach)"}</p>
+          <p className="text-[12px] font-medium text-[var(--d-warn-ink)]">{hi ? "मॉडल अनुमान, मापन नहीं" : "Model estimate, not a measurement"}</p>
+          <Link href="/models" className="mt-3 flex items-center justify-between rounded-xl bg-[var(--d-page)] px-3 py-2.5 text-[13px] font-semibold text-[var(--d-ink)] no-underline hover:bg-[var(--d-hover)]">
+            <span>✦ {hi ? "ML अंतर्दृष्टि देखें" : "See ML insights"}</span>
+            <span aria-hidden>›</span>
+          </Link>
+          <ul className="mt-4 space-y-3">
+            {ghats.map((g) => {
+              const p = g.forecast?.available ? g.forecast.p_breach : undefined;
+              return (
+                <li key={g.slug}>
+                  <div className="flex items-baseline justify-between text-[13px]">
+                    <Link href={`/ghat/${g.slug}`} className="text-[var(--d-ink)] no-underline hover:underline">{g.name[lang]}</Link>
+                    <span className="tabular-nums font-semibold text-[var(--d-ink)]">{typeof p === "number" ? `${Math.round(p * 100)}%` : hi ? "उपलब्ध नहीं" : "n/a"}</span>
+                  </div>
+                  <div className="mt-1 h-2 rounded-full bg-[var(--d-track)]">
+                    {typeof p === "number" && <div className="h-2 rounded-full bg-[var(--d-bar-dark)]" style={{ width: `${Math.round(p * 100)}%` }} />}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </Card>
+      </div>
+
+      <div className="grid gap-4 xl:grid-cols-3">
+        <Card className="xl:col-span-2">
           <CardTitle
             info={hi ? "7 घाटों की गिनती, हर त्योहार चरण पर" : "Count over the 7 ghats at each festival phase"}
             right={
-              <div className="flex rounded-xl border border-[#E6E6E9] bg-[#F6F6F7] p-0.5 text-[13px]" role="tablist">
+              <div className="flex rounded-xl border border-[var(--d-border)] bg-[var(--d-page)] p-0.5 text-[13px]" role="tablist">
                 {(["DO", "BOD", "pH"] as Param[]).map((p) => (
                   <button
                     key={p}
@@ -300,7 +335,7 @@ export function HomeView({ initial }: { initial: Ranking | null }) {
                     role="tab"
                     aria-selected={param === p}
                     onClick={() => setParam(p)}
-                    className={`rounded-lg px-3 py-1 ${param === p ? "bg-white font-semibold text-[#111113] shadow-sm" : "text-[#6B6B75]"}`}
+                    className={`rounded-lg px-3 py-1 ${param === p ? "bg-[var(--d-card)] font-semibold text-[var(--d-ink)] shadow-sm" : "text-[var(--d-muted)]"}`}
                   >
                     {p}
                   </button>
@@ -312,8 +347,8 @@ export function HomeView({ initial }: { initial: Ranking | null }) {
           </CardTitle>
           <div className="mb-3 flex flex-wrap items-end justify-between gap-3">
             <div>
-              <p className="text-[13px] text-[#6B6B75]">{hi ? "सीमा" : "Limit"}</p>
-              <p className="text-[22px] font-bold text-[#111113]">
+              <p className="text-[13px] text-[var(--d-muted)]">{hi ? "सीमा" : "Limit"}</p>
+              <p className="text-[22px] font-bold text-[var(--d-ink)]">
                 {param === "DO" ? "DO ≥ 5 mg/l" : param === "BOD" ? "BOD ≤ 3 mg/l" : "pH 6.5–8.5"}
               </p>
             </div>
@@ -322,67 +357,32 @@ export function HomeView({ initial }: { initial: Ranking | null }) {
           {details.length ? (
             <>
               <BreachChart details={details} param={param} lang={lang} />
-              <p className="mt-2 text-[12px] text-[#6B6B75]">
+              <p className="mt-2 text-[12px] text-[var(--d-muted)]">
                 {hi
                   ? "हर बार = 7 घाट, एक त्योहार चरण (पहले/दौरान/बाद)। धारीदार = जांच नहीं हुई, साफ़ नहीं माना गया। हर नंबर का पेज घाट विवरण में है।"
                   : "Each bar = the 7 ghats at one festival phase (pre/during/after). Hatched = not tested, never counted as clean. Each reading's report page is on the ghat page."}
               </p>
             </>
           ) : (
-            <p className="py-16 text-center text-[14px] text-[#6B6B75]">{hi ? "लोड हो रहा है…" : "Loading…"}</p>
+            <p className="py-16 text-center text-[14px] text-[var(--d-muted)]">{hi ? "लोड हो रहा है…" : "Loading…"}</p>
           )}
         </Card>
-
-        <Card>
-          <CardTitle info={hi ? "मॉडल अनुमान, मापन नहीं" : "Model estimate, not a measurement"}>{hi ? "उल्लंघन पूर्वानुमान" : "Breach forecast"}</CardTitle>
-          <p className="text-[13px] text-[#6B6B75]">{hi ? "चैंपियन मॉडल p(उल्लंघन)" : "Champion model p(breach)"}</p>
-          <p className="text-[12px] font-medium text-[#B45309]">{hi ? "मॉडल अनुमान, मापन नहीं" : "Model estimate, not a measurement"}</p>
-          <Link href="/models" className="mt-3 flex items-center justify-between rounded-xl bg-[#F6F6F7] px-3 py-2.5 text-[13px] font-semibold text-[#111113] no-underline hover:bg-[#EFEFF1]">
-            <span>✦ {hi ? "ML अंतर्दृष्टि देखें" : "See ML insights"}</span>
-            <span aria-hidden>›</span>
-          </Link>
-          <ul className="mt-4 space-y-3">
-            {ghats.map((g) => {
-              const p = g.forecast?.available ? g.forecast.p_breach : undefined;
-              return (
-                <li key={g.slug}>
-                  <div className="flex items-baseline justify-between text-[13px]">
-                    <Link href={`/ghat/${g.slug}`} className="text-[#111113] no-underline hover:underline">{g.name[lang]}</Link>
-                    <span className="tabular-nums font-semibold text-[#111113]">{typeof p === "number" ? `${Math.round(p * 100)}%` : hi ? "उपलब्ध नहीं" : "n/a"}</span>
-                  </div>
-                  <div className="mt-1 h-2 rounded-full bg-[#F1F1F3]">
-                    {typeof p === "number" && <div className="h-2 rounded-full bg-[#2B2B30]" style={{ width: `${Math.round(p * 100)}%` }} />}
-                  </div>
-                </li>
-              );
-            })}
-          </ul>
-        </Card>
-      </div>
-
-      <div className="grid gap-4 xl:grid-cols-3">
-        <Card className="xl:col-span-2">
-          <CardTitle right={<Link href="/map" className="text-[13px] font-medium text-[#3A3A40] no-underline hover:underline">{hi ? "पूरा नक्शा ›" : "Full map ›"}</Link>}>
-            {hi ? "घाट नक्शा" : "Ghat map"}
-          </CardTitle>
-          {ghats.length > 0 && <GhatMap ghats={ghats} lang={lang} height={380} />}
-        </Card>
-        <div className="xl:max-h-[470px] xl:overflow-y-auto">
+        <div className="xl:max-h-[505px] xl:overflow-y-auto">
           <AiAlerts lang={lang} />
         </div>
       </div>
 
       <Card className="overflow-hidden p-0">
         <div className="px-5 pt-5">
-          <CardTitle right={<span className="text-[12px] text-[#6B6B75]">{hi ? "सबसे ज़रूरी पहले" : "Most urgent first"}</span>}>
+          <CardTitle right={<span className="text-[12px] text-[var(--d-muted)]">{hi ? "सबसे ज़रूरी पहले" : "Most urgent first"}</span>}>
             {hi ? "घाट प्राथमिकता" : "Ghat priority"}
           </CardTitle>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[960px] text-left text-[13px]">
             <thead>
-              <tr className="border-y border-[#EFEFF1] text-[11px] uppercase tracking-wider text-[#8A8A93]">
-                <th className="py-2.5 pl-5 pr-2 font-medium"><input type="checkbox" aria-label="Select all" className="accent-[#111113]" /></th>
+              <tr className="border-y border-[var(--d-hover)] text-[11px] uppercase tracking-wider text-[var(--d-bar-mid)]">
+                <th className="py-2.5 pl-5 pr-2 font-medium"><input type="checkbox" aria-label="Select all" className="accent-[var(--d-ink)]" /></th>
                 <th className="px-2 font-medium">#</th>
                 <th className="px-2 font-medium">{hi ? "घाट" : "Ghat"}</th>
                 <th className="px-2 font-medium">{hi ? "जल निकाय" : "Water body"}</th>
@@ -398,28 +398,28 @@ export function HomeView({ initial }: { initial: Ranking | null }) {
               {ghats.map((g) => {
                 const r = keyReason(g);
                 return (
-                  <tr key={g.slug} className="border-b border-[#F3F3F5] align-middle hover:bg-[#FAFAFB]">
-                    <td className="py-3 pl-5 pr-2"><input type="checkbox" aria-label={g.name.en} className="accent-[#111113]" /></td>
-                    <td className="px-2 tabular-nums text-[#8A8A93]">#{g.rank}</td>
+                  <tr key={g.slug} className="border-b border-[var(--d-subtle3)] align-middle hover:bg-[var(--d-card-alt)]">
+                    <td className="py-3 pl-5 pr-2"><input type="checkbox" aria-label={g.name.en} className="accent-[var(--d-ink)]" /></td>
+                    <td className="px-2 tabular-nums text-[var(--d-bar-mid)]">#{g.rank}</td>
                     <td className="px-2">
-                      <Link href={`/ghat/${g.slug}`} className="font-semibold text-[#111113] no-underline hover:underline">{g.name[lang]}</Link>
+                      <Link href={`/ghat/${g.slug}`} className="font-semibold text-[var(--d-ink)] no-underline hover:underline">{g.name[lang]}</Link>
                     </td>
-                    <td className="px-2 text-[#3A3A40]">{g.water_body_name?.[lang] ?? g.water_body}</td>
+                    <td className="px-2 text-[var(--d-ink2)]">{g.water_body_name?.[lang] ?? g.water_body}</td>
                     <td className="whitespace-nowrap px-2"><Pill tone={TONE[g.tier]}>{TIER_WORD[g.tier][lang]}</Pill></td>
-                    <td className="whitespace-nowrap px-2 tabular-nums text-[#111113]">{readingText(r, lang)}</td>
-                    <td className="whitespace-nowrap px-2 text-[#3A3A40]">{lastTest(r)}</td>
-                    <td className="px-2 text-[#3A3A40]">{r ? <PdfLink source={r.source} /> : "—"}{r && typeof r.source.page !== "number" && (hi ? "जांच नहीं हुई" : "Not tested")}</td>
+                    <td className="whitespace-nowrap px-2 tabular-nums text-[var(--d-ink)]">{readingText(r, lang)}</td>
+                    <td className="whitespace-nowrap px-2 text-[var(--d-ink2)]">{lastTest(r)}</td>
+                    <td className="px-2 text-[var(--d-ink2)]">{r ? <PdfLink source={r.source} /> : "—"}{r && typeof r.source.page !== "number" && (hi ? "जांच नहीं हुई" : "Not tested")}</td>
                     <td className="px-2">
                       <div className="flex flex-wrap gap-1">
                         {g.actions.length === 0 ? "—" : g.actions.map((a) => (
-                          <span key={a.code} title={a.text[lang]} className="whitespace-nowrap rounded-md bg-[#F4F4F5] px-1.5 py-0.5 text-[12px] text-[#3F3F46]">{ACTION_WORD[a.code]?.[lang] ?? a.code}</span>
+                          <span key={a.code} title={a.text[lang]} className="whitespace-nowrap rounded-md bg-[var(--d-subtle2)] px-1.5 py-0.5 text-[12px] text-[var(--d-ink4)]">{ACTION_WORD[a.code]?.[lang] ?? a.code}</span>
                         ))}
                       </div>
                     </td>
                     <td className="px-2 pr-5">
                       <div className="flex items-center gap-2">
                         <ListenButton text={[g.name[lang], TIER_WORD[g.tier][lang], r?.text[lang] ?? ""].filter(Boolean).join(". ")} lang={lang} size="sm" showSource={false} />
-                        <Link href={`/ghat/${g.slug}`} className="text-[#6B6B75] no-underline hover:text-[#111113]" aria-label={g.name.en}>›</Link>
+                        <Link href={`/ghat/${g.slug}`} className="text-[var(--d-muted)] no-underline hover:text-[var(--d-ink)]" aria-label={g.name.en}>›</Link>
                       </div>
                     </td>
                   </tr>
@@ -428,7 +428,7 @@ export function HomeView({ initial }: { initial: Ranking | null }) {
             </tbody>
           </table>
         </div>
-        <p className="px-5 py-3 text-[12px] text-[#6B6B75]">
+        <p className="px-5 py-3 text-[12px] text-[var(--d-muted)]">
           {hi ? "“जांच नहीं हुई” का मतलब पानी साफ़ नहीं है। इसका मतलब है हमें पता नहीं।" : "“Not tested” does not mean clean. It means we do not know."}
         </p>
       </Card>
