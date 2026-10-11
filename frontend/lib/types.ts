@@ -105,6 +105,7 @@ export interface Ranking {
   user_data?: {
     included: boolean;
     rows: number;
+    duplicates_ignored?: number;
     sources: { job_id: string; file_name: string; year: number; festival: string }[];
   };
 }

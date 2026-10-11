@@ -14,7 +14,7 @@ export function UserDataBadge({ ranking }: { ranking: Ranking | null }) {
   return (
     <p className="mt-3 inline-flex flex-wrap items-center gap-x-2 gap-y-1 rounded border border-medium bg-medium-bg px-2.5 py-1 text-sm text-medium" role="note">
       <span aria-hidden>◆</span>
-      <span className="font-semibold">{x.badge(u.rows)}</span>
+      <span className="font-semibold">{x.badge(u.rows, u.duplicates_ignored)}</span>
       <Link
         href="/#intake"
         className="text-link underline underline-offset-2"

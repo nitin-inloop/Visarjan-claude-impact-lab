@@ -111,7 +111,10 @@ const en = {
   acceptedAt: "accepted",
   source: "Source",
   // badge
-  badge: (n: number) => `Includes officer-added data (${n} rows, not yet verified by MPPCB)`,
+  badge: (n: number, dup?: number) =>
+    dup && dup > 0
+      ? `Includes officer-added data (${n} rows; ${dup} duplicate the official pack and are ignored; ${n - dup} new; not yet verified by MPPCB)`
+      : `Includes officer-added data (${n} rows, not yet verified by MPPCB)`,
   badgeLink: "Review in Intake",
   newJob: "Start another",
   notVerified: "officer-added, not yet verified by MPPCB",
@@ -220,7 +223,10 @@ const hi: IntakeDict = {
   remove: "हटाएँ",
   acceptedAt: "स्वीकृत",
   source: "स्रोत",
-  badge: (n: number) => `अधिकारी द्वारा जोड़ा डेटा शामिल (${n} पंक्तियाँ, MPPCB द्वारा अभी सत्यापित नहीं)`,
+  badge: (n: number, dup?: number) =>
+    dup && dup > 0
+      ? `अधिकारी द्वारा जोड़ा डेटा शामिल (${n} पंक्तियाँ; ${dup} आधिकारिक पैक की नकल हैं और अनदेखी की गईं; ${n - dup} नई; MPPCB द्वारा अभी सत्यापित नहीं)`
+      : `अधिकारी द्वारा जोड़ा डेटा शामिल (${n} पंक्तियाँ, MPPCB द्वारा अभी सत्यापित नहीं)`,
   badgeLink: "इनटेक में देखें",
   newJob: "नया शुरू करें",
   notVerified: "अधिकारी द्वारा जोड़ा, MPPCB द्वारा अभी सत्यापित नहीं",
